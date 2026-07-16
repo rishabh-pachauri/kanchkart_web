@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: 45 100% 98%;
+  --foreground: 33 10% 13%;
+  --card: 42 64% 98%;
+  --card-foreground: 33 10% 13%;
+  --popover: 42 64% 98%;
+  --popover-foreground: 33 10% 13%;
+  --primary: 43 52% 54%;
+  --primary-foreground: 33 10% 13%;
+  --secondary: 150 22% 95%;
+  --secondary-foreground: 33 10% 13%;
+  --muted: 38 32% 91%;
+  --muted-foreground: 35 8% 40%;
+  --accent: 5 38% 75%;
+  --accent-foreground: 33 10% 13%;
+  --destructive: 0 72% 51%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 38 27% 84%;
+  --input: 38 27% 84%;
+  --ring: 43 52% 54%;
+  --font-serif: "Cormorant Garamond";
+  --font-sans: "Inter";
+}
+
+* {
+  border-color: hsl(var(--border));
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, rgba(255, 252, 244, 0.96), rgba(255, 252, 244, 1)),
+    hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-feature-settings: "kern";
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: #c9a24a;
+  color: #24211d;
+}
+
+.glass-highlight {
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-highlight::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 10%, rgba(255, 255, 255, 0.42) 48%, transparent 62%);
+  transform: translateX(-120%);
+  animation: sheen 7s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes sheen {
+  0%,
+  55% {
+    transform: translateX(-120%);
+  }
+  78%,
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+.focus-ring {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
+}
+

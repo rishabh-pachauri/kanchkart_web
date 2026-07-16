@@ -1,0 +1,22 @@
+<svg width="1600" height="1000" viewBox="0 0 1600 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1600" height="1000" fill="#FFFCF4"/>
+  <rect y="720" width="1600" height="280" fill="#EDE6D7"/>
+  <path d="M0 720H1600" stroke="#C9A24A" stroke-width="4" opacity=".35"/>
+  <rect x="938" y="191" width="130" height="538" rx="48" fill="#DCEBE8" fill-opacity=".46" stroke="#F8FFFF" stroke-width="8"/>
+  <rect x="973" y="116" width="60" height="108" rx="20" fill="#DCEBE8" fill-opacity=".5" stroke="#F8FFFF" stroke-width="8"/>
+  <path d="M973 228H1033" stroke="#C9A24A" stroke-width="9"/>
+  <path d="M978 262C1014 376 1012 514 982 674" stroke="white" stroke-width="12" stroke-linecap="round" opacity=".7"/>
+  <rect x="1130" y="402" width="248" height="318" rx="42" fill="#EEF5F2" fill-opacity=".6" stroke="#F8FFFF" stroke-width="8"/>
+  <path d="M1130 490H1378" stroke="#C9A24A" stroke-width="8" opacity=".7"/>
+  <path d="M1186 441C1202 514 1197 606 1174 679" stroke="white" stroke-width="10" stroke-linecap="round" opacity=".8"/>
+  <rect x="754" y="455" width="166" height="270" rx="32" fill="#EEF5F2" fill-opacity=".58" stroke="#F8FFFF" stroke-width="8"/>
+  <path d="M754 512H920" stroke="#C9A24A" stroke-width="7" opacity=".65"/>
+  <path d="M798 487C817 559 814 627 792 693" stroke="white" stroke-width="10" stroke-linecap="round" opacity=".8"/>
+  <path d="M1030 701C1119 660 1203 659 1280 701C1207 738 1118 740 1030 701Z" fill="#C9A24A" fill-opacity=".16"/>
+  <circle cx="1360" cy="268" r="138" fill="#C9A24A" fill-opacity=".09"/>
+  <circle cx="1252" cy="250" r="58" fill="#D7A6A1" fill-opacity=".16"/>
+  <path d="M538 252C624 317 661 414 648 546C636 672 557 752 463 757C368 762 289 690 276 562C262 427 327 315 427 252C461 231 504 231 538 252Z" fill="#EEF5F2" fill-opacity=".4"/>
+  <path d="M520 293C586 358 610 453 596 559C583 655 527 710 463 714C397 718 342 666 331 567C316 449 367 356 431 294" stroke="#F8FFFF" stroke-width="12" stroke-linecap="round" opacity=".85"/>
+  <path d="M730 760C893 705 1129 699 1410 760" stroke="#24211D" stroke-opacity=".12" stroke-width="18" stroke-linecap="round"/>
+</svg>
+
