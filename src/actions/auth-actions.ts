@@ -48,7 +48,7 @@ export async function registerAction(_: unknown, formData: FormData) {
   await signIn("credentials", {
     email: parsed.data.email.toLowerCase(),
     password: parsed.data.password,
-    redirectTo: "/account"
+    redirectTo: "/admin"
   });
 }
 
