@@ -9,11 +9,15 @@ export function middleware(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
 
-  // Only check if session token exists for admin routes
+  // Only protect /admin routes
   if (path.startsWith("/admin")) {
-    const sessionToken = request.cookies.get("authjs.session-token");
+    // Check for session token - try multiple possible cookie names
+    const hasSession = 
+      request.cookies.has("authjs.session-token") ||
+      request.cookies.has("next-auth.session-token") ||
+      request.cookies.has("__Secure-authjs.session-token");
     
-    if (!sessionToken) {
+    if (!hasSession) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("callbackUrl", path);
       return NextResponse.redirect(loginUrl);
@@ -24,5 +28,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.svg|manifest.webmanifest).*)"]
+  matcher: ["/((?!_next/static|_next/image|favicon.svg|manifest.webmanifest|api/auth).*)"]
 };
