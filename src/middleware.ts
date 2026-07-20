@@ -1,7 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { auth } from "@/lib/auth";
 
-export async function middleware(request: NextRequest) {
+export function middleware(request: NextRequest) {
   const response = NextResponse.next();
   response.headers.set("X-Content-Type-Options", "nosniff");
   response.headers.set("X-Frame-Options", "DENY");
@@ -10,20 +9,14 @@ export async function middleware(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
 
-  // Protect admin routes
+  // Only check if session token exists for admin routes
   if (path.startsWith("/admin")) {
-    const session = await auth();
-
-    // If no session, redirect to login
-    if (!session?.user) {
+    const sessionToken = request.cookies.get("authjs.session-token");
+    
+    if (!sessionToken) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("callbackUrl", path);
       return NextResponse.redirect(loginUrl);
-    }
-
-    // If session exists but user is not admin, redirect to account
-    if (session.user.role !== "ADMIN") {
-      return NextResponse.redirect(new URL("/account", request.url));
     }
   }
 
