@@ -23,7 +23,7 @@ export default async function ContactPage() {
         </p>
 
         <h1 className="mt-4 font-serif text-5xl font-bold">
-          Let's Connect
+          Let&apos;s Connect
         </h1>
 
         <p className="mt-4 text-muted-foreground text-lg">
@@ -160,7 +160,7 @@ export default async function ContactPage() {
               </h3>
 
               <p className="text-sm">
-                We're happy to help with:
+                We&apos;re happy to help with:
               </p>
 
               <ul className="mt-3 space-y-2 text-sm list-disc pl-5">
