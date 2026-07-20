@@ -14,10 +14,21 @@ const registerSchema = z.object({
 
 export async function loginAction(_: unknown, formData: FormData) {
   try {
+    const email = String(formData.get("email") || "");
+    const password = String(formData.get("password") || "");
+
+    // First, check the user's role to determine redirect
+    const user = await db.user.findUnique({
+      where: { email: email.toLowerCase() },
+      select: { role: true }
+    });
+
+    const redirectUrl = user?.role === "ADMIN" ? "/admin" : "/account";
+
     await signIn("credentials", {
-      email: String(formData.get("email") || ""),
-      password: String(formData.get("password") || ""),
-      redirectTo: "/account"
+      email,
+      password,
+      redirectTo: redirectUrl
     });
   } catch (error) {
     if (error instanceof AuthError) return { error: "Invalid email or password." };
@@ -45,10 +56,11 @@ export async function registerAction(_: unknown, formData: FormData) {
     }
   });
 
+  // New registrations default to CUSTOMER, so redirect to /account
   await signIn("credentials", {
     email: parsed.data.email.toLowerCase(),
     password: parsed.data.password,
-    redirectTo: "/admin"
+    redirectTo: "/account"
   });
 }
 
