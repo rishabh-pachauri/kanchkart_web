@@ -1,69 +1,89 @@
-import Link from "next/link";
-import type { LucideIcon } from "lucide-react";
-import { AlertTriangle, IndianRupee, PackageCheck, ShoppingCart, Users } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { db } from "@/lib/db";
-import { formatPrice } from "@/lib/money";
+import { auth } from "@/lib/auth";
 
-export default async function AdminDashboardPage() {
-  const [orders, customers, lowStock, revenue] = await Promise.all([
-    db.order.count(),
-    db.user.count({ where: { role: "CUSTOMER" } }),
-    db.product.count({ where: { stock: { lte: 5 } } }),
-    db.order.aggregate({ _sum: { grandTotal: true }, where: { paymentStatus: { in: ["PAID", "AUTHORIZED"] } } })
-  ]);
-  const recentOrders = await db.order.findMany({
-    orderBy: { createdAt: "desc" },
-    take: 8
-  });
-  const metrics: Array<{ label: string; value: string | number; icon: LucideIcon }> = [
-    { label: "Revenue", value: formatPrice(revenue._sum.grandTotal), icon: IndianRupee },
-    { label: "Orders", value: orders, icon: ShoppingCart },
-    { label: "Customers", value: customers, icon: Users },
-    { label: "Low stock", value: lowStock, icon: AlertTriangle }
-  ];
+export const metadata = {
+  title: "Dashboard | Admin | KanchKart"
+};
+
+export default async function AdminDashboard() {
+  const session = await auth();
 
   return (
-    <section className="container py-8">
-      <div className="flex flex-col justify-between gap-4 md:flex-row md:items-end">
-        <div>
-          <p className="text-sm font-semibold uppercase text-gold">Admin</p>
-          <h1 className="mt-2 font-serif text-5xl font-semibold">Command center</h1>
+    <div className="p-8">
+      <div className="max-w-6xl mx-auto">
+        
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="font-serif text-4xl font-bold mb-2">
+            Admin Dashboard
+          </h1>
+          <p className="text-muted-foreground">
+            Welcome back, {session?.user?.name || "Admin"}
+          </p>
         </div>
-        <Button asChild variant="gold">
-          <Link href="/admin/products/new">Add product</Link>
-        </Button>
-      </div>
 
-      <div className="mt-8 grid gap-4 md:grid-cols-4">
-        {metrics.map(({ label, value, icon: Icon }) => (
-          <div key={label} className="rounded-md border bg-white/80 p-5">
-            <Icon className="h-5 w-5 text-gold" />
-            <p className="mt-3 text-sm text-muted-foreground">{label}</p>
-            <p className="mt-1 text-2xl font-semibold">{String(value)}</p>
+        {/* Stats Grid */}
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8">
+          
+          <div className="rounded-lg border bg-card p-6">
+            <h3 className="text-sm font-medium text-muted-foreground mb-2">
+              Total Orders
+            </h3>
+            <p className="text-3xl font-bold">
+              0
+            </p>
           </div>
-        ))}
-      </div>
 
-      <div className="mt-8 rounded-md border bg-white/80 p-5">
-        <div className="flex items-center gap-2">
-          <PackageCheck className="h-5 w-5 text-gold" />
-          <h2 className="font-serif text-3xl font-semibold">Recent orders</h2>
+          <div className="rounded-lg border bg-card p-6">
+            <h3 className="text-sm font-medium text-muted-foreground mb-2">
+              Total Revenue
+            </h3>
+            <p className="text-3xl font-bold">
+              ₹0
+            </p>
+          </div>
+
+          <div className="rounded-lg border bg-card p-6">
+            <h3 className="text-sm font-medium text-muted-foreground mb-2">
+              Products
+            </h3>
+            <p className="text-3xl font-bold">
+              0
+            </p>
+          </div>
+
+          <div className="rounded-lg border bg-card p-6">
+            <h3 className="text-sm font-medium text-muted-foreground mb-2">
+              Total Customers
+            </h3>
+            <p className="text-3xl font-bold">
+              0
+            </p>
+          </div>
+
         </div>
-        <div className="mt-4 grid gap-3">
-          {recentOrders.map((order) => (
-            <Link
-              href="/admin/orders"
-              key={order.id}
-              className="flex flex-col justify-between gap-2 rounded-md border bg-ivory p-4 md:flex-row md:items-center"
-            >
-              <span className="font-medium">{order.orderNumber}</span>
-              <span className="text-sm text-muted-foreground">{order.status}</span>
-              <span className="font-semibold">{formatPrice(order.grandTotal)}</span>
-            </Link>
-          ))}
+
+        {/* Content Placeholder */}
+        <div className="rounded-lg border bg-card p-6">
+          <h2 className="text-lg font-semibold mb-4">
+            Quick Links
+          </h2>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <a href="/admin/products" className="p-4 border rounded-lg hover:bg-muted transition">
+              <h3 className="font-medium">Manage Products</h3>
+              <p className="text-sm text-muted-foreground mt-1">Add, edit, and manage your products</p>
+            </a>
+            <a href="/admin/orders" className="p-4 border rounded-lg hover:bg-muted transition">
+              <h3 className="font-medium">View Orders</h3>
+              <p className="text-sm text-muted-foreground mt-1">Track and manage customer orders</p>
+            </a>
+            <a href="/admin/customers" className="p-4 border rounded-lg hover:bg-muted transition">
+              <h3 className="font-medium">Customers</h3>
+              <p className="text-sm text-muted-foreground mt-1">View customer information</p>
+            </a>
+          </div>
         </div>
+
       </div>
-    </section>
+    </div>
   );
 }
