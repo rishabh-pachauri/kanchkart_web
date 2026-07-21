@@ -1,46 +1,74 @@
 import { db } from "@/lib/db";
-import { formatPrice } from "@/lib/money";
+import { formatDate } from "@/lib/utils";
 
-export default async function AdminCustomersPage() {
+export const metadata = {
+  title: "Customers | Admin | KanchKart"
+};
+
+export default async function CustomersPage() {
   const customers = await db.user.findMany({
     where: { role: "CUSTOMER" },
-    include: { orders: { select: { grandTotal: true } }, addresses: { take: 1 } },
+    include: {
+      orders: { select: { id: true } },
+      addresses: { select: { id: true } }
+    },
     orderBy: { createdAt: "desc" },
-    take: 100
+    take: 20
   });
 
   return (
-    <section className="container py-8">
-      <p className="text-sm font-semibold uppercase text-gold">Customers</p>
-      <h1 className="mt-2 font-serif text-5xl font-semibold">Customer management</h1>
-      <div className="mt-8 overflow-hidden rounded-md border bg-white/80">
-        <table className="w-full min-w-[720px] text-left text-sm">
-          <thead className="bg-secondary text-xs uppercase text-muted-foreground">
-            <tr>
-              <th className="p-4">Customer</th>
-              <th className="p-4">Orders</th>
-              <th className="p-4">Lifetime value</th>
-              <th className="p-4">City</th>
-            </tr>
-          </thead>
-          <tbody>
-            {customers.map((customer) => (
-              <tr key={customer.id} className="border-t">
-                <td className="p-4">
-                  <p className="font-medium">{customer.name || "Customer"}</p>
-                  <p className="text-xs text-muted-foreground">{customer.email}</p>
-                </td>
-                <td className="p-4">{customer.orders.length}</td>
-                <td className="p-4">
-                  {formatPrice(customer.orders.reduce((sum, order) => sum + Number(order.grandTotal), 0))}
-                </td>
-                <td className="p-4">{customer.addresses[0]?.city || "-"}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Customers</h1>
+        <p className="text-slate-600">Manage and view customer information</p>
       </div>
-    </section>
+
+      {customers.length === 0 ? (
+        <div className="rounded-lg border border-dashed p-12 text-center">
+          <p className="text-slate-600">No customers yet</p>
+        </div>
+      ) : (
+        <div className="rounded-lg border bg-white overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-slate-50 border-b">
+              <tr>
+                <th className="text-left px-6 py-4 font-semibold text-sm">Name</th>
+                <th className="text-left px-6 py-4 font-semibold text-sm">Email</th>
+                <th className="text-left px-6 py-4 font-semibold text-sm">Phone</th>
+                <th className="text-left px-6 py-4 font-semibold text-sm">Orders</th>
+                <th className="text-left px-6 py-4 font-semibold text-sm">Addresses</th>
+                <th className="text-left px-6 py-4 font-semibold text-sm">Joined</th>
+              </tr>
+            </thead>
+            <tbody>
+              {customers.map((customer) => (
+                <tr key={customer.id} className="border-b hover:bg-slate-50 transition">
+                  <td className="px-6 py-4 font-medium text-slate-900">
+                    {customer.name || "—"}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-slate-600">
+                    {customer.email}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-slate-600">
+                    {customer.phone || "—"}
+                  </td>
+                  <td className="px-6 py-4 font-medium text-center">
+                    <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
+                      {customer.orders.length}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-center text-sm">
+                    {customer.addresses.length}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-slate-600">
+                    {formatDate(customer.createdAt)}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
   );
 }
-
