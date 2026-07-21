@@ -1,72 +1,93 @@
 import Link from "next/link";
-import Image from "next/image";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { db } from "@/lib/db";
-import { formatPrice } from "@/lib/money";
+import { Button } from "@/components/ui/button";
 
-export default async function AdminProductsPage() {
+export const metadata = {
+  title: "Products | Admin | KanchKart"
+};
+
+export default async function ProductsPage() {
   const products = await db.product.findMany({
-    include: { category: true, media: { take: 1 } },
+    include: { category: true },
     orderBy: { createdAt: "desc" },
-    take: 100
+    take: 20
   });
 
   return (
-    <section className="container py-8">
-      <div className="flex items-end justify-between gap-4">
+    <div>
+      <div className="flex justify-between items-center mb-8">
         <div>
-          <p className="text-sm font-semibold uppercase text-gold">Products</p>
-          <h1 className="mt-2 font-serif text-5xl font-semibold">Catalog</h1>
+          <h1 className="text-3xl font-bold mb-2">Products</h1>
+          <p className="text-slate-600">Manage your product inventory</p>
         </div>
         <Button asChild variant="gold">
-          <Link href="/admin/products/new">
-            <Plus className="h-4 w-4" />
-            Add
-          </Link>
+          <Link href="/admin/products/add">Add Product</Link>
         </Button>
       </div>
-      <div className="mt-8 overflow-hidden rounded-md border bg-white/80">
-        <table className="w-full min-w-[760px] text-left text-sm">
-          <thead className="bg-secondary text-xs uppercase text-muted-foreground">
-            <tr>
-              <th className="p-4">Product</th>
-              <th className="p-4">Category</th>
-              <th className="p-4">Price</th>
-              <th className="p-4">Stock</th>
-              <th className="p-4">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map((product) => (
-              <tr key={product.id} className="border-t">
-                <td className="p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="relative h-12 w-12 overflow-hidden rounded-md bg-secondary">
-                      <Image
-                        src={product.media[0]?.url || "/brand/drinkware.svg"}
-                        alt={product.name}
-                        fill
-                        sizes="48px"
-                        className="object-cover"
-                      />
-                    </div>
-                    <div>
-                      <p className="font-medium">{product.name}</p>
-                      <p className="text-xs text-muted-foreground">{product.sku}</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="p-4">{product.category.name}</td>
-                <td className="p-4">{formatPrice(product.price)}</td>
-                <td className="p-4">{product.stock}</td>
-                <td className="p-4">{product.isActive ? "Active" : "Hidden"}</td>
+
+      {products.length === 0 ? (
+        <div className="rounded-lg border border-dashed p-12 text-center">
+          <p className="text-slate-600 mb-4">No products yet</p>
+          <Button asChild variant="outline">
+            <Link href="/admin/products/add">Create First Product</Link>
+          </Button>
+        </div>
+      ) : (
+        <div className="rounded-lg border bg-white overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-slate-50 border-b">
+              <tr>
+                <th className="text-left px-6 py-4 font-semibold text-sm">Name</th>
+                <th className="text-left px-6 py-4 font-semibold text-sm">Category</th>
+                <th className="text-left px-6 py-4 font-semibold text-sm">Price</th>
+                <th className="text-left px-6 py-4 font-semibold text-sm">Stock</th>
+                <th className="text-left px-6 py-4 font-semibold text-sm">Status</th>
+                <th className="text-left px-6 py-4 font-semibold text-sm">Action</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
+            </thead>
+            <tbody>
+              {products.map((product) => (
+                <tr key={product.id} className="border-b hover:bg-slate-50 transition">
+                  <td className="px-6 py-4">
+                    <p className="font-medium text-slate-900">{product.name}</p>
+                    <p className="text-sm text-slate-600">{product.sku}</p>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-slate-600">
+                    {product.category.name}
+                  </td>
+                  <td className="px-6 py-4 font-medium">₹{product.price.toString()}</td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={`text-sm font-medium px-2 py-1 rounded ${
+                        product.stock > product.lowStockAt
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                      }`}
+                    >
+                      {product.stock}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    {product.isActive ? (
+                      <span className="text-sm text-green-700">Active</span>
+                    ) : (
+                      <span className="text-sm text-gray-500">Inactive</span>
+                    )}
+                  </td>
+                  <td className="px-6 py-4">
+                    <Link
+                      href={`/admin/products/${product.id}`}
+                      className="text-blue-600 hover:underline text-sm"
+                    >
+                      Edit
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
   );
 }
-
