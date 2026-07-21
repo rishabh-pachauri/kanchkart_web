@@ -1,67 +1,105 @@
-import { updateOrderStatusAction } from "@/actions/admin-actions";
+import Link from "next/link";
 import { db } from "@/lib/db";
-import { formatPrice } from "@/lib/money";
+import { formatDate } from "@/lib/utils";
 
-export default async function AdminOrdersPage() {
+export const metadata = {
+  title: "Orders | Admin | KanchKart"
+};
+
+export default async function OrdersPage() {
   const orders = await db.order.findMany({
     include: { items: true },
     orderBy: { createdAt: "desc" },
-    take: 100
+    take: 20
   });
 
+  const statusColors: Record<string, string> = {
+    ORDER_RECEIVED: "bg-blue-100 text-blue-700",
+    CONFIRMED: "bg-blue-100 text-blue-700",
+    PACKED: "bg-yellow-100 text-yellow-700",
+    DISPATCHED: "bg-purple-100 text-purple-700",
+    IN_TRANSIT: "bg-purple-100 text-purple-700",
+    OUT_FOR_DELIVERY: "bg-orange-100 text-orange-700",
+    DELIVERED: "bg-green-100 text-green-700",
+    CANCELLED: "bg-red-100 text-red-700",
+    REFUNDED: "bg-gray-100 text-gray-700"
+  };
+
   return (
-    <section className="container py-8">
-      <p className="text-sm font-semibold uppercase text-gold">Orders</p>
-      <h1 className="mt-2 font-serif text-5xl font-semibold">Order management</h1>
-      <div className="mt-8 grid gap-4">
-        {orders.map((order) => (
-          <div key={order.id} className="rounded-md border bg-white/80 p-5">
-            <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
-              <div>
-                <h2 className="font-serif text-3xl font-semibold">{order.orderNumber}</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {order.customerName} · {order.customerEmail} · {order.items.length} item(s)
-                </p>
-              </div>
-              <p className="font-semibold">{formatPrice(order.grandTotal)}</p>
-            </div>
-            <form action={updateOrderStatusAction} className="mt-5 grid gap-3 md:grid-cols-[1fr_1fr_1fr_auto]">
-              <input type="hidden" name="orderId" value={order.id} />
-              <select name="status" defaultValue={order.status} className="focus-ring h-11 rounded-md border bg-white px-3 text-sm">
-                {[
-                  "ORDER_RECEIVED",
-                  "CONFIRMED",
-                  "PACKED",
-                  "DISPATCHED",
-                  "IN_TRANSIT",
-                  "OUT_FOR_DELIVERY",
-                  "DELIVERED",
-                  "CANCELLED",
-                  "REFUNDED"
-                ].map((status) => (
-                  <option key={status} value={status}>
-                    {status.replaceAll("_", " ")}
-                  </option>
-                ))}
-              </select>
-              <input
-                name="courierPartner"
-                defaultValue={order.courierPartner || ""}
-                placeholder="Courier"
-                className="focus-ring h-11 rounded-md border bg-white px-3 text-sm"
-              />
-              <input
-                name="trackingNumber"
-                defaultValue={order.trackingNumber || ""}
-                placeholder="Tracking number"
-                className="focus-ring h-11 rounded-md border bg-white px-3 text-sm"
-              />
-              <button className="rounded-md bg-charcoal px-5 text-sm font-semibold text-ivory">Update</button>
-            </form>
-          </div>
-        ))}
+    <div>
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold mb-2">Orders</h1>
+        <p className="text-slate-600">Track and manage customer orders</p>
       </div>
-    </section>
+
+      {orders.length === 0 ? (
+        <div className="rounded-lg border border-dashed p-12 text-center">
+          <p className="text-slate-600">No orders yet</p>
+        </div>
+      ) : (
+        <div className="rounded-lg border bg-white overflow-hidden">
+          <table className="w-full">
+            <thead className="bg-slate-50 border-b">
+              <tr>
+                <th className="text-left px-6 py-4 font-semibold text-sm">Order ID</th>
+                <th className="text-left px-6 py-4 font-semibold text-sm">Customer</th>
+                <th className="text-left px-6 py-4 font-semibold text-sm">Total</th>
+                <th className="text-left px-6 py-4 font-semibold text-sm">Status</th>
+                <th className="text-left px-6 py-4 font-semibold text-sm">Payment</th>
+                <th className="text-left px-6 py-4 font-semibold text-sm">Date</th>
+                <th className="text-left px-6 py-4 font-semibold text-sm">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {orders.map((order) => (
+                <tr key={order.id} className="border-b hover:bg-slate-50 transition">
+                  <td className="px-6 py-4 font-mono text-sm font-medium">
+                    {order.orderNumber}
+                  </td>
+                  <td className="px-6 py-4">
+                    <p className="font-medium text-slate-900">{order.customerName}</p>
+                    <p className="text-sm text-slate-600">{order.customerEmail}</p>
+                  </td>
+                  <td className="px-6 py-4 font-semibold">
+                    ₹{order.grandTotal.toString()}
+                  </td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={`text-xs font-semibold px-2 py-1 rounded ${
+                        statusColors[order.status] || "bg-gray-100 text-gray-700"
+                      }`}
+                    >
+                      {order.status.replaceAll("_", " ")}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm">
+                    <span
+                      className={`text-xs font-semibold px-2 py-1 rounded ${
+                        order.paymentStatus === "PAID"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-yellow-100 text-yellow-700"
+                      }`}
+                    >
+                      {order.paymentStatus}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-slate-600">
+                    {formatDate(order.createdAt)}
+                  </td>
+                  <td className="px-6 py-4">
+                    <Link
+                      href={`/admin/orders/${order.id}`}
+                      className="text-blue-600 hover:underline text-sm"
+                    >
+                      View
+                    </Link>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
   );
 }
-
