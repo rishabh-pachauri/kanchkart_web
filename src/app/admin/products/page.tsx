@@ -21,7 +21,7 @@ export default async function ProductsPage() {
           <p className="text-slate-600">Manage your product inventory</p>
         </div>
         <Button asChild variant="gold">
-          <Link href="/admin/products/add">Add Product</Link>
+          <Link href="/admin/products/new">Add Product</Link>
         </Button>
       </div>
 
@@ -29,7 +29,7 @@ export default async function ProductsPage() {
         <div className="rounded-lg border border-dashed p-12 text-center">
           <p className="text-slate-600 mb-4">No products yet</p>
           <Button asChild variant="outline">
-            <Link href="/admin/products/add">Create First Product</Link>
+            <Link href="/admin/products/new">Create First Product</Link>
           </Button>
         </div>
       ) : (

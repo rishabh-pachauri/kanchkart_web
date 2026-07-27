@@ -18,13 +18,13 @@ export async function createProductAction(_: unknown, formData: FormData) {
     description: formData.get("description"),
     shortDescription: formData.get("shortDescription"),
     categoryId: formData.get("categoryId"),
-    collectionId: formData.get("collectionId") || undefined,
+    collectionId: formData.get("collectionId"),
     price: formData.get("price"),
-    compareAtPrice: formData.get("compareAtPrice") || undefined,
+    compareAtPrice: formData.get("compareAtPrice"),
     stock: formData.get("stock"),
     lowStockAt: formData.get("lowStockAt"),
     gstPercent: formData.get("gstPercent"),
-    imageUrl: formData.get("imageUrl") || undefined,
+    imageUrl: formData.get("imageUrl"),
     isActive: formData.get("isActive") === "on",
     isFeatured: formData.get("isFeatured") === "on",
     isBestSeller: formData.get("isBestSeller") === "on",
@@ -32,43 +32,123 @@ export async function createProductAction(_: unknown, formData: FormData) {
   });
 
   if (!parsed.success) {
-    return { error: "Check the product fields and try again." };
+    const firstError = parsed.error.issues[0]?.message || "Check the product fields and try again.";
+    return { error: firstError };
   }
 
-  const product = await db.product.create({
-    data: {
-      name: parsed.data.name,
-      slug: parsed.data.slug,
-      sku: parsed.data.sku,
-      description: parsed.data.description,
-      shortDescription: parsed.data.shortDescription,
-      categoryId: parsed.data.categoryId,
-      collectionId: parsed.data.collectionId,
-      price: parsed.data.price,
-      compareAtPrice: parsed.data.compareAtPrice,
-      stock: parsed.data.stock,
-      lowStockAt: parsed.data.lowStockAt,
-      gstPercent: parsed.data.gstPercent,
-      isActive: parsed.data.isActive,
-      isFeatured: parsed.data.isFeatured,
-      isBestSeller: parsed.data.isBestSeller,
-      isNewArrival: parsed.data.isNewArrival,
-      seoTitle: parsed.data.name,
-      seoDesc: parsed.data.shortDescription,
-      media: parsed.data.imageUrl
-        ? {
-            create: {
-              url: parsed.data.imageUrl,
-              alt: parsed.data.name,
-              position: 0
+  let createdProductSlug: string;
+
+  try {
+    const product = await db.product.create({
+      data: {
+        name: parsed.data.name,
+        slug: parsed.data.slug,
+        sku: parsed.data.sku,
+        description: parsed.data.description,
+        shortDescription: parsed.data.shortDescription,
+        categoryId: parsed.data.categoryId,
+        collectionId: parsed.data.collectionId,
+        price: parsed.data.price,
+        compareAtPrice: parsed.data.compareAtPrice,
+        stock: parsed.data.stock,
+        lowStockAt: parsed.data.lowStockAt,
+        gstPercent: parsed.data.gstPercent,
+        isActive: parsed.data.isActive,
+        isFeatured: parsed.data.isFeatured,
+        isBestSeller: parsed.data.isBestSeller,
+        isNewArrival: parsed.data.isNewArrival,
+        seoTitle: parsed.data.name,
+        seoDesc: parsed.data.shortDescription,
+        media: parsed.data.imageUrl
+          ? {
+              create: {
+                url: parsed.data.imageUrl,
+                alt: parsed.data.name,
+                position: 0
+              }
             }
-          }
-        : undefined
+          : undefined
+      }
+    });
+    createdProductSlug = product.slug;
+  } catch (err: unknown) {
+    const errorMsg = String(err);
+    if (errorMsg.includes("P2002") || errorMsg.includes("Unique constraint")) {
+      return { error: "A product with this SKU or Name/Slug already exists." };
     }
-  });
+    return { error: "Failed to create product in database. Please check fields and try again." };
+  }
 
   revalidatePath("/shop");
-  redirect(`/admin/products?created=${product.slug}`);
+  revalidatePath("/admin/products");
+  redirect(`/admin/products?created=${createdProductSlug}`);
+}
+
+export async function updateProductAction(_: unknown, formData: FormData) {
+  await requireAdmin();
+  const id = String(formData.get("id") || "");
+  if (!id) return { error: "Product ID is missing." };
+
+  const parsed = productSchema.safeParse({
+    name: formData.get("name"),
+    slug: formData.get("slug") || slugify(String(formData.get("name") || "")),
+    sku: formData.get("sku"),
+    description: formData.get("description"),
+    shortDescription: formData.get("shortDescription"),
+    categoryId: formData.get("categoryId"),
+    collectionId: formData.get("collectionId"),
+    price: formData.get("price"),
+    compareAtPrice: formData.get("compareAtPrice"),
+    stock: formData.get("stock"),
+    lowStockAt: formData.get("lowStockAt"),
+    gstPercent: formData.get("gstPercent"),
+    imageUrl: formData.get("imageUrl"),
+    isActive: formData.get("isActive") === "on",
+    isFeatured: formData.get("isFeatured") === "on",
+    isBestSeller: formData.get("isBestSeller") === "on",
+    isNewArrival: formData.get("isNewArrival") === "on"
+  });
+
+  if (!parsed.success) {
+    const firstError = parsed.error.issues[0]?.message || "Check the product fields and try again.";
+    return { error: firstError };
+  }
+
+  try {
+    await db.product.update({
+      where: { id },
+      data: {
+        name: parsed.data.name,
+        slug: parsed.data.slug,
+        sku: parsed.data.sku,
+        description: parsed.data.description,
+        shortDescription: parsed.data.shortDescription,
+        categoryId: parsed.data.categoryId,
+        collectionId: parsed.data.collectionId,
+        price: parsed.data.price,
+        compareAtPrice: parsed.data.compareAtPrice,
+        stock: parsed.data.stock,
+        lowStockAt: parsed.data.lowStockAt,
+        gstPercent: parsed.data.gstPercent,
+        isActive: parsed.data.isActive,
+        isFeatured: parsed.data.isFeatured,
+        isBestSeller: parsed.data.isBestSeller,
+        isNewArrival: parsed.data.isNewArrival,
+        seoTitle: parsed.data.name,
+        seoDesc: parsed.data.shortDescription
+      }
+    });
+  } catch (err: unknown) {
+    const errorMsg = String(err);
+    if (errorMsg.includes("P2002") || errorMsg.includes("Unique constraint")) {
+      return { error: "A product with this SKU or Name/Slug already exists." };
+    }
+    return { error: "Failed to update product in database." };
+  }
+
+  revalidatePath("/shop");
+  revalidatePath("/admin/products");
+  redirect("/admin/products?updated=true");
 }
 
 const orderStatusSchema = z.object({
