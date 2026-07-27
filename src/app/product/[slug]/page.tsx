@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AddToCartButton } from "@/components/cart/add-to-cart-button";
 import { ProductCard } from "@/components/product-card";
@@ -86,7 +87,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
               }}
             />
             <Button asChild variant="outline">
-              <a href="/checkout">Buy now</a>
+              <Link href="/checkout">Buy now</Link>
             </Button>
           </div>
           <div className="mt-8 grid gap-4 rounded-md border bg-white/70 p-5">

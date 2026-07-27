@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { CreditCard, Truck } from "lucide-react";
@@ -158,7 +159,7 @@ export function CheckoutClient() {
       <div className="rounded-md border bg-white/70 p-8 text-center">
         <h2 className="font-serif text-3xl font-semibold">Your cart is empty</h2>
         <Button asChild className="mt-5">
-          <a href="/shop">Shop now</a>
+          <Link href="/shop">Shop now</Link>
         </Button>
       </div>
     );

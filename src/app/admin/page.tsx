@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { auth } from "@/lib/auth";
 
 export const metadata = {
@@ -45,29 +46,29 @@ export default async function AdminDashboard() {
         <div className="border rounded-lg p-6 bg-white">
           <h2 className="text-xl font-bold mb-4">Quick Links</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <a
+            <Link
               href="/admin/products"
               className="p-4 border rounded-lg hover:bg-slate-50 transition"
             >
               <h3 className="font-semibold mb-1">Products</h3>
               <p className="text-sm text-slate-600">Manage your inventory</p>
-            </a>
+            </Link>
 
-            <a
+            <Link
               href="/admin/orders"
               className="p-4 border rounded-lg hover:bg-slate-50 transition"
             >
               <h3 className="font-semibold mb-1">Orders</h3>
               <p className="text-sm text-slate-600">View customer orders</p>
-            </a>
+            </Link>
 
-            <a
+            <Link
               href="/admin/customers"
               className="p-4 border rounded-lg hover:bg-slate-50 transition"
             >
               <h3 className="font-semibold mb-1">Customers</h3>
               <p className="text-sm text-slate-600">Manage customers</p>
-            </a>
+            </Link>
           </div>
         </div>
       </div>
