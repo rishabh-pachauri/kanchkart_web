@@ -69,6 +69,7 @@ async function main() {
     }
   });
 
+  const products = [
     {
       name: "Pure Glass Textured Water Bottle",
       slug: "pure-glass-textured-water-bottle",
