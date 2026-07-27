@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Printer, Truck, CheckCircle2, PackageCheck, Package, Clock, ShieldCheck, MapPin } from "lucide-react";
+import { ArrowLeft, Printer, Truck, CheckCircle2, PackageCheck, Package, Clock, ShieldCheck, MapPin, CreditCard } from "lucide-react";
 import { updateOrderStatusAction } from "@/actions/admin-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

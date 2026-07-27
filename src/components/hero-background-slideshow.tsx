@@ -45,7 +45,8 @@ export function HeroBackgroundSlideshow() {
         return (
           <div
             key={img.url}
-            className={`absolute inset-0 transition-opacity duration-[2500ms] ease-in-out ${
+            style={{ transitionDuration: "2500ms" }}
+            className={`absolute inset-0 transition-opacity ease-in-out ${
               isActive ? "opacity-85 z-10" : "opacity-0 z-0 pointer-events-none"
             }`}
           >
@@ -55,7 +56,8 @@ export function HeroBackgroundSlideshow() {
               fill
               priority={idx === 0}
               sizes="100vw"
-              className={`object-cover transition-transform duration-[8000ms] ease-out ${
+              style={{ transitionDuration: "8000ms" }}
+              className={`object-cover transition-transform ease-out ${
                 isActive ? "scale-100" : "scale-105"
               }`}
             />

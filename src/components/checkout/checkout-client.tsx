@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { CreditCard, Truck } from "lucide-react";
+import { CreditCard } from "lucide-react";
 import { useCart } from "@/components/cart/cart-provider";
 import { GoogleAddressAutocomplete } from "@/components/checkout/google-address-autocomplete";
 import { Button } from "@/components/ui/button";
@@ -57,7 +57,7 @@ export function CheckoutClient() {
   const { items, subtotal, clearCart } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<"RAZORPAY" | "COD">("RAZORPAY");
+  const paymentMethod = "RAZORPAY";
   const shipping = shippingFor(subtotal);
   const total = useMemo(() => subtotal + shipping, [shipping, subtotal]);
 

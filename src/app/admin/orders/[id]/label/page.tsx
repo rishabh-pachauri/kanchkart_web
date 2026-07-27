@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Printer, MapPin, Package, ShieldCheck } from "lucide-react";
 import { PrintLabelButton } from "@/components/admin/print-label-button";
 import { db } from "@/lib/db";
 import { formatPrice, toNumber } from "@/lib/money";
