@@ -69,7 +69,29 @@ async function main() {
     }
   });
 
-  const products = [
+    {
+      name: "Pure Glass Textured Water Bottle",
+      slug: "pure-glass-textured-water-bottle",
+      sku: "KK-BTL-PG-199",
+      description:
+        "Switch from plastic to pure glass. Crafted from high-grade borosilicate glass, this eco-friendly 750ml water bottle features an elegant textured beaded grip and a leak-proof stainless steel cap. Pure, safe, and sustainable for everyday hydration.",
+      shortDescription: "Pure, safe, and sustainable 750ml glass water bottle with stainless steel cap.",
+      categoryId: bottles.id,
+      price: "199.00",
+      compareAtPrice: "299.00",
+      stock: 500,
+      image: "/products/pure-glass-water-bottle.jpg",
+      isFeatured: true,
+      isBestSeller: true,
+      isNewArrival: true,
+      specifications: {
+        capacity: "750 ml",
+        material: "Borosilicate Glass",
+        cap: "Stainless Steel Cap",
+        care: "Dishwasher safe",
+        safety: "Lead-free & BPA-free"
+      }
+    },
     {
       name: "Borosilicate Glass Water Bottle",
       slug: "borosilicate-glass-water-bottle",
