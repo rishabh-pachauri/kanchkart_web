@@ -78,7 +78,7 @@ export async function registerAction(_: unknown, formData: FormData) {
     await signIn("credentials", {
       email,
       password: parsed.data.password,
-      redirectTo: "/account"
+      redirectTo: "/account" 
     });
   } catch (_err) {
     return { error: "Failed to create account. Please try again." };
