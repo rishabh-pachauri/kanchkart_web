@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Printer, Truck, CheckCircle2, PackageCheck, Package, Clock, ShieldCheck, MapPin, CreditCard } from "lucide-react";
+import { ArrowLeft, Printer, Package, MapPin, CreditCard } from "lucide-react";
 import { updateOrderStatusAction } from "@/actions/admin-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,11 +41,11 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
   const primaryPayment = order.payments[0];
 
   const statusWorkflow = [
-    { key: "ORDER_RECEIVED", label: "Order Received", icon: Clock },
-    { key: "CONFIRMED", label: "Accepted", icon: CheckCircle2 },
-    { key: "PACKED", label: "Ready to Dispatch (Packed)", icon: PackageCheck },
-    { key: "DISPATCHED", label: "Dispatched (In Transit)", icon: Truck },
-    { key: "DELIVERED", label: "Delivered", icon: ShieldCheck }
+    { key: "ORDER_RECEIVED", label: "Order Received" },
+    { key: "CONFIRMED", label: "Accepted" },
+    { key: "PACKED", label: "Ready to Dispatch (Packed)" },
+    { key: "DISPATCHED", label: "Dispatched (In Transit)" },
+    { key: "DELIVERED", label: "Delivered" }
   ];
 
   return (
@@ -149,7 +149,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
           </Button>
         </form>
 
-        {/* Quick Quick Status Action Buttons */}
+        {/* Quick Status Action Buttons */}
         <div className="pt-4 border-t border-slate-800/80 flex flex-wrap gap-2">
           <span className="text-xs text-slate-400 self-center font-medium mr-2">Quick Actions:</span>
           {statusWorkflow.map((step) => (
