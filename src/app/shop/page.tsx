@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Filter, Search, SlidersHorizontal } from "lucide-react";
+import { Search, SlidersHorizontal } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { ProductCard } from "@/components/product-card";
 import { Button } from "@/components/ui/button";

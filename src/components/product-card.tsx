@@ -1,9 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Star, ShoppingBag } from "lucide-react";
+import { Star } from "lucide-react";
 import type { Product, ProductMedia, Review } from "@prisma/client";
 import { AddToCartButton } from "@/components/cart/add-to-cart-button";
-import { Badge } from "@/components/ui/badge";
 import { formatPrice, toNumber } from "@/lib/money";
 
 type ProductCardProduct = Product & {

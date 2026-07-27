@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Image as ImageIcon, Sparkles, CheckCircle2, AlertCircle } from "lucide-react";
+import { Image as ImageIcon, Sparkles, AlertCircle } from "lucide-react";
 import Image from "next/image";
 
 type ProductWithMedia = Product & {
@@ -209,7 +209,7 @@ export function ProductForm({
               placeholder="e.g. /products/pure-glass-water-bottle.jpg or Cloudinary URL"
               className="bg-slate-950 border-slate-800 text-white placeholder:text-slate-600 focus:border-amber-400"
             />
-            <p className="text-xs text-slate-400">You can use local assets inside `/public/products/` or any external image URL.</p>
+            <p className="text-xs text-slate-400">You can use local assets inside &quot;/public/products/&quot; or any external image URL.</p>
           </div>
 
           {/* Live Preview Box */}

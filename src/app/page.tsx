@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Check, ShieldCheck, Sparkles, Truck, Star, Award, HeartHandshake } from "lucide-react";
+import { ArrowRight, Check, ShieldCheck, Sparkles, Truck, Star, Award } from "lucide-react";
 import { ProductCard } from "@/components/product-card";
 import { SectionHeading } from "@/components/section-heading";
 import { Button } from "@/components/ui/button";
