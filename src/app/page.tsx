@@ -1,15 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Check, ShieldCheck, Sparkles, Truck, Award } from "lucide-react";
+import { ArrowRight, Check, ShieldCheck, Sparkles, Truck } from "lucide-react";
 import { ProductCard } from "@/components/product-card";
 import { SectionHeading } from "@/components/section-heading";
 import { Button } from "@/components/ui/button";
+import { HeroBackgroundSlideshow } from "@/components/hero-background-slideshow";
 import { getHomeContent } from "@/lib/commerce";
 
 export default async function HomePage() {
   const { hero, promo, featuredProducts, categories, collections } = await getHomeContent();
-  const heroImage = hero?.imageUrl || "/brand/hero-glassware.svg";
-  const bgImage = "/brand/nature-glass-bg.jpg"; // Generated Nature Glass Over Plastic hero background
 
   const promoItems =
     (promo?.metadata as { items?: string[] } | null)?.items ?? [
@@ -21,84 +20,51 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* Hero Section with Full-Bleed Nature Background Image (Glass Over Plastic) */}
+      {/* Hero Section with Dynamic Full-Bleed Nature Slideshow (Glass Over Plastic) */}
       <section className="relative overflow-hidden border-b border-gold/15 bg-charcoal text-ivory">
-        {/* Full Cover Nature Background Image */}
-        <div className="absolute inset-0 z-0 opacity-35">
-          <Image
-            src={bgImage}
-            alt="Pure Glass Over Plastic Nature Background"
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover"
-          />
-        </div>
+        {/* Dynamic Background Image Slideshow Component */}
+        <HeroBackgroundSlideshow />
 
-        {/* Dark Gradient Overlay for optimal contrast */}
-        <div className="absolute inset-0 z-0 bg-gradient-to-r from-charcoal/95 via-charcoal/80 to-charcoal/60 backdrop-blur-[1px]" />
-
-        <div className="container relative z-10 grid min-h-[calc(100vh-6rem)] items-center gap-12 py-16 lg:grid-cols-[1fr_1.1fr]">
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-gold/15 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-gold shadow-sm mb-6">
-              <Sparkles className="h-3.5 w-3.5 text-gold" />
-              <span>{hero?.eyebrow || "Pure Glassware For Modern Homes"}</span>
+        <div className="container relative z-10 grid min-h-[calc(100vh-4rem)] items-center py-20 lg:py-28">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-gold/40 bg-gold/20 backdrop-blur-md px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-gold shadow-lg mb-6">
+              <Sparkles className="h-3.5 w-3.5 text-gold animate-pulse" />
+              <span>{hero?.eyebrow || "Glass Over Plastic — Pure Hydration"}</span>
             </div>
 
-            <h1 className="font-serif text-5xl font-bold leading-[1.08] text-white md:text-7xl">
+            <h1 className="font-serif text-5xl font-bold leading-[1.08] text-white drop-shadow-md sm:text-6xl md:text-7xl">
               {hero?.title || "Luxury glassware, crafted beautifully practical."}
             </h1>
 
-            <p className="mt-6 text-lg leading-relaxed text-ivory/80">
+            <p className="mt-6 text-lg md:text-xl leading-relaxed text-ivory/95 font-medium drop-shadow-sm max-w-2xl">
               {hero?.body ||
-                "KanchKart curates durable borosilicate bottles, airtight jars, hand-blown cups, and kitchen storage pieces designed for healthy, eco-friendly living."}
+                "Choose pure borosilicate glass water bottles, airtight jars, hand-blown cups, and kitchen storage pieces designed for healthy, plastic-free living."}
             </p>
 
-            <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-              <Button asChild variant="gold" size="lg" className="rounded-full shadow-gold-glow">
+            <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-center">
+              <Button asChild variant="gold" size="lg" className="rounded-full shadow-gold-glow px-8 py-6 text-base font-bold">
                 <Link href={hero?.ctaHref || "/shop"}>
-                  {hero?.ctaLabel || "Shop Glassware Collection"} <ArrowRight className="ml-2 h-4 w-4" />
+                  {hero?.ctaLabel || "Shop Glassware Collection"} <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="rounded-full border-ivory/30 text-ivory hover:border-gold hover:bg-white/10">
+              <Button asChild variant="outline" size="lg" className="rounded-full border-white/40 bg-black/30 backdrop-blur-md text-ivory hover:border-gold hover:bg-black/50 px-8 py-6 text-base">
                 <Link href="/collections">Explore Collections</Link>
               </Button>
             </div>
 
-            {/* Genuine Key Features Bar */}
-            <div className="mt-12 grid grid-cols-3 gap-6 pt-8 border-t border-white/15">
+            {/* Key Features Bar */}
+            <div className="mt-14 grid grid-cols-3 gap-6 pt-8 border-t border-white/20 backdrop-blur-sm max-w-2xl">
               <div>
-                <p className="font-bold text-base text-gold">100% Pure Glass</p>
-                <p className="text-xs text-ivory/60 mt-0.5">BPA & Lead Free</p>
+                <p className="font-bold text-lg text-gold">100% Pure Glass</p>
+                <p className="text-xs text-ivory/80 mt-0.5">BPA & Lead Free</p>
               </div>
               <div>
-                <p className="font-bold text-base text-gold">Safe Delivery</p>
-                <p className="text-xs text-ivory/60 mt-0.5">Protected Pan-India Shipping</p>
+                <p className="font-bold text-lg text-gold">Safe Delivery</p>
+                <p className="text-xs text-ivory/80 mt-0.5">Protected Pan-India Transit</p>
               </div>
               <div>
-                <p className="font-bold text-base text-gold">Borosilicate</p>
-                <p className="text-xs text-ivory/60 mt-0.5">Thermal Shock Resistant</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="relative">
-            <div className="glass-highlight relative aspect-[4/3] overflow-hidden rounded-2xl border border-gold/30 bg-white/5 shadow-2xl backdrop-blur-md">
-              <Image
-                src={heroImage}
-                alt="Premium KanchKart glass bottles, jars, and cups"
-                fill
-                priority
-                sizes="(min-width: 1024px) 55vw, 100vw"
-                className="object-cover transition-transform duration-700 hover:scale-105"
-              />
-            </div>
-            {/* Accent badge */}
-            <div className="absolute -bottom-5 -left-5 rounded-xl border border-gold/30 bg-charcoal/90 backdrop-blur-md p-4 shadow-xl hidden sm:flex items-center gap-3">
-              <Award className="h-8 w-8 text-gold" />
-              <div>
-                <p className="text-xs font-bold text-ivory">Pure Glass Standard</p>
-                <p className="text-[11px] text-ivory/70">Eco-Friendly & Sustainable</p>
+                <p className="font-bold text-lg text-gold">Borosilicate</p>
+                <p className="text-xs text-ivory/80 mt-0.5">Thermal Shock Resistant</p>
               </div>
             </div>
           </div>
