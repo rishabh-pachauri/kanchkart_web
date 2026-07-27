@@ -31,7 +31,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
       address: true,
       payments: true,
       trackingEvents: {
-        orderBy: { createdAt: "desc" }
+        orderBy: { happenedAt: "desc" }
       }
     }
   });

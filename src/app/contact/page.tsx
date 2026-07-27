@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Phone, Mail, Globe, Instagram, MessageCircle, MapPin, ExternalLink, ArrowRight } from "lucide-react";
 import { ContactForm } from "@/components/contact-form";
 import { siteMetadata } from "@/lib/seo";
