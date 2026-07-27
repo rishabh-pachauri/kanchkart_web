@@ -37,7 +37,8 @@ html {
 body {
   min-height: 100vh;
   background:
-    linear-gradient(180deg, rgba(255, 252, 244, 0.96), rgba(255, 252, 244, 1)),
+    radial-gradient(circle at 50% 0%, rgba(201, 162, 74, 0.07), transparent 45%),
+    linear-gradient(180deg, rgba(255, 252, 244, 0.98), rgba(255, 252, 244, 1)),
     hsl(var(--background));
   color: hsl(var(--foreground));
   font-feature-settings: "kern";
@@ -49,6 +50,35 @@ body {
   color: #24211d;
 }
 
+/* Glassmorphism & Luxury Styling Utilities */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(201, 162, 74, 0.18);
+}
+
+.glass-panel-dark {
+  background: rgba(36, 33, 29, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.gold-gradient-text {
+  background: linear-gradient(135deg, #24211D 0%, #C9A24A 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.gold-glow {
+  box-shadow: 0 0 25px rgba(201, 162, 74, 0.22);
+}
+
+.gold-glow-sm {
+  box-shadow: 0 0 12px rgba(201, 162, 74, 0.15);
+}
+
 .glass-highlight {
   position: relative;
   overflow: hidden;
@@ -58,9 +88,9 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(115deg, transparent 10%, rgba(255, 255, 255, 0.42) 48%, transparent 62%);
+  background: linear-gradient(115deg, transparent 10%, rgba(255, 255, 255, 0.45) 48%, transparent 62%);
   transform: translateX(-120%);
-  animation: sheen 7s ease-in-out infinite;
+  animation: sheen 6s ease-in-out infinite;
   pointer-events: none;
 }
 
@@ -75,7 +105,35 @@ body {
   }
 }
 
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
 .focus-ring {
   @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background;
 }
 
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #FFFCF4;
+}
+::-webkit-scrollbar-thumb {
+  background: #C9A24A;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #b08c3b;
+}

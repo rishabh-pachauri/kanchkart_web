@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Filter } from "lucide-react";
+import { Filter, Search, SlidersHorizontal } from "lucide-react";
 import { EmptyState } from "@/components/empty-state";
 import { ProductCard } from "@/components/product-card";
 import { Button } from "@/components/ui/button";
@@ -8,9 +8,9 @@ import { getNavigationData, getProducts } from "@/lib/commerce";
 import { siteMetadata } from "@/lib/seo";
 
 export const metadata = siteMetadata({
-  title: "Shop",
+  title: "Shop Catalog",
   description:
-    "Shop premium glass bottles, jars, cups, containers, and kitchen storage."
+    "Shop premium borosilicate glass bottles, airtight storage jars, hand-blown cups, and kitchen glassware."
 });
 
 export default async function ShopPage({
@@ -31,108 +31,105 @@ export default async function ShopPage({
   ]);
 
   return (
-    <section className="container py-10">
-      <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+    <section className="container py-12">
+      {/* Header & Search */}
+      <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between border-b border-gold/15 pb-8">
         <div>
-          <p className="text-sm font-semibold uppercase text-gold">
-            Shop
-          </p>
-          <h1 className="mt-2 font-serif text-5xl font-semibold">
-            Premium glassware
+          <span className="text-xs font-bold uppercase tracking-widest text-gold">Explore Catalog</span>
+          <h1 className="mt-1 font-serif text-5xl font-bold text-charcoal">
+            Premium Glassware
           </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Discover 100% lead-free borosilicate bottles, pantry jars, and elegant drinkware.
+          </p>
         </div>
 
-        <form className="grid gap-2 sm:grid-cols-[1fr_auto]">
-          <Input
-            name="q"
-            placeholder="Search bottles, jars, mugs"
-            defaultValue={params.q}
-          />
+        <form className="flex items-center gap-2 max-w-md w-full">
+          <div className="relative flex-1">
+            <Search className="absolute left-3.5 top-3 h-4 w-4 text-muted-foreground" />
+            <Input
+              name="q"
+              placeholder="Search bottles, jars, cups..."
+              defaultValue={params.q}
+              className="pl-10 rounded-full border-gold/20 bg-white focus:border-gold"
+            />
+          </div>
 
-          <Button type="submit">
-            <Filter className="h-4 w-4 mr-2" />
+          <Button type="submit" variant="gold" className="rounded-full shadow-gold-glow-sm">
             Search
           </Button>
         </form>
       </div>
 
-      <div className="mt-8 flex flex-wrap gap-2">
-        <Button
-          asChild
-          variant={!params.category && !params.collection ? "gold" : "outline"}
-          size="sm"
-        >
-          <Link href="/shop">All</Link>
-        </Button>
-
-        {categories.map((category) => (
+      {/* Filter Tabs & Sort Controls */}
+      <div className="mt-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        {/* Category & Collection Pills */}
+        <div className="flex flex-wrap gap-2 items-center">
           <Button
             asChild
-            key={category.id}
-            variant={params.category === category.slug ? "gold" : "outline"}
+            variant={!params.category && !params.collection ? "gold" : "outline"}
             size="sm"
+            className="rounded-full text-xs font-semibold"
           >
-            <Link href={`/shop?category=${category.slug}`}>
-              {category.name}
-            </Link>
+            <Link href="/shop">All Glassware</Link>
           </Button>
-        ))}
 
-        {collections.map((collection) => (
-          <Button
-            asChild
-            key={collection.id}
-            variant={params.collection === collection.slug ? "gold" : "outline"}
-            size="sm"
-          >
-            <Link href={`/shop?collection=${collection.slug}`}>
-              {collection.name}
-            </Link>
-          </Button>
-        ))}
-      </div>
+          {categories.map((category) => (
+            <Button
+              asChild
+              key={category.id}
+              variant={params.category === category.slug ? "gold" : "outline"}
+              size="sm"
+              className="rounded-full text-xs font-semibold"
+            >
+              <Link href={`/shop?category=${category.slug}`}>
+                {category.name}
+              </Link>
+            </Button>
+          ))}
 
-      <div className="mt-4 flex justify-end">
-        <form className="flex items-center gap-2">
-          {params.q && (
-            <input type="hidden" name="q" value={params.q} />
-          )}
+          {collections.map((collection) => (
+            <Button
+              asChild
+              key={collection.id}
+              variant={params.collection === collection.slug ? "gold" : "outline"}
+              size="sm"
+              className="rounded-full text-xs font-semibold"
+            >
+              <Link href={`/shop?collection=${collection.slug}`}>
+                {collection.name}
+              </Link>
+            </Button>
+          ))}
+        </div>
 
-          {params.category && (
-            <input
-              type="hidden"
-              name="category"
-              value={params.category}
-            />
-          )}
+        {/* Sort Select */}
+        <form className="flex items-center gap-2 shrink-0">
+          {params.q && <input type="hidden" name="q" value={params.q} />}
+          {params.category && <input type="hidden" name="category" value={params.category} />}
+          {params.collection && <input type="hidden" name="collection" value={params.collection} />}
 
-          {params.collection && (
-            <input
-              type="hidden"
-              name="collection"
-              value={params.collection}
-            />
-          )}
-
+          <SlidersHorizontal className="h-4 w-4 text-gold" />
           <select
             name="sort"
             defaultValue={params.sort || "featured"}
-            className="focus-ring h-10 rounded-md border bg-white/80 px-3 text-sm"
+            className="focus-ring h-9 rounded-full border border-gold/20 bg-white/90 px-3 text-xs font-semibold text-charcoal"
           >
             <option value="featured">Featured</option>
-            <option value="newest">Newest</option>
+            <option value="newest">Newest Additions</option>
             <option value="price-asc">Price: Low to High</option>
             <option value="price-desc">Price: High to Low</option>
           </select>
 
-          <Button type="submit" size="sm">
-            Apply
+          <Button type="submit" size="sm" variant="outline" className="rounded-full text-xs font-bold">
+            Sort
           </Button>
         </form>
       </div>
 
+      {/* Product Grid */}
       {products.length > 0 ? (
-        <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {products.map((product) => (
             <ProductCard
               key={product.id}
@@ -141,12 +138,12 @@ export default async function ShopPage({
           ))}
         </div>
       ) : (
-        <div className="mt-10">
+        <div className="mt-12">
           <EmptyState
-            title="No products found"
-            body="Adjust the search or category filters to discover more KanchKart glassware."
+            title="No glassware items found"
+            body="Try adjusting your search criteria or category filters to discover more KanchKart products."
             actionHref="/shop"
-            actionLabel="Clear filters"
+            actionLabel="Clear All Filters"
           />
         </div>
       )}
