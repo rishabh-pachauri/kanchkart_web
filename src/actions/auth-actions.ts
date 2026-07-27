@@ -17,12 +17,10 @@ export async function loginAction(_: unknown, formData: FormData) {
     const email = String(formData.get("email") || "").toLowerCase();
     const password = String(formData.get("password") || "");
 
-    // Validate inputs
     if (!email || !password) {
       return { error: "Email and password are required." };
     }
 
-    // Check if user exists and get their role
     const user = await db.user.findUnique({
       where: { email },
       select: { id: true, role: true }
@@ -32,21 +30,18 @@ export async function loginAction(_: unknown, formData: FormData) {
       return { error: "Invalid email or password." };
     }
 
-    // Determine redirect URL based on role
     const redirectUrl = user.role === "ADMIN" ? "/admin" : "/account";
 
-    // Sign in user
     await signIn("credentials", {
       email,
       password,
       redirectTo: redirectUrl
     });
-  } catch (error) {
-    if (error instanceof AuthError) {
+  } catch (err) {
+    if (err instanceof AuthError) {
       return { error: "Invalid email or password." };
     }
-    // Re-throw other errors
-    throw error;
+    throw err;
   }
 }
 
@@ -63,7 +58,6 @@ export async function registerAction(_: unknown, formData: FormData) {
 
   const email = parsed.data.email.toLowerCase();
 
-  // Check if user already exists
   const existing = await db.user.findUnique({ 
     where: { email } 
   });
@@ -72,7 +66,6 @@ export async function registerAction(_: unknown, formData: FormData) {
     return { error: "An account already exists for this email." };
   }
 
-  // Create new user (defaults to CUSTOMER role)
   try {
     await db.user.create({
       data: {
@@ -82,13 +75,12 @@ export async function registerAction(_: unknown, formData: FormData) {
       }
     });
 
-    // Sign in after registration
     await signIn("credentials", {
       email,
       password: parsed.data.password,
       redirectTo: "/account"
     });
-  } catch (error) {
+  } catch (_err) {
     return { error: "Failed to create account. Please try again." };
   }
 }
