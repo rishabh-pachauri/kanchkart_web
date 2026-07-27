@@ -12,14 +12,6 @@ export async function POST(request: NextRequest) {
   try {
     const order = await createOrderFromCheckout(await request.json());
 
-    if (order.paymentMethod === "COD") {
-      return NextResponse.json({
-        orderId: order.id,
-        orderNumber: order.orderNumber,
-        paymentMethod: "COD"
-      });
-    }
-
     const razorpay = await createRazorpayOrder(order.orderNumber, order.grandTotal);
     await db.payment.updateMany({
       where: { orderId: order.id, method: "RAZORPAY" },
@@ -47,4 +39,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

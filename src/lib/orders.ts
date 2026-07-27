@@ -100,8 +100,7 @@ export async function createOrderFromCheckout(input: unknown) {
         customerPhone: parsed.address.phone,
         status: OrderStatus.ORDER_RECEIVED,
         paymentMethod: parsed.paymentMethod as PaymentMethod,
-        paymentStatus:
-          parsed.paymentMethod === "COD" ? PaymentStatus.AUTHORIZED : PaymentStatus.PENDING,
+        paymentStatus: PaymentStatus.PENDING,
         subtotal,
         discountTotal,
         shippingTotal,
