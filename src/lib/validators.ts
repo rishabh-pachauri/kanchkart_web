@@ -25,7 +25,7 @@ export const addressSchema = z.object({
 export const checkoutSchema = z.object({
   items: z.array(cartItemSchema).min(1),
   address: addressSchema,
-  paymentMethod: z.enum(["RAZORPAY", "COD"]),
+  paymentMethod: z.enum(["RAZORPAY"]),
   couponCode: z.string().trim().max(40).optional()
 });
 

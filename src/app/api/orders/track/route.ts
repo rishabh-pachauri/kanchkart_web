@@ -17,7 +17,16 @@ export async function POST(request: NextRequest) {
       customerEmail: parsed.data.email
     },
     include: {
-      trackingEvents: { orderBy: { happenedAt: "asc" } }
+      items: {
+        include: {
+          product: {
+            include: {
+              media: true
+            }
+          }
+        }
+      },
+      trackingEvents: { orderBy: { createdAt: "asc" } }
     }
   });
 
@@ -26,10 +35,20 @@ export async function POST(request: NextRequest) {
   return NextResponse.json({
     orderNumber: order.orderNumber,
     status: order.status,
+    paymentStatus: order.paymentStatus,
+    grandTotal: order.grandTotal,
     trackingNumber: order.trackingNumber,
     courierPartner: order.courierPartner,
     estimatedDelivery: order.estimatedDelivery,
-    timeline: order.trackingEvents
+    timeline: order.trackingEvents,
+    items: order.items.map((item) => ({
+      id: item.id,
+      name: item.name,
+      sku: item.sku,
+      quantity: item.quantity,
+      unitPrice: item.unitPrice,
+      lineTotal: item.lineTotal,
+      image: item.product?.media[0]?.url || "/brand/drinkware.svg"
+    }))
   });
 }
-

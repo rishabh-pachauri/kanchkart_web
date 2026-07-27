@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import "./globals.css";
 import { CartProvider } from "@/components/cart/cart-provider";
+import { AuthSessionProvider } from "@/components/session-provider";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { env } from "@/lib/env";
@@ -50,11 +51,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             `}
           </Script>
         ) : null}
-        <CartProvider>
-          <SiteHeader />
-          <main>{children}</main>
-          <SiteFooter />
-        </CartProvider>
+        <AuthSessionProvider>
+          <CartProvider>
+            <SiteHeader />
+            <main>{children}</main>
+            <SiteFooter />
+          </CartProvider>
+        </AuthSessionProvider>
       </body>
     </html>
   );

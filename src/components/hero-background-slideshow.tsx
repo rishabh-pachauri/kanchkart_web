@@ -32,20 +32,20 @@ export function HeroBackgroundSlideshow() {
   useEffect(() => {
     const timer = setInterval(() => {
       nextSlide();
-    }, 5500); // 5.5 seconds per slide for ultra-smooth pacing
+    }, 6000); // 6 seconds per slide for long relaxed pacing
 
     return () => clearInterval(timer);
   }, [nextSlide]);
 
   return (
     <div className="absolute inset-0 z-0 overflow-hidden bg-charcoal">
-      {/* Background Images with Butter-Smooth Crossfade & Ken Burns Zoom */}
+      {/* Background Images with Long Fade Transition (2.5 Seconds) */}
       {backgroundImages.map((img, idx) => {
         const isActive = idx === currentIndex;
         return (
           <div
             key={img.url}
-            className={`absolute inset-0 transition-opacity duration-[1800ms] ease-in-out ${
+            className={`absolute inset-0 transition-opacity duration-[2500ms] ease-in-out ${
               isActive ? "opacity-85 z-10" : "opacity-0 z-0 pointer-events-none"
             }`}
           >
@@ -55,7 +55,7 @@ export function HeroBackgroundSlideshow() {
               fill
               priority={idx === 0}
               sizes="100vw"
-              className={`object-cover transition-transform duration-[7000ms] ease-out ${
+              className={`object-cover transition-transform duration-[8000ms] ease-out ${
                 isActive ? "scale-100" : "scale-105"
               }`}
             />
@@ -66,7 +66,7 @@ export function HeroBackgroundSlideshow() {
       {/* Gentle Gradient Overlay for Crisp Text Readability */}
       <div className="absolute inset-0 z-15 bg-gradient-to-r from-charcoal/90 via-charcoal/65 to-transparent backdrop-blur-[0.5px]" />
 
-      {/* Ultra-Smooth Slideshow Navigation Indicator Pills */}
+      {/* Slideshow Navigation Indicator Pills */}
       <div className="absolute bottom-8 right-8 z-20 flex items-center gap-2.5 bg-black/40 backdrop-blur-md px-3.5 py-2 rounded-full border border-white/10 shadow-lg">
         {backgroundImages.map((_, idx) => (
           <button
@@ -74,7 +74,7 @@ export function HeroBackgroundSlideshow() {
             type="button"
             onClick={() => setCurrentIndex(idx)}
             aria-label={`Go to slide ${idx + 1}`}
-            className={`h-2.5 rounded-full transition-all duration-700 ease-in-out ${
+            className={`h-2.5 rounded-full transition-all duration-1000 ease-in-out ${
               idx === currentIndex
                 ? "w-8 bg-gold shadow-gold-glow"
                 : "w-2.5 bg-white/40 hover:bg-white/70"

@@ -216,24 +216,13 @@ export function CheckoutClient() {
           </div>
         </div>
 
-        <h2 className="mt-8 font-serif text-3xl font-semibold">Payment</h2>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2">
-          <button
-            type="button"
-            onClick={() => setPaymentMethod("RAZORPAY")}
-            className={`focus-ring rounded-md border p-4 text-left ${paymentMethod === "RAZORPAY" ? "border-gold bg-gold/10" : "bg-white"}`}
-          >
+        <h2 className="mt-8 font-serif text-3xl font-semibold">Payment Method</h2>
+        <div className="mt-4">
+          <div className="rounded-md border border-gold bg-gold/10 p-4 text-left">
             <CreditCard className="h-5 w-5 text-gold" />
-            <p className="mt-2 font-semibold">Razorpay</p>
-          </button>
-          <button
-            type="button"
-            onClick={() => setPaymentMethod("COD")}
-            className={`focus-ring rounded-md border p-4 text-left ${paymentMethod === "COD" ? "border-gold bg-gold/10" : "bg-white"}`}
-          >
-            <Truck className="h-5 w-5 text-gold" />
-            <p className="mt-2 font-semibold">Cash on Delivery</p>
-          </button>
+            <p className="mt-2 font-bold text-charcoal">Prepaid Online Payment (Razorpay / UPI / Cards / NetBanking)</p>
+            <p className="mt-1 text-xs text-muted-foreground">100% Secure Payment Processing via Razorpay Payment Gateway</p>
+          </div>
         </div>
       </div>
 
