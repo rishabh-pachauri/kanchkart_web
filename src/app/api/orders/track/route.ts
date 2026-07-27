@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
           }
         }
       },
-      trackingEvents: { orderBy: { createdAt: "asc" } }
+      trackingEvents: { orderBy: { happenedAt: "asc" } }
     }
   });
 
