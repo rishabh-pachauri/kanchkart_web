@@ -9,7 +9,7 @@ import { getHomeContent } from "@/lib/commerce";
 export default async function HomePage() {
   const { hero, promo, featuredProducts, categories, collections } = await getHomeContent();
   const heroImage = hero?.imageUrl || "/brand/hero-glassware.svg";
-  const bgImage = "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=2000&q=85"; // Premium glass hydration imagery
+  const bgImage = "/brand/nature-glass-bg.jpg"; // Generated Nature Glass Over Plastic hero background
 
   const promoItems =
     (promo?.metadata as { items?: string[] } | null)?.items ?? [
@@ -21,13 +21,13 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* Hero Section with Full-Bleed Background Image at Low Opacity */}
+      {/* Hero Section with Full-Bleed Nature Background Image (Glass Over Plastic) */}
       <section className="relative overflow-hidden border-b border-gold/15 bg-charcoal text-ivory">
-        {/* Full Cover Background Image with low opacity */}
-        <div className="absolute inset-0 z-0 opacity-20">
+        {/* Full Cover Nature Background Image */}
+        <div className="absolute inset-0 z-0 opacity-35">
           <Image
             src={bgImage}
-            alt="Pure Glassware Background"
+            alt="Pure Glass Over Plastic Nature Background"
             fill
             priority
             sizes="100vw"
@@ -36,7 +36,7 @@ export default async function HomePage() {
         </div>
 
         {/* Dark Gradient Overlay for optimal contrast */}
-        <div className="absolute inset-0 z-0 bg-gradient-to-r from-charcoal via-charcoal/90 to-charcoal/70 backdrop-blur-[2px]" />
+        <div className="absolute inset-0 z-0 bg-gradient-to-r from-charcoal/95 via-charcoal/80 to-charcoal/60 backdrop-blur-[1px]" />
 
         <div className="container relative z-10 grid min-h-[calc(100vh-6rem)] items-center gap-12 py-16 lg:grid-cols-[1fr_1.1fr]">
           <div className="max-w-2xl">

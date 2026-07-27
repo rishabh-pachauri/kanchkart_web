@@ -253,15 +253,27 @@ async function main() {
 
   await prisma.siteSetting.upsert({
     where: { key: "brand" },
-    update: {},
+    update: {
+      value: {
+        name: "KanchKart",
+        domain: "https://www.kanchkart.com",
+        email: "kanchkart@gmail.com",
+        phone: "+91 82184 41794",
+        address: "Mahaveer Nagar, Firozabad, Uttar Pradesh - 283203, India",
+        socials: {
+          instagram: "https://instagram.com/kanchkart",
+          facebook: "https://facebook.com/kanchkart"
+        }
+      }
+    },
     create: {
       key: "brand",
       value: {
         name: "KanchKart",
         domain: "https://www.kanchkart.com",
-        email: "care@kanchkart.com",
-        phone: "+91 90000 00000",
-        address: "Configure business address from Admin > CMS",
+        email: "kanchkart@gmail.com",
+        phone: "+91 82184 41794",
+        address: "Mahaveer Nagar, Firozabad, Uttar Pradesh - 283203, India",
         socials: {
           instagram: "https://instagram.com/kanchkart",
           facebook: "https://facebook.com/kanchkart"

@@ -5,6 +5,9 @@ import { getBrandSetting } from "@/lib/commerce";
 
 export async function SiteFooter() {
   const brand = await getBrandSetting();
+  const addressText = brand?.address && !brand.address.includes("Configure") ? brand.address : "Mahaveer Nagar, Firozabad, Uttar Pradesh - 283203, India";
+  const phoneText = brand?.phone && !brand.phone.includes("00000") ? brand.phone : "+91 82184 41794";
+  const emailText = brand?.email && !brand.email.includes("founder") ? brand.email : "kanchkart@gmail.com";
 
   return (
     <footer className="border-t border-gold/20 bg-charcoal text-ivory">
@@ -43,21 +46,29 @@ export async function SiteFooter() {
             Premium borosilicate glass water bottles, airtight pantry jars, hand-blown cups, and modern kitchen storage designed for healthy, eco-friendly homes.
           </p>
           <div className="mt-6 grid gap-2.5 text-xs text-ivory/80">
-            {brand?.email ? (
-              <p className="flex items-center gap-2.5">
-                <Mail className="h-4 w-4 text-gold shrink-0" /> <span>{brand.email}</span>
-              </p>
-            ) : null}
-            {brand?.phone ? (
-              <p className="flex items-center gap-2.5">
-                <Phone className="h-4 w-4 text-gold shrink-0" /> <span>{brand.phone}</span>
-              </p>
-            ) : null}
-            {brand?.address ? (
-              <p className="flex items-start gap-2.5">
-                <MapPin className="mt-0.5 h-4 w-4 text-gold shrink-0" /> <span>{brand.address}</span>
-              </p>
-            ) : null}
+            <a
+              href={`mailto:${emailText}`}
+              className="flex items-center gap-2.5 hover:text-gold transition-colors"
+            >
+              <Mail className="h-4 w-4 text-gold shrink-0" />
+              <span>{emailText}</span>
+            </a>
+            <a
+              href={`tel:${phoneText.replace(/\s+/g, "")}`}
+              className="flex items-center gap-2.5 hover:text-gold transition-colors"
+            >
+              <Phone className="h-4 w-4 text-gold shrink-0" />
+              <span>{phoneText}</span>
+            </a>
+            <a
+              href="https://www.google.com/maps/search/?api=1&query=Mahaveer+Nagar+Firozabad+Uttar+Pradesh"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-start gap-2.5 hover:text-gold transition-colors"
+            >
+              <MapPin className="mt-0.5 h-4 w-4 text-gold shrink-0" />
+              <span>{addressText}</span>
+            </a>
           </div>
         </div>
 
@@ -86,7 +97,7 @@ export async function SiteFooter() {
 
       <div className="border-t border-white/10 bg-black/30">
         <div className="container flex flex-col gap-3 py-6 text-xs text-ivory/60 md:flex-row md:items-center md:justify-between">
-          <p>© {new Date().getFullYear()} KanchKart Commerce Inc. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} KanchKart Commerce. All rights reserved.</p>
           <div className="flex flex-wrap gap-6">
             <Link href="/privacy-policy" className="hover:text-gold transition">Privacy Policy</Link>
             <Link href="/refund-policy" className="hover:text-gold transition">Refund Policy</Link>
