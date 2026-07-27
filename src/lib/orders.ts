@@ -123,8 +123,7 @@ export async function createOrderFromCheckout(input: unknown) {
         payments: {
           create: {
             method: parsed.paymentMethod as PaymentMethod,
-            status:
-              parsed.paymentMethod === "COD" ? PaymentStatus.AUTHORIZED : PaymentStatus.PENDING,
+            status: PaymentStatus.PENDING,
             amount: Math.max(0, subtotal + shippingTotal - discountTotal)
           }
         },

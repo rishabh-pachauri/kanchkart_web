@@ -102,12 +102,6 @@ export function CheckoutClient() {
       return;
     }
 
-    if (result.paymentMethod === "COD") {
-      clearCart();
-      router.push(`/checkout/success/${result.orderNumber}`);
-      return;
-    }
-
     const loaded = await loadRazorpay();
     const RazorpayConstructor = window.Razorpay;
     if (!loaded || !result.razorpay || !RazorpayConstructor) {
