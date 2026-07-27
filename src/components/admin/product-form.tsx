@@ -195,27 +195,41 @@ export function ProductForm({
         </div>
       </div>
 
-      {/* Section 3: Media & Image Preview */}
+      {/* Section 3: Media & Multiple Images */}
       <div className="space-y-4 pt-4 border-t border-slate-800">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-amber-400">3. Primary Image Media</h3>
+        <h3 className="text-sm font-bold uppercase tracking-wider text-amber-400">3. Product Media & Multiple Images</h3>
         <div className="grid gap-6 md:grid-cols-[1fr_140px]">
-          <div className="grid gap-2">
-            <Label htmlFor="imageUrl" className="text-slate-200 font-semibold">Primary Image URL or Asset Path</Label>
-            <Input
-              id="imageUrl"
-              name="imageUrl"
-              value={imageUrl}
-              onChange={(e) => setImageUrl(e.target.value)}
-              placeholder="e.g. /products/pure-glass-water-bottle.jpg or Cloudinary URL"
-              className="bg-slate-950 border-slate-800 text-white placeholder:text-slate-600 focus:border-amber-400"
-            />
-            <p className="text-xs text-slate-400">You can use local assets inside &quot;/public/products/&quot; or any external image URL.</p>
+          <div className="grid gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="imageUrl" className="text-slate-200 font-semibold">Primary Cover Image URL *</Label>
+              <Input
+                id="imageUrl"
+                name="imageUrl"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="e.g. /products/pure-glass-water-bottle.jpg or Cloudinary URL"
+                className="bg-slate-950 border-slate-800 text-white placeholder:text-slate-600 focus:border-amber-400"
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="additionalImages" className="text-slate-200 font-semibold">Additional Image Gallery URLs (One per line or comma-separated)</Label>
+              <Textarea
+                id="additionalImages"
+                name="additionalImages"
+                rows={3}
+                defaultValue={product?.media ? product.media.slice(1).map((m) => m.url).join("\n") : ""}
+                placeholder="e.g. /products/pure-glass-water-bottle-angle-2.jpg&#10;/products/pure-glass-water-bottle-angle-3.jpg"
+                className="bg-slate-950 border-slate-800 text-white placeholder:text-slate-600 focus:border-amber-400 font-mono text-xs"
+              />
+              <p className="text-xs text-slate-400">Add extra gallery image URLs to allow users to switch between multiple product images.</p>
+            </div>
           </div>
 
           {/* Live Preview Box */}
-          <div className="flex flex-col items-center justify-center">
-            <span className="text-[11px] font-semibold text-slate-400 mb-1">Live Preview</span>
-            <div className="relative h-24 w-24 rounded-xl border border-slate-800 bg-slate-950 overflow-hidden flex items-center justify-center">
+          <div className="flex flex-col items-center justify-start pt-6">
+            <span className="text-[11px] font-semibold text-slate-400 mb-1">Cover Preview</span>
+            <div className="relative h-28 w-28 rounded-xl border border-slate-800 bg-slate-950 overflow-hidden flex items-center justify-center shadow-lg">
               {imageUrl ? (
                 <Image src={imageUrl} alt="Preview" fill className="object-cover" />
               ) : (

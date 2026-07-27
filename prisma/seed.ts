@@ -81,7 +81,11 @@ async function main() {
       price: "199.00",
       compareAtPrice: "299.00",
       stock: 500,
-      image: "/products/pure-glass-water-bottle.jpg",
+      images: [
+        "/products/pure-glass-water-bottle.jpg",
+        "https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&w=1000&q=80",
+        "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=1000&q=80"
+      ],
       isFeatured: true,
       isBestSeller: true,
       isNewArrival: true,
@@ -94,73 +98,79 @@ async function main() {
       }
     },
     {
-      name: "Borosilicate Glass Water Bottle",
-      slug: "borosilicate-glass-water-bottle",
-      sku: "KK-BTL-750-CLR",
+      name: "Crystal Diamond Cut Glass Bottle (1000ml)",
+      slug: "crystal-diamond-cut-glass-bottle-1000ml",
+      sku: "KK-BTL-DC-299",
       description:
-        "A refined borosilicate glass bottle designed for everyday hydration, office desks, and premium gifting.",
-      shortDescription: "Durable clear glass bottle for everyday hydration.",
+        "Elevate your dining table and office desk with our 1-Liter Crystal Diamond Cut Glass Bottle. Engineered with thick borosilicate glass, non-slip textured diamond pattern, and an airtight leak-proof cap.",
+      shortDescription: "1-Liter premium diamond cut glass bottle for fridge & table serving.",
       categoryId: bottles.id,
-      price: "699.00",
-      compareAtPrice: "899.00",
-      stock: 64,
-      image: "/brand/drinkware.svg",
+      price: "299.00",
+      compareAtPrice: "449.00",
+      stock: 400,
+      images: [
+        "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=1000&q=80",
+        "/products/pure-glass-water-bottle.jpg"
+      ],
       isFeatured: true,
       isBestSeller: true,
       isNewArrival: true,
       specifications: {
-        capacity: "750 ml",
-        material: "Borosilicate glass",
-        care: "Dishwasher safe",
-        lid: "BPA-free cap"
+        capacity: "1000 ml",
+        material: "Heavy-Duty Glass",
+        care: "Dishwasher safe"
       }
     },
     {
-      name: "Airtight Glass Pantry Jar Set",
+      name: "Airtight Glass Pantry Storage Jar Set",
       slug: "airtight-glass-pantry-jar-set",
       sku: "KK-JAR-SET-04",
       description:
         "A four-piece airtight glass jar set for lentils, pasta, grains, spices, and elevated open-shelf storage.",
       shortDescription: "Four-piece airtight jar set for premium pantry storage.",
       categoryId: storage.id,
-      price: "1499.00",
-      compareAtPrice: "1899.00",
-      stock: 38,
-      image: "/brand/pantry-jars.svg",
+      price: "699.00",
+      compareAtPrice: "999.00",
+      stock: 150,
+      images: [
+        "/brand/pantry-jars.svg",
+        "https://images.unsplash.com/photo-1584308666744-24d5c474f2ae?auto=format&fit=crop&w=1000&q=80"
+      ],
       isFeatured: true,
       isBestSeller: true,
       specifications: {
         set: "4 jars",
         seal: "Airtight lid",
-        material: "Clear glass",
-        care: "Hand wash lids"
+        material: "Clear glass"
       }
     },
     {
-      name: "Classic Glass Cup Set",
-      slug: "classic-glass-cup-set",
-      sku: "KK-CUP-SET-06",
+      name: "Hand-Blown Double Wall Glass Cup Set",
+      slug: "hand-blown-double-wall-glass-cup-set",
+      sku: "KK-CUP-DW-02",
       description:
-        "Minimal glass cups with a balanced hand feel for water, cold brew, cocktails, and table styling.",
-      shortDescription: "Six minimal clear glass cups for every table.",
+        "Hand-blown double wall borosilicate glass cups that keep hot drinks warm and iced beverages chilled without condensation on your hands or table.",
+      shortDescription: "Set of 2 heat-resistant double wall glass cups for espresso and tea.",
       categoryId: drinkware.id,
-      price: "999.00",
-      compareAtPrice: "1299.00",
-      stock: 52,
-      image: "/brand/drinkware.svg",
+      price: "499.00",
+      compareAtPrice: "749.00",
+      stock: 200,
+      images: [
+        "/brand/drinkware.svg",
+        "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=1000&q=80"
+      ],
       isFeatured: true,
       isNewArrival: true,
       specifications: {
-        set: "6 cups",
-        capacity: "300 ml",
-        material: "Lead-free glass",
-        care: "Dishwasher safe"
+        set: "2 cups",
+        capacity: "350 ml",
+        material: "Borosilicate glass"
       }
     }
   ];
 
   for (const product of products) {
-    const { image, ...productData } = product;
+    const { images, ...productData } = product;
     const saved = await prisma.product.upsert({
       where: { slug: productData.slug },
       update: {
@@ -185,21 +195,18 @@ async function main() {
       }
     });
 
-    await prisma.productMedia.upsert({
-      where: {
-        id: `${saved.id}-primary`
-      },
-      update: {
-        url: image,
-        alt: productData.name
-      },
-      create: {
-        id: `${saved.id}-primary`,
-        productId: saved.id,
-        url: image,
-        alt: productData.name
-      }
-    });
+    // Re-create ProductMedia with positions 0, 1, 2...
+    if (images && images.length > 0) {
+      await prisma.productMedia.deleteMany({ where: { productId: saved.id } });
+      await prisma.productMedia.createMany({
+        data: images.map((url, idx) => ({
+          productId: saved.id,
+          url,
+          alt: `${productData.name} image ${idx + 1}`,
+          position: idx
+        }))
+      });
+    }
   }
 
   await prisma.cmsSection.upsert({
@@ -272,4 +279,3 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
-

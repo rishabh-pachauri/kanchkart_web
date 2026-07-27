@@ -19,10 +19,11 @@ export function ProductCard({ product }: { product: ProductCardProduct }) {
       ? Math.round(((compareAtNum - priceNum) / compareAtNum) * 100)
       : null;
 
+  const reviewCount = product.reviews?.length || 0;
   const rating =
-    product.reviews?.length
-      ? product.reviews.reduce((sum, review) => sum + review.rating, 0) / product.reviews.length
-      : 4.8; // Default sleek rating display
+    reviewCount > 0
+      ? product.reviews!.reduce((sum, review) => sum + review.rating, 0) / reviewCount
+      : null;
 
   return (
     <article className="group relative flex flex-col justify-between rounded-xl border border-gold/15 bg-white/80 p-3.5 shadow-sm transition-all duration-300 hover:-translate-y-1.5 hover:border-gold/40 hover:shadow-soft">
@@ -57,12 +58,14 @@ export function ProductCard({ product }: { product: ProductCardProduct }) {
         </div>
 
         <div className="mt-4 flex flex-col gap-1">
-          {/* Rating */}
-          <div className="flex items-center gap-1 text-amber-500 text-xs font-semibold">
-            <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-            <span>{rating.toFixed(1)}</span>
-            <span className="text-muted-foreground font-normal text-[11px]">(42)</span>
-          </div>
+          {/* Genuine Rating */}
+          {rating ? (
+            <div className="flex items-center gap-1 text-amber-500 text-xs font-semibold">
+              <Star className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
+              <span>{rating.toFixed(1)}</span>
+              <span className="text-muted-foreground font-normal text-[11px]">({reviewCount})</span>
+            </div>
+          ) : null}
 
           <h3 className="line-clamp-2 font-serif text-xl font-semibold leading-tight text-charcoal transition-colors group-hover:text-gold">
             {product.name}

@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Menu, Search, UserRound, ShieldAlert, Sparkles } from "lucide-react";
+import { Menu, Search, UserRound, Sparkles } from "lucide-react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { CartLink } from "@/components/cart/cart-link";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,6 @@ const primaryLinks = [
 
 export async function SiteHeader() {
   const [{ categories }, session] = await Promise.all([getNavigationData(), auth()]);
-  const isAdmin = session?.user?.role === "ADMIN";
 
   return (
     <>
@@ -57,16 +56,6 @@ export async function SiteHeader() {
           </nav>
 
           <div className="flex items-center gap-2">
-            {isAdmin ? (
-              <Link
-                href="/admin"
-                className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-charcoal bg-gold/20 border border-gold/40 px-3 py-1.5 rounded-full hover:bg-gold hover:text-charcoal transition-all shadow-sm"
-              >
-                <ShieldAlert className="h-3.5 w-3.5 text-gold" />
-                <span>Admin Portal</span>
-              </Link>
-            ) : null}
-
             <Link
               href="/shop"
               aria-label="Search products"
@@ -93,11 +82,6 @@ export async function SiteHeader() {
                 <Dialog.Content className="fixed right-0 top-0 z-50 h-dvh w-[86vw] max-w-sm border-l bg-ivory p-6 shadow-2xl">
                   <div className="flex items-center justify-between pb-4 border-b border-gold/20">
                     <Dialog.Title className="font-serif text-2xl font-bold text-charcoal">KanchKart</Dialog.Title>
-                    {isAdmin ? (
-                      <Link href="/admin" className="text-xs font-bold text-gold underline">
-                        Admin Portal
-                      </Link>
-                    ) : null}
                   </div>
                   <div className="mt-6 grid gap-2">
                     {[...primaryLinks, { href: "/track-order", label: "Track Order" }, { href: "/contact", label: "Contact" }].map(

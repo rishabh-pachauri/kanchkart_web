@@ -55,6 +55,10 @@ export const productSchema = z.object({
     (val) => (val === "" || val === null ? undefined : val),
     z.string().trim().url("Primary image URL must be a valid URL or starting with /").or(z.string().startsWith("/")).optional()
   ),
+  additionalImages: z.preprocess(
+    (val) => (val === "" || val === null ? undefined : val),
+    z.string().trim().optional()
+  ),
   isActive: z.coerce.boolean().default(true),
   isFeatured: z.coerce.boolean().default(false),
   isBestSeller: z.coerce.boolean().default(false),

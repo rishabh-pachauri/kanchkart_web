@@ -25,6 +25,7 @@ export async function createProductAction(_: unknown, formData: FormData) {
     lowStockAt: formData.get("lowStockAt"),
     gstPercent: formData.get("gstPercent"),
     imageUrl: formData.get("imageUrl"),
+    additionalImages: formData.get("additionalImages"),
     isActive: formData.get("isActive") === "on",
     isFeatured: formData.get("isFeatured") === "on",
     isBestSeller: formData.get("isBestSeller") === "on",
@@ -35,6 +36,17 @@ export async function createProductAction(_: unknown, formData: FormData) {
     const firstError = parsed.error.issues[0]?.message || "Check the product fields and try again.";
     return { error: firstError };
   }
+
+  const primaryImage = parsed.data.imageUrl;
+  const extraImages = (parsed.data.additionalImages || "")
+    .split(/[\n,]/)
+    .map((url) => url.trim())
+    .filter(Boolean);
+
+  const allImages = [
+    ...(primaryImage ? [primaryImage] : []),
+    ...extraImages.filter((img) => img !== primaryImage)
+  ];
 
   let createdProductSlug: string;
 
@@ -59,13 +71,13 @@ export async function createProductAction(_: unknown, formData: FormData) {
         isNewArrival: parsed.data.isNewArrival,
         seoTitle: parsed.data.name,
         seoDesc: parsed.data.shortDescription,
-        media: parsed.data.imageUrl
+        media: allImages.length > 0
           ? {
-              create: {
-                url: parsed.data.imageUrl,
-                alt: parsed.data.name,
-                position: 0
-              }
+              create: allImages.map((url, index) => ({
+                url,
+                alt: `${parsed.data.name} image ${index + 1}`,
+                position: index
+              }))
             }
           : undefined
       }
@@ -103,6 +115,7 @@ export async function updateProductAction(_: unknown, formData: FormData) {
     lowStockAt: formData.get("lowStockAt"),
     gstPercent: formData.get("gstPercent"),
     imageUrl: formData.get("imageUrl"),
+    additionalImages: formData.get("additionalImages"),
     isActive: formData.get("isActive") === "on",
     isFeatured: formData.get("isFeatured") === "on",
     isBestSeller: formData.get("isBestSeller") === "on",
@@ -113,6 +126,17 @@ export async function updateProductAction(_: unknown, formData: FormData) {
     const firstError = parsed.error.issues[0]?.message || "Check the product fields and try again.";
     return { error: firstError };
   }
+
+  const primaryImage = parsed.data.imageUrl;
+  const extraImages = (parsed.data.additionalImages || "")
+    .split(/[\n,]/)
+    .map((url) => url.trim())
+    .filter(Boolean);
+
+  const allImages = [
+    ...(primaryImage ? [primaryImage] : []),
+    ...extraImages.filter((img) => img !== primaryImage)
+  ];
 
   try {
     await db.product.update({
@@ -138,6 +162,18 @@ export async function updateProductAction(_: unknown, formData: FormData) {
         seoDesc: parsed.data.shortDescription
       }
     });
+
+    if (allImages.length > 0) {
+      await db.productMedia.deleteMany({ where: { productId: id } });
+      await db.productMedia.createMany({
+        data: allImages.map((url, index) => ({
+          productId: id,
+          url,
+          alt: `${parsed.data.name} image ${index + 1}`,
+          position: index
+        }))
+      });
+    }
   } catch (err: unknown) {
     const errorMsg = String(err);
     if (errorMsg.includes("P2002") || errorMsg.includes("Unique constraint")) {
