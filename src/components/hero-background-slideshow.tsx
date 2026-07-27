@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 
 const backgroundImages = [
@@ -25,48 +25,59 @@ const backgroundImages = [
 export function HeroBackgroundSlideshow() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentIndex((prevIndex) => (prevIndex + 1) % backgroundImages.length);
-    }, 5000); // Change image every 5 seconds
-
-    return () => clearInterval(timer);
+  const nextSlide = useCallback(() => {
+    setCurrentIndex((prevIndex) => (prevIndex + 1) % backgroundImages.length);
   }, []);
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      nextSlide();
+    }, 5500); // 5.5 seconds per slide for ultra-smooth pacing
+
+    return () => clearInterval(timer);
+  }, [nextSlide]);
+
   return (
-    <div className="absolute inset-0 z-0 overflow-hidden">
-      {/* Background Image Slideshow with Smooth Crossfade */}
-      {backgroundImages.map((img, idx) => (
-        <div
-          key={img.url}
-          className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-            idx === currentIndex ? "opacity-85 scale-100" : "opacity-0 scale-105 pointer-events-none"
-          }`}
-        >
-          <Image
-            src={img.url}
-            alt={img.alt}
-            fill
-            priority={idx === 0}
-            sizes="100vw"
-            className="object-cover transition-transform duration-[6000ms] ease-out"
-          />
-        </div>
-      ))}
+    <div className="absolute inset-0 z-0 overflow-hidden bg-charcoal">
+      {/* Background Images with Butter-Smooth Crossfade & Ken Burns Zoom */}
+      {backgroundImages.map((img, idx) => {
+        const isActive = idx === currentIndex;
+        return (
+          <div
+            key={img.url}
+            className={`absolute inset-0 transition-opacity duration-[1800ms] ease-in-out ${
+              isActive ? "opacity-85 z-10" : "opacity-0 z-0 pointer-events-none"
+            }`}
+          >
+            <Image
+              src={img.url}
+              alt={img.alt}
+              fill
+              priority={idx === 0}
+              sizes="100vw"
+              className={`object-cover transition-transform duration-[7000ms] ease-out ${
+                isActive ? "scale-100" : "scale-105"
+              }`}
+            />
+          </div>
+        );
+      })}
 
-      {/* Subtle Gradient Overlay for Text Readability without Obscuring the Imagery */}
-      <div className="absolute inset-0 bg-gradient-to-r from-charcoal/90 via-charcoal/60 to-transparent backdrop-blur-[0.5px]" />
+      {/* Gentle Gradient Overlay for Crisp Text Readability */}
+      <div className="absolute inset-0 z-15 bg-gradient-to-r from-charcoal/90 via-charcoal/65 to-transparent backdrop-blur-[0.5px]" />
 
-      {/* Slideshow Navigation Indicator Dots */}
-      <div className="absolute bottom-6 right-8 z-20 flex items-center gap-2">
+      {/* Ultra-Smooth Slideshow Navigation Indicator Pills */}
+      <div className="absolute bottom-8 right-8 z-20 flex items-center gap-2.5 bg-black/40 backdrop-blur-md px-3.5 py-2 rounded-full border border-white/10 shadow-lg">
         {backgroundImages.map((_, idx) => (
           <button
             key={idx}
             type="button"
             onClick={() => setCurrentIndex(idx)}
             aria-label={`Go to slide ${idx + 1}`}
-            className={`h-2 rounded-full transition-all duration-300 ${
-              idx === currentIndex ? "w-8 bg-gold" : "w-2 bg-white/40 hover:bg-white/70"
+            className={`h-2.5 rounded-full transition-all duration-700 ease-in-out ${
+              idx === currentIndex
+                ? "w-8 bg-gold shadow-gold-glow"
+                : "w-2.5 bg-white/40 hover:bg-white/70"
             }`}
           />
         ))}

@@ -20,12 +20,12 @@ async function main() {
 
   const bottles = await prisma.category.upsert({
     where: { slug: "glass-bottles" },
-    update: {},
+    update: { imageUrl: "/categories/glass-bottles.jpg" },
     create: {
       name: "Glass Bottles",
       slug: "glass-bottles",
       description: "Premium borosilicate bottles for daily hydration.",
-      imageUrl: "/brand/drinkware.svg",
+      imageUrl: "/categories/glass-bottles.jpg",
       seoTitle: "Premium Glass Water Bottles",
       seoDesc: "Shop elegant borosilicate glass bottles from KanchKart."
     }
@@ -33,12 +33,12 @@ async function main() {
 
   const storage = await prisma.category.upsert({
     where: { slug: "storage-jars" },
-    update: {},
+    update: { imageUrl: "/categories/storage-jars.jpg" },
     create: {
       name: "Storage Jars",
       slug: "storage-jars",
       description: "Airtight glass jars for refined kitchens and pantries.",
-      imageUrl: "/brand/pantry-jars.svg",
+      imageUrl: "/categories/storage-jars.jpg",
       seoTitle: "Airtight Glass Storage Jars",
       seoDesc: "Organize your kitchen with premium airtight glass jars."
     }
@@ -46,12 +46,12 @@ async function main() {
 
   const drinkware = await prisma.category.upsert({
     where: { slug: "drinkware" },
-    update: {},
+    update: { imageUrl: "/categories/drinkware.jpg" },
     create: {
       name: "Drinkware",
       slug: "drinkware",
       description: "Clear glass cups, mugs, tumblers, and everyday drinkware.",
-      imageUrl: "/brand/drinkware.svg",
+      imageUrl: "/categories/drinkware.jpg",
       seoTitle: "Premium Glass Drinkware",
       seoDesc: "Bring refined glass drinkware into every serve."
     }
