@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { db } from "@/lib/db";
 import { CmsForm } from "@/components/admin/cms-form";
 
@@ -101,7 +102,7 @@ export default async function CMSPage() {
                       )}
                       {section.ctaHref && (
                         <p className="text-xs text-slate-600">
-                          CTA: <strong>{section.ctaLabel}</strong> → {section.ctaHref}
+                          CTA: <strong>{section.ctaLabel}</strong> &rarr; {section.ctaHref}
                         </p>
                       )}
                     </div>
@@ -110,9 +111,11 @@ export default async function CMSPage() {
                   {/* Right Side - Image Preview */}
                   {section.imageUrl && (
                     <div className="md:w-48">
-                      <img
+                      <Image
                         src={section.imageUrl}
                         alt={section.title}
+                        width={200}
+                        height={128}
                         className="w-full h-32 object-cover rounded-lg border"
                       />
                     </div>
@@ -128,10 +131,10 @@ export default async function CMSPage() {
       <div className="mt-16 rounded-lg bg-blue-50 border border-blue-200 p-6">
         <h3 className="font-semibold text-blue-900 mb-3">How to Use CMS</h3>
         <ul className="space-y-2 text-sm text-blue-800">
-          <li>✅ <strong>Key:</strong> Unique identifier (e.g., "home-hero", "about-section")</li>
+          <li>✅ <strong>Key:</strong> Unique identifier (e.g., home-hero, about-section)</li>
           <li>✅ <strong>Placement:</strong> Where this content appears on your site</li>
           <li>✅ <strong>Image URL:</strong> Paste your image URL from Cloudinary, Unsplash, etc</li>
-          <li>✅ <strong>Title & Body:</strong> Main content text</li>
+          <li>✅ <strong>Title &amp; Body:</strong> Main content text</li>
           <li>✅ <strong>CTA:</strong> Call-to-action button (label + link)</li>
           <li>✅ <strong>Active:</strong> Toggle to show/hide sections</li>
         </ul>
