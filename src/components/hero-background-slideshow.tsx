@@ -32,22 +32,22 @@ export function HeroBackgroundSlideshow() {
   useEffect(() => {
     const timer = setInterval(() => {
       nextSlide();
-    }, 6000); // 6 seconds per slide for long relaxed pacing
+    }, 6500); // 6.5 seconds per slide for long, elegant cross dissolves
 
     return () => clearInterval(timer);
   }, [nextSlide]);
 
   return (
     <div className="absolute inset-0 z-0 overflow-hidden bg-charcoal">
-      {/* Background Images with Long Fade Transition (2.5 Seconds) */}
+      {/* Background Images with Long Cross-Dissolve Transition (3.5 Seconds) & Soft Faded Opacity */}
       {backgroundImages.map((img, idx) => {
         const isActive = idx === currentIndex;
         return (
           <div
             key={img.url}
-            style={{ transitionDuration: "2500ms" }}
+            style={{ transitionDuration: "3500ms" }}
             className={`absolute inset-0 transition-opacity ease-in-out ${
-              isActive ? "opacity-85 z-10" : "opacity-0 z-0 pointer-events-none"
+              isActive ? "opacity-55 z-10" : "opacity-0 z-0 pointer-events-none"
             }`}
           >
             <Image
@@ -56,7 +56,7 @@ export function HeroBackgroundSlideshow() {
               fill
               priority={idx === 0}
               sizes="100vw"
-              style={{ transitionDuration: "8000ms" }}
+              style={{ transitionDuration: "9000ms" }}
               className={`object-cover transition-transform ease-out ${
                 isActive ? "scale-100" : "scale-105"
               }`}
@@ -65,8 +65,8 @@ export function HeroBackgroundSlideshow() {
         );
       })}
 
-      {/* Gentle Gradient Overlay for Crisp Text Readability */}
-      <div className="absolute inset-0 z-15 bg-gradient-to-r from-charcoal/90 via-charcoal/65 to-transparent backdrop-blur-[0.5px]" />
+      {/* Soft Faded Ambient Overlay */}
+      <div className="absolute inset-0 z-15 bg-gradient-to-r from-charcoal/80 via-charcoal/50 to-transparent backdrop-blur-[0.5px]" />
 
       {/* Slideshow Navigation Indicator Pills */}
       <div className="absolute bottom-8 right-8 z-20 flex items-center gap-2.5 bg-black/40 backdrop-blur-md px-3.5 py-2 rounded-full border border-white/10 shadow-lg">
