@@ -198,7 +198,7 @@ export default async function AdminDashboard() {
 
         {recentProducts.length === 0 ? (
           <div className="p-12 text-center text-slate-400 text-sm">
-            No products found. Click "Add Product" to create your first item.
+            No products found. Click &quot;Add Product&quot; to create your first item.
           </div>
         ) : (
           <div className="overflow-x-auto">

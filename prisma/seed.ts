@@ -160,27 +160,28 @@ async function main() {
   ];
 
   for (const product of products) {
+    const { image, ...productData } = product;
     const saved = await prisma.product.upsert({
-      where: { slug: product.slug },
+      where: { slug: productData.slug },
       update: {
-        categoryId: product.categoryId,
+        categoryId: productData.categoryId,
         collectionId: signature.id,
-        price: product.price,
-        compareAtPrice: product.compareAtPrice,
-        stock: product.stock,
-        isFeatured: product.isFeatured,
-        isBestSeller: product.isBestSeller ?? false,
-        isNewArrival: product.isNewArrival ?? false
+        price: productData.price,
+        compareAtPrice: productData.compareAtPrice,
+        stock: productData.stock,
+        isFeatured: productData.isFeatured,
+        isBestSeller: productData.isBestSeller ?? false,
+        isNewArrival: productData.isNewArrival ?? false
       },
       create: {
-        ...product,
+        ...productData,
         collectionId: signature.id,
         gstPercent: "18.00",
         dimensions: "Standard retail packaging",
         weightGrams: 900,
         lowStockAt: 8,
-        seoTitle: product.name,
-        seoDesc: product.shortDescription
+        seoTitle: productData.name,
+        seoDesc: productData.shortDescription
       }
     });
 
@@ -189,14 +190,14 @@ async function main() {
         id: `${saved.id}-primary`
       },
       update: {
-        url: product.image,
-        alt: product.name
+        url: image,
+        alt: productData.name
       },
       create: {
         id: `${saved.id}-primary`,
         productId: saved.id,
-        url: product.image,
-        alt: product.name
+        url: image,
+        alt: productData.name
       }
     });
   }
