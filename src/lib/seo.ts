@@ -18,6 +18,11 @@ export function siteMetadata(input: {
   return {
     title,
     description,
+    icons: {
+      icon: "/favicon.png",
+      shortcut: "/favicon.png",
+      apple: "/favicon.png"
+    },
     alternates: { canonical: url },
     openGraph: {
       title,

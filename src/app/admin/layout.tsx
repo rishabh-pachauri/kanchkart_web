@@ -15,7 +15,12 @@ import Link from "next/link";
 
 export const metadata = {
   title: "Admin Dashboard | KanchKart",
-  description: "Executive e-commerce admin management suite"
+  description: "Executive e-commerce admin management suite",
+  icons: {
+    icon: "/admin-favicon.png",
+    shortcut: "/admin-favicon.png",
+    apple: "/admin-favicon.png"
+  }
 };
 
 export default async function AdminLayout({
