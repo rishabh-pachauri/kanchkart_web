@@ -59,12 +59,12 @@ async function main() {
 
   const signature = await prisma.collection.upsert({
     where: { slug: "signature-clear-glass" },
-    update: {},
+    update: { imageUrl: "/collections/signature-clear-glass.jpg" },
     create: {
       name: "Signature Clear Glass",
       slug: "signature-clear-glass",
       description: "A launch edit of clear, durable glassware for modern homes.",
-      imageUrl: "/brand/hero-glassware.svg",
+      imageUrl: "/collections/signature-clear-glass.jpg",
       isFeatured: true
     }
   });
