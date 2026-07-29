@@ -11,9 +11,22 @@ android {
         versionName "1.0.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
+
+    signingConfigs {
+        release {
+            if (file("kanchkart-release-key.jks").exists()) {
+                storeFile file("kanchkart-release-key.jks")
+                storePassword "KanchKartPass2026!"
+                keyAlias "kanchkart-key"
+                keyPassword "KanchKartPass2026!"
+            }
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
+            signingConfig signingConfigs.release
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
