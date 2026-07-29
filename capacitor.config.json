@@ -1,0 +1,21 @@
+{
+  "appId": "com.kanchkart.app",
+  "appName": "KanchKart",
+  "webDir": "out",
+  "server": {
+    "url": "https://kanchkart-web.vercel.app",
+    "cleartext": true
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "backgroundColor": "#24211D"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "backgroundColor": "#24211D",
+      "showSpinner": false
+    }
+  }
+}
