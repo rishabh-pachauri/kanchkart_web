@@ -4,10 +4,11 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, Package, Truck, ShieldCheck, Printer, ArrowRight, Eye, CheckSquare, Square } from "lucide-react";
+import { OrderStatus } from "@prisma/client";
+import { CheckCircle2, Package, Truck, ShieldCheck, Printer, Eye, CheckSquare, Square } from "lucide-react";
 import { bulkUpdateOrderStatusAction } from "@/actions/admin-actions";
 import { Button } from "@/components/ui/button";
-import { formatPrice, toNumber } from "@/lib/money";
+import { formatPrice } from "@/lib/money";
 import { formatDate } from "@/lib/utils";
 
 type SerializedOrder = {
@@ -79,29 +80,47 @@ export function AdminOrdersPipeline({ initialOrders }: PipelineProps) {
     );
   }
 
-  async function handleBulkStatusChange(targetStatus: string) {
+  async function handleBulkStatusChange(targetStatus: OrderStatus) {
     if (selectedIds.length === 0) return;
     setLoading(true);
 
     try {
-      await bulkUpdateOrderStatusAction(selectedIds, targetStatus as any);
+      await bulkUpdateOrderStatusAction(selectedIds, targetStatus);
       // Update local state instantly so orders move to next pipeline tab
       setOrders((prev) =>
         prev.map((o) => (selectedIds.includes(o.id) ? { ...o, status: targetStatus } : o))
       );
       setSelectedIds([]);
       router.refresh();
-    } catch (err) {
+    } catch (_err) {
       alert("Failed to update status.");
     } finally {
       setLoading(false);
     }
   }
 
-  const bulkLabelUrl = `/admin/orders/labels/bulk?ids=${selectedIds.join(",")}`;
+  const selectedBulkLabelUrl = `/admin/orders/labels/bulk?ids=${selectedIds.join(",")}`;
+  const allBulkLabelUrl = `/admin/orders/labels/bulk?ids=all`;
 
   return (
     <div className="space-y-6">
+      {/* Top Global Bulk Action Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-900 border border-slate-800 p-4 rounded-2xl">
+        <div>
+          <h2 className="text-sm font-bold text-white uppercase tracking-wider">All System Orders ({orders.length})</h2>
+          <p className="text-xs text-slate-400">Generate bulk scannable QR labels & print for all orders or selected stage orders.</p>
+        </div>
+
+        <Link
+          href={allBulkLabelUrl}
+          target="_blank"
+          className="inline-flex items-center gap-2 rounded-xl border border-amber-400/40 bg-amber-400/10 px-4 py-2.5 text-xs font-bold text-amber-400 hover:bg-amber-400 hover:text-slate-950 transition shadow-md"
+        >
+          <Printer className="h-4 w-4" />
+          <span>Print ALL System Orders Labels & QRs ({orders.length})</span>
+        </Link>
+      </div>
+
       {/* Pipeline Navigation Tabs */}
       <div className="flex flex-wrap gap-2 border-b border-slate-800 pb-4">
         {tabs.map((t) => {
@@ -144,7 +163,7 @@ export function AdminOrdersPipeline({ initialOrders }: PipelineProps) {
         })}
       </div>
 
-      {/* Bulk Action Controls Bar */}
+      {/* Stage Specific Bulk Controls Bar */}
       <div className="flex flex-wrap items-center justify-between gap-4 bg-slate-900/90 border border-slate-800 p-4 rounded-2xl">
         <div className="flex items-center gap-3">
           <button
@@ -157,7 +176,7 @@ export function AdminOrdersPipeline({ initialOrders }: PipelineProps) {
             ) : (
               <Square className="h-4 w-4 text-slate-500" />
             )}
-            <span>Select All ({selectedIds.length}/{filteredOrders.length})</span>
+            <span>Select Stage Orders ({selectedIds.length}/{filteredOrders.length})</span>
           </button>
         </div>
 
@@ -168,11 +187,11 @@ export function AdminOrdersPipeline({ initialOrders }: PipelineProps) {
                 variant="gold"
                 size="sm"
                 disabled={loading}
-                onClick={() => handleBulkStatusChange("CONFIRMED")}
+                onClick={() => handleBulkStatusChange(OrderStatus.CONFIRMED)}
                 className="gap-2 font-bold shadow-md"
               >
                 <CheckCircle2 className="h-4 w-4" />
-                <span>Accept Selected Orders ({selectedIds.length})</span>
+                <span>Accept Selected ({selectedIds.length})</span>
               </Button>
             ) : null}
 
@@ -181,7 +200,7 @@ export function AdminOrdersPipeline({ initialOrders }: PipelineProps) {
                 variant="gold"
                 size="sm"
                 disabled={loading}
-                onClick={() => handleBulkStatusChange("PACKED")}
+                onClick={() => handleBulkStatusChange(OrderStatus.PACKED)}
                 className="gap-2 font-bold shadow-md"
               >
                 <Package className="h-4 w-4" />
@@ -194,7 +213,7 @@ export function AdminOrdersPipeline({ initialOrders }: PipelineProps) {
                 variant="gold"
                 size="sm"
                 disabled={loading}
-                onClick={() => handleBulkStatusChange("DISPATCHED")}
+                onClick={() => handleBulkStatusChange(OrderStatus.DISPATCHED)}
                 className="gap-2 font-bold shadow-md"
               >
                 <Truck className="h-4 w-4" />
@@ -207,7 +226,7 @@ export function AdminOrdersPipeline({ initialOrders }: PipelineProps) {
                 variant="gold"
                 size="sm"
                 disabled={loading}
-                onClick={() => handleBulkStatusChange("DELIVERED")}
+                onClick={() => handleBulkStatusChange(OrderStatus.DELIVERED)}
                 className="gap-2 font-bold shadow-md"
               >
                 <ShieldCheck className="h-4 w-4" />
@@ -217,16 +236,16 @@ export function AdminOrdersPipeline({ initialOrders }: PipelineProps) {
 
             {/* Bulk Printable QR Labels */}
             <Link
-              href={bulkLabelUrl}
+              href={selectedBulkLabelUrl}
               target="_blank"
               className="inline-flex items-center gap-2 rounded-xl border border-amber-400/40 bg-amber-400/10 px-4 py-2 text-xs font-bold text-amber-400 hover:bg-amber-400 hover:text-slate-950 transition"
             >
               <Printer className="h-4 w-4" />
-              <span>Generate Bulk Labels & QRs ({selectedIds.length})</span>
+              <span>Print Selected Labels ({selectedIds.length})</span>
             </Link>
           </div>
         ) : (
-          <p className="text-xs text-slate-500 italic">Select orders via checkboxes to apply bulk actions & print bulk QR labels.</p>
+          <p className="text-xs text-slate-500 italic">Select checkboxes to bulk accept, bulk pack, or print stage labels.</p>
         )}
       </div>
 

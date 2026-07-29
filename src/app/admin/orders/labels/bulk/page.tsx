@@ -19,17 +19,29 @@ export default async function AdminBulkShippingLabelsPage({
   const { ids } = await searchParams;
   if (!ids) notFound();
 
-  const idList = ids.split(",").map((s) => s.trim()).filter(Boolean);
-  if (idList.length === 0) notFound();
+  let orders;
 
-  const orders = await db.order.findMany({
-    where: { id: { in: idList } },
-    include: {
-      items: true,
-      address: true
-    },
-    orderBy: { createdAt: "desc" }
-  });
+  if (ids === "all") {
+    orders = await db.order.findMany({
+      include: {
+        items: true,
+        address: true
+      },
+      orderBy: { createdAt: "desc" }
+    });
+  } else {
+    const idList = ids.split(",").map((s) => s.trim()).filter(Boolean);
+    if (idList.length === 0) notFound();
+
+    orders = await db.order.findMany({
+      where: { id: { in: idList } },
+      include: {
+        items: true,
+        address: true
+      },
+      orderBy: { createdAt: "desc" }
+    });
+  }
 
   if (orders.length === 0) notFound();
 
@@ -50,7 +62,7 @@ export default async function AdminBulkShippingLabelsPage({
 
       {/* Printable Shipping Labels Batch */}
       <div className="mx-auto max-w-4xl space-y-12 print:space-y-0 print:max-w-none">
-        {orders.map((order, index) => {
+        {orders.map((order) => {
           const trackUrl = `https://kanchkart.com/track-order?orderNumber=${order.orderNumber}`;
 
           return (
@@ -148,7 +160,7 @@ export default async function AdminBulkShippingLabelsPage({
                 <div>
                   <p className="text-[11px] text-slate-500">Courier Partner: <strong className="text-slate-900">{order.courierPartner || "Standard Express Surface"}</strong></p>
                   <p className="text-[11px] text-slate-500 mb-2">AWB Tracking: <strong className="text-slate-900 font-mono">{order.trackingNumber || order.orderNumber}</strong></p>
-                  
+
                   {/* Barcode Component */}
                   <Barcode value={order.trackingNumber || order.orderNumber} className="w-48" />
                 </div>
