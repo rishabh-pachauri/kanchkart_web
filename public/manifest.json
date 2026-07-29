@@ -1,0 +1,24 @@
+{
+  "name": "KanchKart - Premium Glassware",
+  "short_name": "KanchKart",
+  "description": "Shop premium glass bottles, storage jars, drinkware, and luxury kitchen glassware from Firozabad.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#24211D",
+  "theme_color": "#24211D",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

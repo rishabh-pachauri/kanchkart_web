@@ -18,6 +18,7 @@ export function siteMetadata(input: {
   return {
     title,
     description,
+    manifest: "/manifest.json",
     icons: {
       icon: "/favicon.png",
       shortcut: "/favicon.png",
