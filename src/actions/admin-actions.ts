@@ -223,6 +223,37 @@ export async function updateOrderStatusAction(formData: FormData) {
   revalidatePath("/admin/orders");
 }
 
+const bulkOrderStatusSchema = z.object({
+  orderIds: z.array(z.string()).min(1),
+  status: z.nativeEnum(OrderStatus)
+});
+
+export async function bulkUpdateOrderStatusAction(orderIds: string[], status: OrderStatus) {
+  await requireAdmin();
+  const parsed = bulkOrderStatusSchema.parse({ orderIds, status });
+
+  await db.$transaction(
+    parsed.orderIds.map((id) =>
+      db.order.update({
+        where: { id },
+        data: {
+          status: parsed.status,
+          paymentStatus: parsed.status === "DELIVERED" ? PaymentStatus.PAID : undefined,
+          trackingEvents: {
+            create: {
+              status: parsed.status,
+              title: parsed.status.replaceAll("_", " ").toLowerCase(),
+              description: `Order status updated to ${parsed.status.replaceAll("_", " ")}.`
+            }
+          }
+        }
+      })
+    )
+  );
+
+  revalidatePath("/admin/orders");
+}
+
 export async function upsertCmsSectionAction(_: unknown, formData: FormData) {
   await requireAdmin();
   const parsed = cmsSectionSchema.safeParse({

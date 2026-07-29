@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PrintLabelButton } from "@/components/admin/print-label-button";
+import { Barcode } from "@/components/ui/barcode";
+import { QRCode } from "@/components/ui/qr-code";
 import { db } from "@/lib/db";
 import { formatPrice, toNumber } from "@/lib/money";
 import { formatDate } from "@/lib/utils";
@@ -20,6 +22,8 @@ export default async function AdminShippingLabelPage({ params }: { params: Promi
   });
 
   if (!order) notFound();
+
+  const trackUrl = `https://kanchkart.com/track-order?orderNumber=${order.orderNumber}`;
 
   return (
     <div className="min-h-screen bg-slate-100 p-6 md:p-12 text-slate-950 font-sans print:p-0 print:bg-white">
@@ -118,19 +122,20 @@ export default async function AdminShippingLabelPage({ params }: { params: Promi
           </table>
         </div>
 
-        {/* Footer Bar / Barcode */}
-        <div className="pt-6 flex items-center justify-between">
+        {/* Authentic QR Code & Barcode Verification Footer */}
+        <div className="pt-6 flex items-center justify-between gap-6">
           <div>
-            <p className="text-[11px] text-slate-500">Courier Partner: <strong className="text-slate-900">{order.courierPartner || "Standard Surface Express"}</strong></p>
-            <p className="text-[11px] text-slate-500">AWB Tracking: <strong className="text-slate-900 font-mono">{order.trackingNumber || "Pending Dispatch"}</strong></p>
+            <p className="text-[11px] text-slate-500">Courier Partner: <strong className="text-slate-900">{order.courierPartner || "Standard Express Surface"}</strong></p>
+            <p className="text-[11px] text-slate-500 mb-2">AWB Tracking: <strong className="text-slate-900 font-mono">{order.trackingNumber || order.orderNumber}</strong></p>
+
+            {/* Barcode Component */}
+            <Barcode value={order.trackingNumber || order.orderNumber} className="w-48" />
           </div>
 
-          {/* Barcode Mock Visual */}
-          <div className="flex flex-col items-end">
-            <div className="h-10 w-48 bg-slate-900 flex items-center justify-center p-1 rounded">
-              <div className="h-full w-full bg-[repeating-linear-gradient(90deg,#fff,#fff_2px,#000_2px,#000_5px)]" />
-            </div>
-            <p className="text-[9px] font-mono text-slate-600 mt-1">{order.orderNumber}</p>
+          {/* Authentic Scannable SVG QR Code */}
+          <div className="flex flex-col items-center border border-slate-300 p-2 rounded-xl bg-white shadow-sm">
+            <QRCode value={trackUrl} size={100} />
+            <span className="text-[9px] font-mono font-bold text-slate-700 mt-1 uppercase">Scan to Track</span>
           </div>
         </div>
       </div>
