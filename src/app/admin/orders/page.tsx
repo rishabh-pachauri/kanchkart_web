@@ -8,6 +8,9 @@ export const metadata = {
 
 export default async function AdminOrdersPage() {
   const rawOrders = await db.order.findMany({
+    where: {
+      paymentStatus: "PAID"
+    },
     include: {
       items: {
         include: {
