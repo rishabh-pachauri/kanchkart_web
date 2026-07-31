@@ -193,7 +193,10 @@ export async function createOrderFromCheckout(input: unknown) {
 
   try {
     await sendOrderConfirmation(order);
-    await sendAdminNotification(order);
+    await sendAdminNotification(
+      `New KanchKart Order ${order.orderNumber}`,
+      `<p>New order received from <strong>${order.customerName}</strong> (${order.customerEmail}). Total: <strong>${formatPrice(order.grandTotal)}</strong></p>`
+    );
   } catch {
     // Continue even if email delivery encounters minor issues
   }
