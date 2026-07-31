@@ -90,7 +90,7 @@ export function CheckoutClient() {
       }
 
       const razorpay = new RazorpayConstructor({
-        key: result.razorpay.key || "rzp_test_TK0IpLD5Hf9FBM",
+        key: result.razorpay.key,
         amount: result.razorpay.amount,
         currency: result.razorpay.currency || "INR",
         name: "KanchKart",

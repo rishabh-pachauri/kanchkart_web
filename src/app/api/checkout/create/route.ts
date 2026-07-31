@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createOrderFromCheckout } from "@/lib/orders";
-import { createRazorpayOrder, publicRazorpayKey } from "@/lib/razorpay";
+import { createRazorpayOrder } from "@/lib/razorpay";
+import { env } from "@/lib/env";
 import { db } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
 
@@ -60,12 +61,15 @@ export async function POST(request: NextRequest) {
       }
     });
 
+    // Always use the same key_id that was used to create the Razorpay order
+    const razorpayPublicKey = env.razorpayKeyId;
+
     return NextResponse.json({
       orderId: order.id,
       orderNumber: order.orderNumber,
       paymentMethod: "RAZORPAY",
       razorpay: {
-        key: publicRazorpayKey(),
+        key: razorpayPublicKey,
         id: razorpay.id,
         amount: razorpay.amount,
         currency: razorpay.currency
