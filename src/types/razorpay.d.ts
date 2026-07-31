@@ -33,7 +33,7 @@ declare global {
 
   interface RazorpayInstance {
     open: () => void;
-    on?: (event: string, handler: (response: unknown) => void) => void;
+    on: (event: string, handler: (response: unknown) => void) => void;
   }
 
   interface Window {

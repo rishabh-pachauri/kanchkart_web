@@ -149,14 +149,16 @@ export function RazorpayStandardCheckout({
       const razorpayInstance = new window.Razorpay(options);
 
       // Handle payment failure event
-      razorpayInstance.on("payment.failed", (failedResponse: unknown) => {
-        setLoading(false);
-        const failureDetails = (failedResponse as { error?: { description?: string } })?.error?.description;
-        setStatusMsg({
-          type: "error",
-          text: `Payment Failed: ${failureDetails || "Transaction declined by bank or card issuer."}`
+      if (typeof razorpayInstance.on === "function") {
+        razorpayInstance.on("payment.failed", (failedResponse: unknown) => {
+          setLoading(false);
+          const failureDetails = (failedResponse as { error?: { description?: string } })?.error?.description;
+          setStatusMsg({
+            type: "error",
+            text: `Payment Failed: ${failureDetails || "Transaction declined by bank or card issuer."}`
+          });
         });
-      });
+      }
 
       razorpayInstance.open();
     } catch (err: unknown) {
