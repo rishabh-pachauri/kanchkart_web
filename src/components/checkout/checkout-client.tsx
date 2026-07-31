@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
-import { CreditCard, AlertCircle, ShieldCheck } from "lucide-react";
+import { CreditCard, AlertCircle, ShieldCheck, Tag, CheckCircle2, X } from "lucide-react";
 import { useCart } from "@/components/cart/cart-provider";
 import { GoogleAddressAutocomplete } from "@/components/checkout/google-address-autocomplete";
 import { Button } from "@/components/ui/button";
@@ -29,11 +29,26 @@ export function CheckoutClient() {
   const { items, subtotal, clearCart } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Coupon state
+  const [couponInput, setCouponInput] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    description: string;
+    discount: number;
+  } | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState<string | null>(null);
+
   const paymentMethod = "RAZORPAY";
   const shipping = shippingFor(subtotal);
-  const total = useMemo(() => subtotal + shipping, [shipping, subtotal]);
+  const discount = appliedCoupon?.discount ?? 0;
+  const total = useMemo(
+    () => Math.max(0, subtotal + shipping - discount),
+    [subtotal, shipping, discount]
+  );
 
-  async function submit(event: React.FormEvent<HTMLFormElement>) {
+  async function applyRazorpay(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
     setError(null);
@@ -47,7 +62,7 @@ export function CheckoutClient() {
 
     const payload = {
       paymentMethod,
-      couponCode: getOptional("couponCode"),
+      couponCode: appliedCoupon?.code,
       items: items.map((item) => ({
         productId: item.productId,
         variantId: item.variantId,
@@ -131,6 +146,38 @@ export function CheckoutClient() {
     }
   }
 
+  async function handleApplyCoupon() {
+    const code = couponInput.trim();
+    if (!code) return;
+    setCouponLoading(true);
+    setCouponError(null);
+    setAppliedCoupon(null);
+
+    try {
+      const res = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code, subtotal })
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setCouponError(data.error || "Invalid coupon.");
+      } else {
+        setAppliedCoupon({ code: data.code, description: data.description, discount: data.discount });
+      }
+    } catch {
+      setCouponError("Could not validate coupon. Please try again.");
+    } finally {
+      setCouponLoading(false);
+    }
+  }
+
+  function removeCoupon() {
+    setAppliedCoupon(null);
+    setCouponInput("");
+    setCouponError(null);
+  }
+
   if (!items.length) {
     return (
       <div className="rounded-md border bg-white/70 p-8 text-center space-y-4">
@@ -144,7 +191,7 @@ export function CheckoutClient() {
   }
 
   return (
-    <form onSubmit={submit} className="grid gap-8 lg:grid-cols-[1fr_360px]">
+    <form onSubmit={applyRazorpay} className="grid gap-8 lg:grid-cols-[1fr_360px]">
       <div className="rounded-2xl border border-gold/20 bg-white/90 p-6 shadow-sm space-y-6">
         <h2 className="font-serif text-3xl font-semibold text-charcoal">Delivery details</h2>
 
@@ -198,12 +245,58 @@ export function CheckoutClient() {
               className="bg-white border-gold/20 focus:border-gold"
             />
           </div>
+
+          {/* ── Coupon Code with Apply Button ── */}
           <div className="grid gap-2">
             <Label htmlFor="couponCode" className="text-xs font-bold uppercase tracking-wider text-charcoal">
-              Coupon Code (Optional)
+              Promo Code (Optional)
             </Label>
-            <Input id="couponCode" name="couponCode" placeholder="e.g. WELCOME10" className="bg-white border-gold/20 focus:border-gold" />
+            {appliedCoupon ? (
+              <div className="flex items-center gap-2 rounded-lg border border-emerald-300 bg-emerald-50 px-3 py-2">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-emerald-800">{appliedCoupon.code} applied!</p>
+                  <p className="text-xs text-emerald-600 truncate">{appliedCoupon.description}</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={removeCoupon}
+                  className="text-emerald-700 hover:text-rose-600 transition-colors ml-1"
+                  title="Remove coupon"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <div className="flex gap-2">
+                <Input
+                  id="couponCode"
+                  value={couponInput}
+                  onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponError(null); }}
+                  onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); void handleApplyCoupon(); } }}
+                  placeholder="e.g. KANCH10"
+                  className="bg-white border-gold/20 focus:border-gold uppercase tracking-widest font-mono text-sm"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="shrink-0 border-gold/40 text-amber-800 hover:bg-gold/10 font-bold px-4"
+                  onClick={handleApplyCoupon}
+                  disabled={couponLoading || !couponInput.trim()}
+                >
+                  <Tag className="h-4 w-4 mr-1" />
+                  {couponLoading ? "..." : "Apply"}
+                </Button>
+              </div>
+            )}
+            {couponError && (
+              <p className="text-xs text-rose-600 flex items-center gap-1 mt-0.5">
+                <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                {couponError}
+              </p>
+            )}
           </div>
+
           <div className="sm:col-span-2 grid gap-2">
             <Label className="text-xs font-bold uppercase tracking-wider text-charcoal">Address search</Label>
             <GoogleAddressAutocomplete onPlace={() => undefined} />
@@ -273,14 +366,38 @@ export function CheckoutClient() {
               <span className="font-bold text-charcoal">{formatPrice(item.price * item.quantity)}</span>
             </p>
           ))}
+
           <p className="border-t border-gold/15 pt-3 flex justify-between text-muted-foreground">
+            <span>Subtotal</span>
+            <span className="font-semibold text-charcoal">{formatPrice(subtotal)}</span>
+          </p>
+
+          <p className="flex justify-between text-muted-foreground">
             <span>Shipping Fee</span>
             <span className="font-semibold text-charcoal">{shipping ? formatPrice(shipping) : "FREE"}</span>
           </p>
-          <p className="flex justify-between text-lg font-bold border-t border-gold/15 pt-3 text-charcoal">
-            <span>Total Payable</span>
-            <span className="text-amber-800">{formatPrice(total)}</span>
-          </p>
+
+          {appliedCoupon && (
+            <p className="flex justify-between text-emerald-700 font-semibold">
+              <span className="flex items-center gap-1">
+                <Tag className="h-3.5 w-3.5" />
+                Discount ({appliedCoupon.code})
+              </span>
+              <span>− {formatPrice(discount)}</span>
+            </p>
+          )}
+
+          <div className="border-t border-gold/15 pt-3">
+            <p className="flex justify-between text-lg font-bold text-charcoal">
+              <span>Total Payable</span>
+              <span className="text-amber-800">{formatPrice(total)}</span>
+            </p>
+            {appliedCoupon && (
+              <p className="text-xs text-emerald-600 text-right mt-0.5 font-medium">
+                You save {formatPrice(discount)} with {appliedCoupon.code} 🎉
+              </p>
+            )}
+          </div>
         </div>
 
         <Button className="w-full gap-2 py-6 font-bold shadow-md" variant="gold" disabled={loading}>
