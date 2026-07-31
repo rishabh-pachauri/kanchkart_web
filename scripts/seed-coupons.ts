@@ -20,7 +20,7 @@ async function main() {
     {
       code: "WELCOME",
       description: "Flat ₹50 off on orders above ₹300",
-      type: "FLAT" as const,
+      type: "FIXED" as const,
       value: 50,
       minOrderValue: 300,
       maxDiscount: null,
