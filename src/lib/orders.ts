@@ -66,22 +66,6 @@ export async function createOrderFromCheckout(input: unknown) {
       const variant = item.variantId
         ? product.variants.find((candidate) => candidate.id === item.variantId)
         : null;
-      const availableStock = variant ? variant.stock : product.stock;
-      if (availableStock < item.quantity) {
-        // Automatically adjust or allow purchase if fallback
-        const unitPrice = toNumber(variant?.price ?? product.price);
-        const lineTotal = unitPrice * item.quantity;
-        const gstPercent = toNumber(product.gstPercent);
-        return {
-          input: item,
-          product,
-          variant,
-          unitPrice,
-          lineTotal,
-          gstPercent,
-          gstTotal: gstIncluded(lineTotal, gstPercent)
-        };
-      }
 
       const unitPrice = toNumber(variant?.price ?? product.price);
       const lineTotal = unitPrice * item.quantity;
@@ -159,14 +143,12 @@ export async function createOrderFromCheckout(input: unknown) {
           create: rows.map((row) => ({
             productId: row.product.id,
             variantId: row.variant?.id,
-            productName: row.product.name,
+            name: row.product.name,
             sku: row.product.sku,
-            variantName: row.variant?.name,
             unitPrice: row.unitPrice,
             quantity: row.input.quantity,
             lineTotal: row.lineTotal,
-            gstPercent: row.gstPercent,
-            gstTotal: row.gstTotal
+            gstPercent: row.gstPercent
           }))
         },
         payments: {
@@ -212,7 +194,7 @@ export async function createOrderFromCheckout(input: unknown) {
   try {
     await sendOrderConfirmation(order);
     await sendAdminNotification(order);
-  } catch (_emailErr) {
+  } catch {
     // Continue even if email delivery encounters minor issues
   }
 
