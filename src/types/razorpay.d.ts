@@ -7,6 +7,8 @@ declare global {
     razorpay_signature: string;
   }
 
+  type RazorpaySuccessResponse = RazorpayPaymentResponse;
+
   interface RazorpayOptions {
     key: string;
     amount: number;
