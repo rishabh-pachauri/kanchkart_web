@@ -11,35 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatPrice, shippingFor } from "@/lib/money";
 
-declare global {
-  interface Window {
-    Razorpay?: new (options: RazorpayOptions) => { open: () => void };
-  }
-}
 
-type RazorpayPaymentResponse = {
-  razorpay_order_id: string;
-  razorpay_payment_id: string;
-  razorpay_signature: string;
-};
-
-type RazorpayOptions = {
-  key: string;
-  amount: number;
-  currency: string;
-  name: string;
-  description: string;
-  order_id: string;
-  prefill: {
-    name: FormDataEntryValue | null;
-    email: FormDataEntryValue | null;
-    contact: FormDataEntryValue | null;
-  };
-  handler: (payment: RazorpayPaymentResponse) => Promise<void>;
-  modal: {
-    ondismiss: () => void;
-  };
-};
 
 async function loadRazorpay() {
   if (window.Razorpay) return true;

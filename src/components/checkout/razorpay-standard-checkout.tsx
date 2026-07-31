@@ -6,39 +6,7 @@ import { CreditCard, CheckCircle2, AlertCircle, ShieldCheck } from "lucide-react
 import { Button } from "@/components/ui/button";
 import { env } from "@/lib/env";
 
-declare global {
-  interface Window {
-    Razorpay?: new (options: RazorpayOptions) => { open: () => void; on: (event: string, handler: (response: unknown) => void) => void };
-  }
-}
 
-type RazorpaySuccessResponse = {
-  razorpay_payment_id: string;
-  razorpay_order_id: string;
-  razorpay_signature: string;
-};
-
-type RazorpayOptions = {
-  key: string;
-  amount: number;
-  currency: string;
-  name: string;
-  description: string;
-  order_id: string;
-  prefill?: {
-    name?: string;
-    email?: string;
-    contact?: string;
-  };
-  notes?: Record<string, string>;
-  theme?: {
-    color?: string;
-  };
-  handler: (response: RazorpaySuccessResponse) => Promise<void>;
-  modal?: {
-    ondismiss?: () => void;
-  };
-};
 
 type Props = {
   amountInRupees?: number; // e.g. 199 for ₹199
