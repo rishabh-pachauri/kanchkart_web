@@ -10,23 +10,32 @@ export const cartItemSchema = z.object({
 });
 
 export const addressSchema = z.object({
-  name: z.string().trim().min(2).max(100),
+  name: z.string().trim().min(2, "Full name must be at least 2 characters").max(100),
   email: emailSchema,
   phone: phoneSchema,
-  line1: z.string().trim().min(4).max(180),
-  line2: z.string().trim().max(180).optional(),
-  city: z.string().trim().min(2).max(80),
-  state: z.string().trim().min(2).max(80),
-  postalCode: z.string().trim().min(4).max(12),
+  line1: z.string().trim().min(4, "Address line 1 must be at least 4 characters").max(180),
+  line2: z.preprocess(
+    (val) => (val === "" || val === null ? undefined : val),
+    z.string().trim().max(180).optional()
+  ),
+  city: z.string().trim().min(2, "City is required").max(80),
+  state: z.string().trim().min(2, "State is required").max(80),
+  postalCode: z.string().trim().min(4, "PIN code must be at least 4 digits").max(12),
   country: z.string().trim().min(2).max(80).default("India"),
-  landmark: z.string().trim().max(120).optional()
+  landmark: z.preprocess(
+    (val) => (val === "" || val === null ? undefined : val),
+    z.string().trim().max(120).optional()
+  )
 });
 
 export const checkoutSchema = z.object({
-  items: z.array(cartItemSchema).min(1),
+  items: z.array(cartItemSchema).min(1, "Your cart is empty"),
   address: addressSchema,
   paymentMethod: z.enum(["RAZORPAY"]),
-  couponCode: z.string().trim().max(40).optional()
+  couponCode: z.preprocess(
+    (val) => (val === "" || val === null ? undefined : val),
+    z.string().trim().max(40).optional()
+  )
 });
 
 export const productSchema = z.object({

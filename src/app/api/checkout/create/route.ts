@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
 import { createOrderFromCheckout } from "@/lib/orders";
 import { createRazorpayOrder, publicRazorpayKey } from "@/lib/razorpay";
 import { db } from "@/lib/db";
@@ -7,10 +8,11 @@ import { rateLimit } from "@/lib/rate-limit";
 export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for") || "unknown";
   const limited = await rateLimit(`checkout:${ip}`, 10, 60);
-  if (!limited.ok) return NextResponse.json({ error: "Too many requests." }, { status: 429 });
+  if (!limited.ok) return NextResponse.json({ error: "Too many requests. Please wait a moment." }, { status: 429 });
 
   try {
-    const order = await createOrderFromCheckout(await request.json());
+    const payload = await request.json();
+    const order = await createOrderFromCheckout(payload);
 
     const razorpay = await createRazorpayOrder(order.orderNumber, order.grandTotal);
     await db.payment.updateMany({
@@ -32,9 +34,19 @@ export async function POST(request: NextRequest) {
         currency: razorpay.currency
       }
     });
-  } catch (error) {
+  } catch (error: unknown) {
+    let errorMessage = "Checkout failed.";
+    if (error instanceof z.ZodError) {
+      const firstIssue = error.issues[0];
+      errorMessage = firstIssue
+        ? `${firstIssue.path.join(".")}: ${firstIssue.message}`
+        : "Invalid checkout submission data.";
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+    }
+
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Checkout failed." },
+      { error: errorMessage },
       { status: 400 }
     );
   }
