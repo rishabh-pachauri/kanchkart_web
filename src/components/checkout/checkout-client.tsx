@@ -39,25 +39,31 @@ export function CheckoutClient() {
     setError(null);
 
     const form = new FormData(event.currentTarget);
+    const getString = (key: string) => (form.get(key) as string) || "";
+    const getOptional = (key: string) => {
+      const val = form.get(key) as string;
+      return val && val.trim() !== "" ? val.trim() : undefined;
+    };
+
     const payload = {
       paymentMethod,
-      couponCode: form.get("couponCode") || undefined,
+      couponCode: getOptional("couponCode"),
       items: items.map((item) => ({
         productId: item.productId,
         variantId: item.variantId,
         quantity: item.quantity
       })),
       address: {
-        name: form.get("name"),
-        email: form.get("email"),
-        phone: form.get("phone"),
-        line1: form.get("line1"),
-        line2: form.get("line2") || undefined,
-        city: form.get("city"),
-        state: form.get("state"),
-        postalCode: form.get("postalCode"),
+        name: getString("name"),
+        email: getString("email"),
+        phone: getString("phone"),
+        line1: getString("line1"),
+        line2: getOptional("line2"),
+        city: getString("city"),
+        state: getString("state"),
+        postalCode: getString("postalCode"),
         country: "India",
-        landmark: form.get("landmark") || undefined
+        landmark: getOptional("landmark")
       }
     };
 

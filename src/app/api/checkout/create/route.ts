@@ -10,10 +10,47 @@ export async function POST(request: NextRequest) {
   const limited = await rateLimit(`checkout:${ip}`, 10, 60);
   if (!limited.ok) return NextResponse.json({ error: "Too many requests. Please wait a moment." }, { status: 429 });
 
+  let payload: unknown;
   try {
-    const payload = await request.json();
-    const order = await createOrderFromCheckout(payload);
+    payload = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON in request body." }, { status: 400 });
+  }
 
+  // Step 1: Validate and create the order
+  let order: Awaited<ReturnType<typeof createOrderFromCheckout>>;
+  try {
+    order = await createOrderFromCheckout(payload);
+  } catch (error: unknown) {
+    let errorMessage = "Checkout failed.";
+    let statusCode = 400;
+
+    if (error instanceof z.ZodError) {
+      const firstIssue = error.issues[0];
+      errorMessage = firstIssue
+        ? `Validation error – ${firstIssue.path.join(".")}: ${firstIssue.message}`
+        : "Invalid checkout data submitted.";
+    } else if (error instanceof Error) {
+      errorMessage = error.message;
+      // Database/server errors get a 500
+      if (
+        errorMessage.includes("Foreign key") ||
+        errorMessage.includes("Unique constraint") ||
+        errorMessage.includes("database") ||
+        errorMessage.includes("prisma") ||
+        errorMessage.includes("connect")
+      ) {
+        statusCode = 500;
+        errorMessage = "Server error while saving order. Please try again.";
+      }
+    }
+
+    console.error("[CHECKOUT ERROR - createOrderFromCheckout]:", error);
+    return NextResponse.json({ error: errorMessage }, { status: statusCode });
+  }
+
+  // Step 2: Create Razorpay order
+  try {
     const razorpay = await createRazorpayOrder(order.orderNumber, order.grandTotal);
     await db.payment.updateMany({
       where: { orderId: order.id, method: "RAZORPAY" },
@@ -35,19 +72,8 @@ export async function POST(request: NextRequest) {
       }
     });
   } catch (error: unknown) {
-    let errorMessage = "Checkout failed.";
-    if (error instanceof z.ZodError) {
-      const firstIssue = error.issues[0];
-      errorMessage = firstIssue
-        ? `${firstIssue.path.join(".")}: ${firstIssue.message}`
-        : "Invalid checkout submission data.";
-    } else if (error instanceof Error) {
-      errorMessage = error.message;
-    }
-
-    return NextResponse.json(
-      { error: errorMessage },
-      { status: 400 }
-    );
+    console.error("[CHECKOUT ERROR - createRazorpayOrder]:", error);
+    const errorMessage = error instanceof Error ? error.message : "Failed to initialize payment gateway.";
+    return NextResponse.json({ error: `Payment setup failed: ${errorMessage}` }, { status: 500 });
   }
 }
