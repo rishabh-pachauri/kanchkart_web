@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
           }
         });
       }
-    } catch (_dbErr) {
+    } catch {
       // Continue even if database record update fails or is optional
     }
 

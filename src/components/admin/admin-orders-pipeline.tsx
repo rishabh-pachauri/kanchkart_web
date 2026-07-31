@@ -92,7 +92,7 @@ export function AdminOrdersPipeline({ initialOrders }: PipelineProps) {
       );
       setSelectedIds([]);
       router.refresh();
-    } catch (_err) {
+    } catch {
       alert("Failed to update status.");
     } finally {
       setLoading(false);

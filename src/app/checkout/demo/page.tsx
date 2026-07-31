@@ -1,4 +1,4 @@
-import { ShieldCheck, Lock, CreditCard, Sparkles } from "lucide-react";
+import { ShieldCheck, Lock, Sparkles } from "lucide-react";
 import { RazorpayStandardCheckout } from "@/components/checkout/razorpay-standard-checkout";
 
 export const metadata = {

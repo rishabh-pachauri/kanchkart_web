@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    let amountInPaise = Number(body.amount);
+    const amountInPaise = Number(body.amount);
 
     // If amount is not provided or invalid
     if (isNaN(amountInPaise)) {
