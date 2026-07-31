@@ -9,7 +9,8 @@ import {
   Settings,
   ExternalLink,
   PlusCircle,
-  Sparkles
+  Sparkles,
+  Tag
 } from "lucide-react";
 import Link from "next/link";
 
@@ -51,12 +52,17 @@ export default async function AdminLayout({
       icon: ShoppingCart
     },
     {
+      label: "Coupons & Offers",
+      href: "/admin/coupons",
+      icon: Tag
+    },
+    {
       label: "Customers",
       href: "/admin/customers",
       icon: Users
     },
     {
-      label: "CMS & Content",
+      label: "CMS & Banners",
       href: "/admin/cms",
       icon: FileText
     },

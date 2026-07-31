@@ -96,7 +96,10 @@ export async function createOrderFromCheckout(input: unknown) {
         })
       : null;
 
-    const discountTotal = coupon
+    const minOrderVal = coupon?.minOrderValue ? toNumber(coupon.minOrderValue) : 0;
+    const isCouponEligible = coupon && subtotal >= minOrderVal;
+
+    const discountTotal = isCouponEligible
       ? Math.min(
           coupon.maxDiscount ? toNumber(coupon.maxDiscount) : Number.MAX_SAFE_INTEGER,
           coupon.type === "PERCENTAGE"
@@ -104,6 +107,13 @@ export async function createOrderFromCheckout(input: unknown) {
             : toNumber(coupon.value)
         )
       : 0;
+
+    if (isCouponEligible) {
+      await tx.coupon.update({
+        where: { id: coupon.id },
+        data: { usedCount: { increment: 1 } }
+      });
+    }
 
     const address = await tx.address.create({
       data: {

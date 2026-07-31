@@ -6,6 +6,7 @@ import { CartLink } from "@/components/cart/cart-link";
 import { Button } from "@/components/ui/button";
 import { getNavigationData } from "@/lib/commerce";
 import { auth } from "@/lib/auth";
+import { db } from "@/lib/db";
 
 const primaryLinks = [
   { href: "/shop", label: "Shop" },
@@ -16,15 +17,26 @@ const primaryLinks = [
 ];
 
 export async function SiteHeader() {
-  const [{ categories }, session] = await Promise.all([getNavigationData(), auth()]);
+  const [{ categories }, session, activeCoupon] = await Promise.all([
+    getNavigationData(),
+    auth(),
+    db.coupon.findFirst({
+      where: { isActive: true },
+      orderBy: { createdAt: "desc" }
+    })
+  ]);
+
+  const promoCodeText = activeCoupon
+    ? `Use Code: ${activeCoupon.code} (${activeCoupon.description || `${activeCoupon.type === "PERCENTAGE" ? activeCoupon.value + "%" : "₹" + activeCoupon.value} OFF`})`
+    : "Use Code: KANCH10";
 
   return (
     <>
       {/* Top Announcement Bar */}
       <div className="bg-charcoal text-ivory text-xs font-medium py-1.5 px-4 text-center flex items-center justify-center gap-2 border-b border-gold/20">
-        <Sparkles className="h-3.5 w-3.5 text-gold animate-pulse" />
-        <span>Free Express Delivery Across India on Orders Above ₹999</span>
-        <span className="hidden md:inline text-gold font-bold">| Code: KANCH10</span>
+        <Sparkles className="h-3.5 w-3.5 text-gold animate-pulse shrink-0" />
+        <span>Free Express Shipping Across India</span>
+        <span className="hidden md:inline text-gold font-bold">| {promoCodeText}</span>
       </div>
 
       <header className="sticky top-0 z-40 border-b border-gold/15 bg-ivory/85 backdrop-blur-xl transition-all">
