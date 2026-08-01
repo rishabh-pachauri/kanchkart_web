@@ -127,6 +127,34 @@ async function main() {
       }
     },
     {
+      name: "Heavy Glass Classic Beer Mug (450ml)",
+      slug: "heavy-glass-classic-beer-mug-450ml",
+      sku: "KK-MUG-BEER-450",
+      description:
+        "Elevate your draught beer experience with our Heavy Glass Classic Beer Mug (450ml). Built with thick, durable soda-lime glass, an ergonomic sturdy handle, and a crystal clear oval cut pattern for superior clarity. Engineered for long-lasting durability, dishwasher safe, and ideal for home bars, lounge parties, and everyday chilled brews.",
+      shortDescription: "450ml heavy glass beer mug with crystal clear cut finish & sturdy handle.",
+      categoryId: drinkware.id,
+      price: "149.00",
+      compareAtPrice: "299.00",
+      stock: 300,
+      images: [
+        "/products/beer-mug-banner.jpg",
+        "/products/beer-mug-studio.jpg",
+        "/products/beer-mug-macro.jpg",
+        "/products/beer-mug-bar.jpg"
+      ],
+      isFeatured: true,
+      isBestSeller: true,
+      isNewArrival: true,
+      specifications: {
+        capacity: "450 ml",
+        material: "Heavy-Duty Soda-Lime Glass",
+        handle: "Ergonomic Sturdy Handle",
+        finish: "Crystal Clear Oval Cut Pattern",
+        care: "Dishwasher safe"
+      }
+    },
+    {
       name: "Crystal Diamond Cut Glass Bottle (1000ml)",
       slug: "crystal-diamond-cut-glass-bottle-1000ml",
       sku: "KK-BTL-DC-299",

@@ -4,6 +4,7 @@ import { v2 as cloudinary } from "cloudinary";
 import { env } from "@/lib/env";
 import { BOTTLE_IMAGES_DATA } from "@/lib/bottle-images-data";
 import { GRID_BOTTLE_IMAGES_DATA } from "@/lib/grid-bottle-images-data";
+import { BEER_MUG_IMAGES_DATA } from "@/lib/beer-mug-images-data";
 
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get("token");
@@ -12,18 +13,33 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // 1. Get or create Category
-    let category = await db.category.findUnique({
+    // 1. Get or create Categories
+    let bottleCategory = await db.category.findUnique({
       where: { slug: "glass-bottles" }
     });
 
-    if (!category) {
-      category = await db.category.create({
+    if (!bottleCategory) {
+      bottleCategory = await db.category.create({
         data: {
           name: "Glass Bottles",
           slug: "glass-bottles",
           description: "Premium borosilicate glass bottles for daily hydration.",
           imageUrl: "/categories/glass-bottles.jpg"
+        }
+      });
+    }
+
+    let drinkwareCategory = await db.category.findUnique({
+      where: { slug: "drinkware" }
+    });
+
+    if (!drinkwareCategory) {
+      drinkwareCategory = await db.category.create({
+        data: {
+          name: "Drinkware",
+          slug: "drinkware",
+          description: "Clear glass cups, mugs, tumblers, and everyday drinkware.",
+          imageUrl: "/categories/drinkware.jpg"
         }
       });
     }
@@ -46,17 +62,18 @@ export async function GET(request: NextRequest) {
     // Target slugs to keep
     const slug1 = "pure-glass-textured-water-bottle";
     const slug2 = "500ml-square-check-glass-bottle";
+    const slug3 = "heavy-glass-classic-beer-mug-450ml";
 
     // 2. Delete ALL other products from database (and their media) to eliminate duplicates
     const deleteResult = await db.product.deleteMany({
       where: {
-        slug: { notIn: [slug1, slug2] }
+        slug: { notIn: [slug1, slug2, slug3] }
       }
     });
 
     const uploadLogs: string[] = [];
 
-    // ── Helper to upload image set to Cloudinary ──
+    // Helper to upload image set to Cloudinary
     async function uploadImageSet(
       slug: string,
       images: Array<{ name: string; b64Data: string; fallbackUrl: string }>
@@ -110,7 +127,7 @@ export async function GET(request: NextRequest) {
         sku: "KK-BTL-PG-199",
         description: "Switch from plastic to pure glass. Crafted from high-grade borosilicate glass, this eco-friendly 750ml water bottle features an elegant textured beaded grip and a leak-proof stainless steel cap. Pure, safe, and sustainable for everyday hydration.",
         shortDescription: "Pure, safe, and sustainable 750ml glass water bottle with stainless steel cap.",
-        categoryId: category.id,
+        categoryId: bottleCategory.id,
         price: 199.00,
         compareAtPrice: 299.00,
         stock: 500,
@@ -125,7 +142,7 @@ export async function GET(request: NextRequest) {
         sku: "KK-BTL-PG-199",
         description: "Switch from plastic to pure glass. Crafted from high-grade borosilicate glass, this eco-friendly 750ml water bottle features an elegant textured beaded grip and a leak-proof stainless steel cap. Pure, safe, and sustainable for everyday hydration.",
         shortDescription: "Pure, safe, and sustainable 750ml glass water bottle with stainless steel cap.",
-        categoryId: category.id,
+        categoryId: bottleCategory.id,
         price: 199.00,
         compareAtPrice: 299.00,
         stock: 500,
@@ -156,7 +173,7 @@ export async function GET(request: NextRequest) {
         sku: "KK-BTL-SQ-500",
         description: "Stay hydrated this summer with our 500ml Square Check Glass Bottle. Crafted from premium, eco-friendly borosilicate glass, this compact travel-friendly bottle features a unique square check lattice pattern for an anti-slip grip and a 100% leak-proof stainless steel cap. Reusable, easy to carry, and built for daily summer hydration.",
         shortDescription: "500ml leak-proof borosilicate glass bottle with square check texture.",
-        categoryId: category.id,
+        categoryId: bottleCategory.id,
         price: 149.00,
         compareAtPrice: 299.00,
         stock: 350,
@@ -171,7 +188,7 @@ export async function GET(request: NextRequest) {
         sku: "KK-BTL-SQ-500",
         description: "Stay hydrated this summer with our 500ml Square Check Glass Bottle. Crafted from premium, eco-friendly borosilicate glass, this compact travel-friendly bottle features a unique square check lattice pattern for an anti-slip grip and a 100% leak-proof stainless steel cap. Reusable, easy to carry, and built for daily summer hydration.",
         shortDescription: "500ml leak-proof borosilicate glass bottle with square check texture.",
-        categoryId: category.id,
+        categoryId: bottleCategory.id,
         price: 149.00,
         compareAtPrice: 299.00,
         stock: 350,
@@ -185,6 +202,52 @@ export async function GET(request: NextRequest) {
     await db.productMedia.deleteMany({ where: { productId: p2.id } });
     await db.productMedia.createMany({
       data: product2Media.map((m) => ({ ...m, productId: p2.id }))
+    });
+
+    // ── Product 3: Heavy Glass Classic Beer Mug (450ml, ₹149, MRP ₹299) ──
+    const product3Media = await uploadImageSet(slug3, [
+      { name: "banner", b64Data: BEER_MUG_IMAGES_DATA.banner, fallbackUrl: "/products/beer-mug-banner.jpg" },
+      { name: "studio", b64Data: BEER_MUG_IMAGES_DATA.studio, fallbackUrl: "/products/beer-mug-studio.jpg" },
+      { name: "macro", b64Data: BEER_MUG_IMAGES_DATA.macro, fallbackUrl: "/products/beer-mug-macro.jpg" },
+      { name: "bar", b64Data: BEER_MUG_IMAGES_DATA.bar, fallbackUrl: "/products/beer-mug-bar.jpg" }
+    ]);
+
+    const p3 = await db.product.upsert({
+      where: { slug: slug3 },
+      update: {
+        name: "Heavy Glass Classic Beer Mug (450ml)",
+        sku: "KK-MUG-BEER-450",
+        description: "Elevate your draught beer experience with our Heavy Glass Classic Beer Mug (450ml). Built with thick, durable soda-lime glass, an ergonomic sturdy handle, and a crystal clear oval cut pattern for superior clarity. Engineered for long-lasting durability, dishwasher safe, and ideal for home bars, lounge parties, and everyday chilled brews.",
+        shortDescription: "450ml heavy glass beer mug with crystal clear cut finish & sturdy handle.",
+        categoryId: drinkwareCategory.id,
+        price: 149.00,
+        compareAtPrice: 299.00,
+        stock: 300,
+        isActive: true,
+        isFeatured: true,
+        isBestSeller: true,
+        isNewArrival: true
+      },
+      create: {
+        name: "Heavy Glass Classic Beer Mug (450ml)",
+        slug: slug3,
+        sku: "KK-MUG-BEER-450",
+        description: "Elevate your draught beer experience with our Heavy Glass Classic Beer Mug (450ml). Built with thick, durable soda-lime glass, an ergonomic sturdy handle, and a crystal clear oval cut pattern for superior clarity. Engineered for long-lasting durability, dishwasher safe, and ideal for home bars, lounge parties, and everyday chilled brews.",
+        shortDescription: "450ml heavy glass beer mug with crystal clear cut finish & sturdy handle.",
+        categoryId: drinkwareCategory.id,
+        price: 149.00,
+        compareAtPrice: 299.00,
+        stock: 300,
+        isActive: true,
+        isFeatured: true,
+        isBestSeller: true,
+        isNewArrival: true
+      }
+    });
+
+    await db.productMedia.deleteMany({ where: { productId: p3.id } });
+    await db.productMedia.createMany({
+      data: product3Media.map((m) => ({ ...m, productId: p3.id }))
     });
 
     const activeListings = await db.product.findMany({
