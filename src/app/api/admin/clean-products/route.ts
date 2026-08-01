@@ -2,8 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { v2 as cloudinary } from "cloudinary";
 import { env } from "@/lib/env";
-import path from "path";
-import fs from "fs";
 
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get("token");
@@ -30,88 +28,72 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Configure Cloudinary if keys exist
-    const hasCloudinary = Boolean(
-      env.cloudinaryCloudName && env.cloudinaryApiKey && env.cloudinaryApiSecret
-    );
+    // Check Cloudinary configuration
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME || env.cloudinaryCloudName;
+    const apiKey = process.env.CLOUDINARY_API_KEY || env.cloudinaryApiKey;
+    const apiSecret = process.env.CLOUDINARY_API_SECRET || env.cloudinaryApiSecret;
+
+    const hasCloudinary = Boolean(cloudName && apiKey && apiSecret);
 
     if (hasCloudinary) {
       cloudinary.config({
-        cloud_name: env.cloudinaryCloudName,
-        api_key: env.cloudinaryApiKey,
-        api_secret: env.cloudinaryApiSecret
+        cloud_name: cloudName,
+        api_key: apiKey,
+        api_secret: apiSecret
       });
     }
 
-    const brainDir = "/Users/admin/.gemini/antigravity/brain/97314eb0-2afe-47f4-a535-97cdd9c2f43f";
-    const publicProductsDir = path.join(process.cwd(), "public", "products");
+    const appOrigin = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin || "https://kanchkart.vercel.app";
 
-    if (!fs.existsSync(publicProductsDir)) {
-      fs.mkdirSync(publicProductsDir, { recursive: true });
-    }
-
-    // Copy generated images if brain directory exists
-    if (fs.existsSync(brainDir)) {
-      try {
-        const brainFiles = fs.readdirSync(brainDir);
-        brainFiles.forEach((file) => {
-          if (file.startsWith("bottle_lifestyle_desk")) {
-            fs.copyFileSync(path.join(brainDir, file), path.join(publicProductsDir, "pure-glass-bottle-desk.jpg"));
-          } else if (file.startsWith("bottle_macro_cap")) {
-            fs.copyFileSync(path.join(brainDir, file), path.join(publicProductsDir, "pure-glass-bottle-macro.jpg"));
-          } else if (file.startsWith("bottle_kitchen_counter")) {
-            fs.copyFileSync(path.join(brainDir, file), path.join(publicProductsDir, "pure-glass-bottle-kitchen.jpg"));
-          }
-        });
-      } catch (err) {
-        console.log("Note: Brain directory copy skipped during cloud runtime:", err);
-      }
-    }
-
-    // Images definition for the active glass bottle listing
+    // Define relative image paths
     const imageDefs = [
       {
         name: "cover",
-        filename: "pure-glass-water-bottle.jpg",
-        fallbackUrl: "/products/pure-glass-water-bottle.jpg"
+        relativePath: "/products/pure-glass-water-bottle.jpg"
       },
       {
         name: "desk",
-        filename: "pure-glass-bottle-desk.jpg",
-        fallbackUrl: "/products/pure-glass-bottle-desk.jpg"
+        relativePath: "/products/pure-glass-bottle-desk.jpg"
       },
       {
         name: "macro",
-        filename: "pure-glass-bottle-macro.jpg",
-        fallbackUrl: "/products/pure-glass-bottle-macro.jpg"
+        relativePath: "/products/pure-glass-bottle-macro.jpg"
       },
       {
         name: "kitchen",
-        filename: "pure-glass-bottle-kitchen.jpg",
-        fallbackUrl: "/products/pure-glass-bottle-kitchen.jpg"
+        relativePath: "/products/pure-glass-bottle-kitchen.jpg"
       }
     ];
 
     const results = [];
+    const uploadLogs: string[] = [];
 
     for (const product of activeProducts) {
       const updatedMediaUrls: { url: string; alt: string; position: number }[] = [];
 
       for (let i = 0; i < imageDefs.length; i++) {
         const def = imageDefs[i];
-        const localPath = path.join(publicProductsDir, def.filename);
-        let finalUrl = def.fallbackUrl;
+        let finalUrl = def.relativePath;
 
-        if (hasCloudinary && fs.existsSync(localPath)) {
+        if (hasCloudinary) {
+          const sourceUrl = `${appOrigin}${def.relativePath}`;
           try {
-            const uploadRes = await cloudinary.uploader.upload(localPath, {
-              folder: env.cloudinaryUploadFolder || "kanchkart/products",
+            uploadLogs.push(`Attempting Cloudinary upload from ${sourceUrl}...`);
+            const uploadRes = await cloudinary.uploader.upload(sourceUrl, {
+              folder: process.env.CLOUDINARY_UPLOAD_FOLDER || env.cloudinaryUploadFolder || "kanchkart/products",
               public_id: `${product.slug}_${def.name}_${Date.now()}`
             });
-            finalUrl = uploadRes.secure_url;
-          } catch (uploadErr) {
-            console.error(`Cloudinary upload error for ${def.filename}:`, uploadErr);
+
+            if (uploadRes?.secure_url) {
+              finalUrl = uploadRes.secure_url;
+              uploadLogs.push(`Success: ${finalUrl}`);
+            }
+          } catch (uploadErr: unknown) {
+            const errStr = uploadErr instanceof Error ? uploadErr.message : JSON.stringify(uploadErr);
+            uploadLogs.push(`Failed for ${def.name}: ${errStr}`);
           }
+        } else {
+          uploadLogs.push(`Cloudinary not configured. Missing env variables.`);
         }
 
         updatedMediaUrls.push({
@@ -149,6 +131,8 @@ export async function GET(request: NextRequest) {
       deletedInactiveCount: deletedInactive.count,
       activeProductsCount: activeProducts.length,
       cloudinaryConfigured: hasCloudinary,
+      cloudName: cloudName || "Not set",
+      logs: uploadLogs,
       products: results
     });
   } catch (error: unknown) {
