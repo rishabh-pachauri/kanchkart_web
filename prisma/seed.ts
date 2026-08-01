@@ -182,6 +182,32 @@ async function main() {
       }
     },
     {
+      name: "Glass Mason Jar Mug with Black Lid (450ml)",
+      slug: "glass-mason-jar-mug-with-black-lid-450ml",
+      sku: "KK-JAR-MASON-149",
+      description:
+        "Serve your favourite cold brew, iced coffee, smoothies, infused waters, and mocktails in our Glass Mason Jar Mug (450ml). Featuring crystal-clear heavy glass, an ergonomic side handle, and an airtight black metal screw-on lid to keep beverages fresh and spill-free. Perfect for home cafes, kitchen storage, and casual outdoor entertaining.",
+      shortDescription: "450ml glass mason jar mug with sturdy handle & airtight black metal lid.",
+      categoryId: drinkware.id,
+      price: "149.00",
+      compareAtPrice: "299.00",
+      stock: 400,
+      images: [
+        "/products/mason-jar-banner.jpg",
+        "/products/mason-jar-studio.jpg"
+      ],
+      isFeatured: true,
+      isBestSeller: true,
+      isNewArrival: true,
+      specifications: {
+        capacity: "450 ml",
+        material: "Clear Heavy Soda-Lime Glass",
+        lid: "Airtight Black Metal Screw Lid",
+        handle: "Ergonomic Side Handle",
+        care: "Dishwasher safe"
+      }
+    },
+    {
       name: "Crystal Diamond Cut Glass Bottle (1000ml)",
       slug: "crystal-diamond-cut-glass-bottle-1000ml",
       sku: "KK-BTL-DC-299",

@@ -6,6 +6,7 @@ import { BOTTLE_IMAGES_DATA } from "@/lib/bottle-images-data";
 import { GRID_BOTTLE_IMAGES_DATA } from "@/lib/grid-bottle-images-data";
 import { BEER_MUG_IMAGES_DATA } from "@/lib/beer-mug-images-data";
 import { TWISTED_BOTTLE_IMAGES_DATA } from "@/lib/twisted-bottle-images-data";
+import { MASON_JAR_IMAGES_DATA } from "@/lib/mason-jar-images-data";
 
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get("token");
@@ -45,6 +46,21 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    let storageCategory = await db.category.findUnique({
+      where: { slug: "storage-jars" }
+    });
+
+    if (!storageCategory) {
+      storageCategory = await db.category.create({
+        data: {
+          name: "Storage Jars",
+          slug: "storage-jars",
+          description: "Airtight glass jars for refined kitchens and pantries.",
+          imageUrl: "/categories/storage-jars.jpg"
+        }
+      });
+    }
+
     // Configure Cloudinary
     const cloudName = process.env.CLOUDINARY_CLOUD_NAME || env.cloudinaryCloudName || "eeshmj29";
     const apiKey = process.env.CLOUDINARY_API_KEY || env.cloudinaryApiKey || "463272756214982";
@@ -65,11 +81,12 @@ export async function GET(request: NextRequest) {
     const slug2 = "500ml-square-check-glass-bottle";
     const slug3 = "heavy-glass-classic-beer-mug-450ml";
     const slug4 = "premium-twisted-wave-glass-water-bottle";
+    const slug5 = "glass-mason-jar-mug-with-black-lid-450ml";
 
     // 2. Delete ALL other products from database (and their media) to eliminate duplicates
     const deleteResult = await db.product.deleteMany({
       where: {
-        slug: { notIn: [slug1, slug2, slug3, slug4] }
+        slug: { notIn: [slug1, slug2, slug3, slug4, slug5] }
       }
     });
 
@@ -296,6 +313,50 @@ export async function GET(request: NextRequest) {
     await db.productMedia.deleteMany({ where: { productId: p4.id } });
     await db.productMedia.createMany({
       data: product4Media.map((m) => ({ ...m, productId: p4.id }))
+    });
+
+    // ── Product 5: Glass Mason Jar Mug with Black Lid (450ml, ₹149, MRP ₹299) ──
+    const product5Media = await uploadImageSet(slug5, [
+      { name: "banner", b64Data: MASON_JAR_IMAGES_DATA.banner, fallbackUrl: "/products/mason-jar-banner.jpg" },
+      { name: "studio", b64Data: MASON_JAR_IMAGES_DATA.studio, fallbackUrl: "/products/mason-jar-studio.jpg" }
+    ]);
+
+    const p5 = await db.product.upsert({
+      where: { slug: slug5 },
+      update: {
+        name: "Glass Mason Jar Mug with Black Lid (450ml)",
+        sku: "KK-JAR-MASON-149",
+        description: "Serve your favourite cold brew, iced coffee, smoothies, infused waters, and mocktails in our Glass Mason Jar Mug (450ml). Featuring crystal-clear heavy glass, an ergonomic side handle, and an airtight black metal screw-on lid to keep beverages fresh and spill-free. Perfect for home cafes, kitchen storage, and casual outdoor entertaining.",
+        shortDescription: "450ml glass mason jar mug with sturdy handle & airtight black metal lid.",
+        categoryId: drinkwareCategory.id,
+        price: 149.00,
+        compareAtPrice: 299.00,
+        stock: 400,
+        isActive: true,
+        isFeatured: true,
+        isBestSeller: true,
+        isNewArrival: true
+      },
+      create: {
+        name: "Glass Mason Jar Mug with Black Lid (450ml)",
+        slug: slug5,
+        sku: "KK-JAR-MASON-149",
+        description: "Serve your favourite cold brew, iced coffee, smoothies, infused waters, and mocktails in our Glass Mason Jar Mug (450ml). Featuring crystal-clear heavy glass, an ergonomic side handle, and an airtight black metal screw-on lid to keep beverages fresh and spill-free. Perfect for home cafes, kitchen storage, and casual outdoor entertaining.",
+        shortDescription: "450ml glass mason jar mug with sturdy handle & airtight black metal lid.",
+        categoryId: drinkwareCategory.id,
+        price: 149.00,
+        compareAtPrice: 299.00,
+        stock: 400,
+        isActive: true,
+        isFeatured: true,
+        isBestSeller: true,
+        isNewArrival: true
+      }
+    });
+
+    await db.productMedia.deleteMany({ where: { productId: p5.id } });
+    await db.productMedia.createMany({
+      data: product5Media.map((m) => ({ ...m, productId: p5.id }))
     });
 
     const activeListings = await db.product.findMany({
