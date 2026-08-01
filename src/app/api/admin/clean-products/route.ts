@@ -320,7 +320,9 @@ export async function GET(request: NextRequest) {
     // ── Product 5: Glass Mason Jar Mug with Black Lid (450ml, ₹149, MRP ₹299) ──
     const product5Media = await uploadImageSet(slug5, [
       { name: "banner", b64Data: MASON_JAR_IMAGES_DATA.banner, fallbackUrl: "/products/mason-jar-banner.jpg" },
-      { name: "studio", b64Data: MASON_JAR_IMAGES_DATA.studio, fallbackUrl: "/products/mason-jar-studio.jpg" }
+      { name: "studio", b64Data: MASON_JAR_IMAGES_DATA.studio, fallbackUrl: "/products/mason-jar-studio.jpg" },
+      { name: "drink", b64Data: MASON_JAR_IMAGES_DATA.drink, fallbackUrl: "/products/mason-jar-iced-coffee.jpg" },
+      { name: "macro", b64Data: MASON_JAR_IMAGES_DATA.macro, fallbackUrl: "/products/mason-jar-macro.jpg" }
     ]);
 
     const p5 = await db.product.upsert({
@@ -364,7 +366,9 @@ export async function GET(request: NextRequest) {
     // ── Product 6: Floral Embossed Glass Matki Jars (350ml - Pack of 2) (₹189, MRP ₹299) ──
     const product6Media = await uploadImageSet(slug6, [
       { name: "cover", b64Data: MATKI_JAR_IMAGES_DATA.cover, fallbackUrl: "/products/matki-jars-pack2-cover.jpg" },
-      { name: "studio", b64Data: MATKI_JAR_IMAGES_DATA.cover, fallbackUrl: "/products/matki-jars-pack2-cover.jpg" }
+      { name: "filled", b64Data: MATKI_JAR_IMAGES_DATA.filled, fallbackUrl: "/products/matki-jars-dryfruits-candy.jpg" },
+      { name: "macro", b64Data: MATKI_JAR_IMAGES_DATA.macro, fallbackUrl: "/products/matki-jars-macro-gold.jpg" },
+      { name: "pantry", b64Data: MATKI_JAR_IMAGES_DATA.pantry, fallbackUrl: "/products/matki-jars-pantry-shelf.jpg" }
     ]);
 
     const p6 = await db.product.upsert({
