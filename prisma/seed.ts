@@ -155,6 +155,33 @@ async function main() {
       }
     },
     {
+      name: "Premium Twisted Wave Glass Water Bottle",
+      slug: "premium-twisted-wave-glass-water-bottle",
+      sku: "KK-BTL-TWIST-199",
+      description:
+        "Crafted for a pure and healthy lifestyle. Our Premium Twisted Wave Glass Water Bottle features an elegant vertical twisted spiral pattern for a comfortable grip and a timeless look. Engineered with strong, durable borosilicate glass, 100% BPA-free non-toxic material, a wide mouth for easy cleaning, and a leak-proof stainless steel cap with food-grade seal. Keeps your water pure, fresh, and chemical-free.",
+      shortDescription: "Premium borosilicate glass water bottle with elegant twisted wave grip & leak-proof cap.",
+      categoryId: bottles.id,
+      price: "199.00",
+      compareAtPrice: "299.00",
+      stock: 450,
+      images: [
+        "/products/twisted-bottle-banner.jpg",
+        "/products/twisted-bottle-studio.jpg",
+        "/products/twisted-bottle-macro.jpg",
+        "/products/twisted-bottle-desk.jpg"
+      ],
+      isFeatured: true,
+      isBestSeller: true,
+      isNewArrival: true,
+      specifications: {
+        material: "Borosilicate Glass",
+        cap: "Leak-proof Stainless Steel Cap",
+        safety: "100% BPA-Free & Non-Toxic",
+        cleaning: "Wide Mouth for Easy Cleaning"
+      }
+    },
+    {
       name: "Crystal Diamond Cut Glass Bottle (1000ml)",
       slug: "crystal-diamond-cut-glass-bottle-1000ml",
       sku: "KK-BTL-DC-299",

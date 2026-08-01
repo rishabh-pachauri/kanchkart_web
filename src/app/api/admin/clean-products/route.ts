@@ -5,6 +5,7 @@ import { env } from "@/lib/env";
 import { BOTTLE_IMAGES_DATA } from "@/lib/bottle-images-data";
 import { GRID_BOTTLE_IMAGES_DATA } from "@/lib/grid-bottle-images-data";
 import { BEER_MUG_IMAGES_DATA } from "@/lib/beer-mug-images-data";
+import { TWISTED_BOTTLE_IMAGES_DATA } from "@/lib/twisted-bottle-images-data";
 
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get("token");
@@ -63,11 +64,12 @@ export async function GET(request: NextRequest) {
     const slug1 = "pure-glass-textured-water-bottle";
     const slug2 = "500ml-square-check-glass-bottle";
     const slug3 = "heavy-glass-classic-beer-mug-450ml";
+    const slug4 = "premium-twisted-wave-glass-water-bottle";
 
     // 2. Delete ALL other products from database (and their media) to eliminate duplicates
     const deleteResult = await db.product.deleteMany({
       where: {
-        slug: { notIn: [slug1, slug2, slug3] }
+        slug: { notIn: [slug1, slug2, slug3, slug4] }
       }
     });
 
@@ -248,6 +250,52 @@ export async function GET(request: NextRequest) {
     await db.productMedia.deleteMany({ where: { productId: p3.id } });
     await db.productMedia.createMany({
       data: product3Media.map((m) => ({ ...m, productId: p3.id }))
+    });
+
+    // ── Product 4: Premium Twisted Wave Glass Water Bottle (₹199, MRP ₹299) ──
+    const product4Media = await uploadImageSet(slug4, [
+      { name: "banner", b64Data: TWISTED_BOTTLE_IMAGES_DATA.banner, fallbackUrl: "/products/twisted-bottle-banner.jpg" },
+      { name: "studio", b64Data: TWISTED_BOTTLE_IMAGES_DATA.studio, fallbackUrl: "/products/twisted-bottle-studio.jpg" },
+      { name: "macro", b64Data: TWISTED_BOTTLE_IMAGES_DATA.macro, fallbackUrl: "/products/twisted-bottle-macro.jpg" },
+      { name: "desk", b64Data: TWISTED_BOTTLE_IMAGES_DATA.desk, fallbackUrl: "/products/twisted-bottle-desk.jpg" }
+    ]);
+
+    const p4 = await db.product.upsert({
+      where: { slug: slug4 },
+      update: {
+        name: "Premium Twisted Wave Glass Water Bottle",
+        sku: "KK-BTL-TWIST-199",
+        description: "Crafted for a pure and healthy lifestyle. Our Premium Twisted Wave Glass Water Bottle features an elegant vertical twisted spiral pattern for a comfortable grip and a timeless look. Engineered with strong, durable borosilicate glass, 100% BPA-free non-toxic material, a wide mouth for easy cleaning, and a leak-proof stainless steel cap with food-grade seal. Keeps your water pure, fresh, and chemical-free.",
+        shortDescription: "Premium borosilicate glass water bottle with elegant twisted wave grip & leak-proof cap.",
+        categoryId: bottleCategory.id,
+        price: 199.00,
+        compareAtPrice: 299.00,
+        stock: 450,
+        isActive: true,
+        isFeatured: true,
+        isBestSeller: true,
+        isNewArrival: true
+      },
+      create: {
+        name: "Premium Twisted Wave Glass Water Bottle",
+        slug: slug4,
+        sku: "KK-BTL-TWIST-199",
+        description: "Crafted for a pure and healthy lifestyle. Our Premium Twisted Wave Glass Water Bottle features an elegant vertical twisted spiral pattern for a comfortable grip and a timeless look. Engineered with strong, durable borosilicate glass, 100% BPA-free non-toxic material, a wide mouth for easy cleaning, and a leak-proof stainless steel cap with food-grade seal. Keeps your water pure, fresh, and chemical-free.",
+        shortDescription: "Premium borosilicate glass water bottle with elegant twisted wave grip & leak-proof cap.",
+        categoryId: bottleCategory.id,
+        price: 199.00,
+        compareAtPrice: 299.00,
+        stock: 450,
+        isActive: true,
+        isFeatured: true,
+        isBestSeller: true,
+        isNewArrival: true
+      }
+    });
+
+    await db.productMedia.deleteMany({ where: { productId: p4.id } });
+    await db.productMedia.createMany({
+      data: product4Media.map((m) => ({ ...m, productId: p4.id }))
     });
 
     const activeListings = await db.product.findMany({
