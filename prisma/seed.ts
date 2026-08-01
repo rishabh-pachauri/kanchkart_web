@@ -99,19 +99,19 @@ async function main() {
       }
     },
     {
-      name: "Grid Embossed 500ml Glass Water Bottle",
-      slug: "grid-embossed-500ml-glass-water-bottle",
-      sku: "KK-BTL-GRID-500",
+      name: "500ml Square Check Glass Bottle",
+      slug: "500ml-square-check-glass-bottle",
+      sku: "KK-BTL-SQ-500",
       description:
-        "Stay hydrated in style with our 500ml Grid Embossed Glass Water Bottle. Crafted from thick, eco-friendly borosilicate glass, this travel-friendly bottle features an ergonomic waffle grid texture for a firm non-slip grip and a leak-proof stainless steel cap. Pure, safe, and reusable for daily hydration at work, gym, or home.",
-      shortDescription: "500ml leak-proof borosilicate glass bottle with ergonomic grid waffle texture.",
+        "Stay hydrated this summer with our 500ml Square Check Glass Bottle. Crafted from premium, eco-friendly borosilicate glass, this compact travel-friendly bottle features a unique square check lattice pattern for an anti-slip grip and a 100% leak-proof stainless steel cap. Reusable, easy to carry, and built for daily summer hydration.",
+      shortDescription: "500ml leak-proof borosilicate glass bottle with square check texture.",
       categoryId: bottles.id,
-      price: "249.00",
-      compareAtPrice: "399.00",
+      price: "149.00",
+      compareAtPrice: "299.00",
       stock: 350,
       images: [
-        "/products/grid-glass-bottle-studio.jpg",
         "/products/grid-glass-bottle-banner.jpg",
+        "/products/grid-glass-bottle-studio.jpg",
         "/products/grid-glass-bottle-macro.jpg",
         "/products/grid-glass-bottle-desk.jpg"
       ],
