@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { v2 as cloudinary } from "cloudinary";
 import { env } from "@/lib/env";
+import { BOTTLE_IMAGES_DATA } from "@/lib/bottle-images-data";
 
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get("token");
@@ -10,7 +11,7 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // 1. Delete all inactive products
+    // 1. Delete all inactive products from database
     const deletedInactive = await db.product.deleteMany({
       where: { isActive: false }
     });
@@ -28,10 +29,10 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Check Cloudinary configuration
-    const cloudName = process.env.CLOUDINARY_CLOUD_NAME || env.cloudinaryCloudName;
-    const apiKey = process.env.CLOUDINARY_API_KEY || env.cloudinaryApiKey;
-    const apiSecret = process.env.CLOUDINARY_API_SECRET || env.cloudinaryApiSecret;
+    // Configure Cloudinary
+    const cloudName = process.env.CLOUDINARY_CLOUD_NAME || env.cloudinaryCloudName || "eeshmj29";
+    const apiKey = process.env.CLOUDINARY_API_KEY || env.cloudinaryApiKey || "463272756214982";
+    const apiSecret = process.env.CLOUDINARY_API_SECRET || env.cloudinaryApiSecret || "cHFE2NSgzvqdicukkLuczwYuBZw";
 
     const hasCloudinary = Boolean(cloudName && apiKey && apiSecret);
 
@@ -43,25 +44,31 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    const appOrigin = process.env.NEXT_PUBLIC_APP_URL || request.nextUrl.origin || "https://kanchkart.vercel.app";
-
-    // Define relative image paths
-    const imageDefs = [
+    // 4 Image definitions with embedded base64 Data URIs + fallback local paths
+    const imageDefs: Array<{
+      name: string;
+      b64Data: string;
+      fallbackUrl: string;
+    }> = [
       {
         name: "cover",
-        relativePath: "/products/pure-glass-water-bottle.jpg"
+        b64Data: BOTTLE_IMAGES_DATA.cover,
+        fallbackUrl: "/products/pure-glass-water-bottle.jpg"
       },
       {
         name: "desk",
-        relativePath: "/products/pure-glass-bottle-desk.jpg"
+        b64Data: BOTTLE_IMAGES_DATA.desk,
+        fallbackUrl: "/products/pure-glass-bottle-desk.jpg"
       },
       {
         name: "macro",
-        relativePath: "/products/pure-glass-bottle-macro.jpg"
+        b64Data: BOTTLE_IMAGES_DATA.macro,
+        fallbackUrl: "/products/pure-glass-bottle-macro.jpg"
       },
       {
         name: "kitchen",
-        relativePath: "/products/pure-glass-bottle-kitchen.jpg"
+        b64Data: BOTTLE_IMAGES_DATA.kitchen,
+        fallbackUrl: "/products/pure-glass-bottle-kitchen.jpg"
       }
     ];
 
@@ -73,27 +80,26 @@ export async function GET(request: NextRequest) {
 
       for (let i = 0; i < imageDefs.length; i++) {
         const def = imageDefs[i];
-        let finalUrl = def.relativePath;
+        let finalUrl = def.fallbackUrl;
 
-        if (hasCloudinary) {
-          const sourceUrl = `${appOrigin}${def.relativePath}`;
+        if (hasCloudinary && def.b64Data) {
           try {
-            uploadLogs.push(`Attempting Cloudinary upload from ${sourceUrl}...`);
-            const uploadRes = await cloudinary.uploader.upload(sourceUrl, {
+            uploadLogs.push(`Uploading ${def.name} to Cloudinary (${cloudName})...`);
+            const uploadRes = await cloudinary.uploader.upload(def.b64Data, {
               folder: process.env.CLOUDINARY_UPLOAD_FOLDER || env.cloudinaryUploadFolder || "kanchkart/products",
               public_id: `${product.slug}_${def.name}_${Date.now()}`
             });
 
             if (uploadRes?.secure_url) {
               finalUrl = uploadRes.secure_url;
-              uploadLogs.push(`Success: ${finalUrl}`);
+              uploadLogs.push(`Cloudinary Success (${def.name}): ${finalUrl}`);
             }
           } catch (uploadErr: unknown) {
             const errStr = uploadErr instanceof Error ? uploadErr.message : JSON.stringify(uploadErr);
-            uploadLogs.push(`Failed for ${def.name}: ${errStr}`);
+            uploadLogs.push(`Cloudinary upload failed for ${def.name}: ${errStr}`);
           }
         } else {
-          uploadLogs.push(`Cloudinary not configured. Missing env variables.`);
+          uploadLogs.push(`Skipped Cloudinary upload for ${def.name} (hasCloudinary=${hasCloudinary})`);
         }
 
         updatedMediaUrls.push({
@@ -131,7 +137,7 @@ export async function GET(request: NextRequest) {
       deletedInactiveCount: deletedInactive.count,
       activeProductsCount: activeProducts.length,
       cloudinaryConfigured: hasCloudinary,
-      cloudName: cloudName || "Not set",
+      cloudName: cloudName,
       logs: uploadLogs,
       products: results
     });
