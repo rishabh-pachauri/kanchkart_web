@@ -83,8 +83,9 @@ async function main() {
       stock: 500,
       images: [
         "/products/pure-glass-water-bottle.jpg",
-        "https://images.unsplash.com/photo-1602143407151-7111542de6e8?auto=format&fit=crop&w=1000&q=80",
-        "https://images.unsplash.com/photo-1544816155-12df9643f363?auto=format&fit=crop&w=1000&q=80"
+        "/products/pure-glass-bottle-desk.jpg",
+        "/products/pure-glass-bottle-macro.jpg",
+        "/products/pure-glass-bottle-kitchen.jpg"
       ],
       isFeatured: true,
       isBestSeller: true,

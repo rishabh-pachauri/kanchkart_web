@@ -2,6 +2,7 @@ import Link from "next/link";
 import { PlusCircle, Package, Edit, ExternalLink } from "lucide-react";
 import { db } from "@/lib/db";
 import { Button } from "@/components/ui/button";
+import { CleanProductsButton } from "@/components/admin/clean-products-button";
 
 export const metadata = {
   title: "Products Inventory | Admin | KanchKart"
@@ -22,11 +23,14 @@ export default async function ProductsPage() {
           <h1 className="text-3xl font-extrabold text-white tracking-tight">Product Catalog</h1>
           <p className="text-slate-400 text-sm mt-1">Manage and track your glassware store inventory</p>
         </div>
-        <Button asChild variant="gold" className="rounded-xl font-bold text-slate-950 shadow-lg shadow-amber-500/20">
-          <Link href="/admin/products/new">
-            <PlusCircle className="mr-2 h-4 w-4" /> Add Product
-          </Link>
-        </Button>
+        <div className="flex items-center gap-3">
+          <CleanProductsButton />
+          <Button asChild variant="gold" className="rounded-xl font-bold text-slate-950 shadow-lg shadow-amber-500/20">
+            <Link href="/admin/products/new">
+              <PlusCircle className="mr-2 h-4 w-4" /> Add Product
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {products.length === 0 ? (
