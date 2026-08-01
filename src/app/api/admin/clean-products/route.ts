@@ -7,6 +7,7 @@ import { GRID_BOTTLE_IMAGES_DATA } from "@/lib/grid-bottle-images-data";
 import { BEER_MUG_IMAGES_DATA } from "@/lib/beer-mug-images-data";
 import { TWISTED_BOTTLE_IMAGES_DATA } from "@/lib/twisted-bottle-images-data";
 import { MASON_JAR_IMAGES_DATA } from "@/lib/mason-jar-images-data";
+import { MATKI_JAR_IMAGES_DATA } from "@/lib/matki-jar-images-data";
 
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get("token");
@@ -82,11 +83,12 @@ export async function GET(request: NextRequest) {
     const slug3 = "heavy-glass-classic-beer-mug-450ml";
     const slug4 = "premium-twisted-wave-glass-water-bottle";
     const slug5 = "glass-mason-jar-mug-with-black-lid-450ml";
+    const slug6 = "floral-embossed-glass-matki-jars-350ml-pack-of-2";
 
     // 2. Delete ALL other products from database (and their media) to eliminate duplicates
     const deleteResult = await db.product.deleteMany({
       where: {
-        slug: { notIn: [slug1, slug2, slug3, slug4, slug5] }
+        slug: { notIn: [slug1, slug2, slug3, slug4, slug5, slug6] }
       }
     });
 
@@ -357,6 +359,50 @@ export async function GET(request: NextRequest) {
     await db.productMedia.deleteMany({ where: { productId: p5.id } });
     await db.productMedia.createMany({
       data: product5Media.map((m) => ({ ...m, productId: p5.id }))
+    });
+
+    // ── Product 6: Floral Embossed Glass Matki Jars (350ml - Pack of 2) (₹189, MRP ₹299) ──
+    const product6Media = await uploadImageSet(slug6, [
+      { name: "cover", b64Data: MATKI_JAR_IMAGES_DATA.cover, fallbackUrl: "/products/matki-jars-pack2-cover.jpg" },
+      { name: "studio", b64Data: MATKI_JAR_IMAGES_DATA.cover, fallbackUrl: "/products/matki-jars-pack2-cover.jpg" }
+    ]);
+
+    const p6 = await db.product.upsert({
+      where: { slug: slug6 },
+      update: {
+        name: "Floral Embossed Glass Matki Jars (350ml - Pack of 2)",
+        sku: "KK-JAR-MATKI-350-P2",
+        description: "Organize and display your kitchen treats in elegance with our Floral Embossed Glass Matki Jars (350ml - Pack of 2). Crafted with a traditional pot-shaped matki silhouette and intricate floral glass embossing, each jar features a premium airtight golden metal screw lid. Perfect for serving and storing dry fruits, almonds, cashews, festive candies, mouth fresheners, ghee, jams, honey, and spices. Made from 100% lead-free food-safe glass.",
+        shortDescription: "Pack of 2 floral embossed 350ml glass matki jars with airtight golden lids.",
+        categoryId: storageCategory.id,
+        price: 189.00,
+        compareAtPrice: 299.00,
+        stock: 250,
+        isActive: true,
+        isFeatured: true,
+        isBestSeller: true,
+        isNewArrival: true
+      },
+      create: {
+        name: "Floral Embossed Glass Matki Jars (350ml - Pack of 2)",
+        slug: slug6,
+        sku: "KK-JAR-MATKI-350-P2",
+        description: "Organize and display your kitchen treats in elegance with our Floral Embossed Glass Matki Jars (350ml - Pack of 2). Crafted with a traditional pot-shaped matki silhouette and intricate floral glass embossing, each jar features a premium airtight golden metal screw lid. Perfect for serving and storing dry fruits, almonds, cashews, festive candies, mouth fresheners, ghee, jams, honey, and spices. Made from 100% lead-free food-safe glass.",
+        shortDescription: "Pack of 2 floral embossed 350ml glass matki jars with airtight golden lids.",
+        categoryId: storageCategory.id,
+        price: 189.00,
+        compareAtPrice: 299.00,
+        stock: 250,
+        isActive: true,
+        isFeatured: true,
+        isBestSeller: true,
+        isNewArrival: true
+      }
+    });
+
+    await db.productMedia.deleteMany({ where: { productId: p6.id } });
+    await db.productMedia.createMany({
+      data: product6Media.map((m) => ({ ...m, productId: p6.id }))
     });
 
     const activeListings = await db.product.findMany({

@@ -208,6 +208,31 @@ async function main() {
       }
     },
     {
+      name: "Floral Embossed Glass Matki Jars (350ml - Pack of 2)",
+      slug: "floral-embossed-glass-matki-jars-350ml-pack-of-2",
+      sku: "KK-JAR-MATKI-350-P2",
+      description:
+        "Organize and display your kitchen treats in elegance with our Floral Embossed Glass Matki Jars (350ml - Pack of 2). Crafted with a traditional pot-shaped matki silhouette and intricate floral glass embossing, each jar features a premium airtight golden metal screw lid. Perfect for serving and storing dry fruits, almonds, cashews, festive candies, mouth fresheners, ghee, jams, honey, and spices. Made from 100% lead-free food-safe glass.",
+      shortDescription: "Pack of 2 floral embossed 350ml glass matki jars with airtight golden lids.",
+      categoryId: storage.id,
+      price: "189.00",
+      compareAtPrice: "299.00",
+      stock: 250,
+      images: [
+        "/products/matki-jars-pack2-cover.jpg"
+      ],
+      isFeatured: true,
+      isBestSeller: true,
+      isNewArrival: true,
+      specifications: {
+        set: "Pack of 2 Jars",
+        capacity: "350 ml per jar",
+        material: "100% Lead-Free Food-Safe Glass",
+        lid: "Airtight Golden Metal Screw Lid",
+        design: "Floral Embossed Matki Pot Silhouette"
+      }
+    },
+    {
       name: "Crystal Diamond Cut Glass Bottle (1000ml)",
       slug: "crystal-diamond-cut-glass-bottle-1000ml",
       sku: "KK-BTL-DC-299",
