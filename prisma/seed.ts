@@ -99,6 +99,34 @@ async function main() {
       }
     },
     {
+      name: "Grid Embossed 500ml Glass Water Bottle",
+      slug: "grid-embossed-500ml-glass-water-bottle",
+      sku: "KK-BTL-GRID-500",
+      description:
+        "Stay hydrated in style with our 500ml Grid Embossed Glass Water Bottle. Crafted from thick, eco-friendly borosilicate glass, this travel-friendly bottle features an ergonomic waffle grid texture for a firm non-slip grip and a leak-proof stainless steel cap. Pure, safe, and reusable for daily hydration at work, gym, or home.",
+      shortDescription: "500ml leak-proof borosilicate glass bottle with ergonomic grid waffle texture.",
+      categoryId: bottles.id,
+      price: "249.00",
+      compareAtPrice: "399.00",
+      stock: 350,
+      images: [
+        "/products/grid-glass-bottle-studio.jpg",
+        "/products/grid-glass-bottle-banner.jpg",
+        "/products/grid-glass-bottle-macro.jpg",
+        "/products/grid-glass-bottle-desk.jpg"
+      ],
+      isFeatured: true,
+      isBestSeller: true,
+      isNewArrival: true,
+      specifications: {
+        capacity: "500 ml",
+        material: "Borosilicate Glass",
+        cap: "Leak-proof Stainless Steel Cap",
+        care: "Dishwasher safe",
+        safety: "BPA-free & Lead-free"
+      }
+    },
+    {
       name: "Crystal Diamond Cut Glass Bottle (1000ml)",
       slug: "crystal-diamond-cut-glass-bottle-1000ml",
       sku: "KK-BTL-DC-299",
