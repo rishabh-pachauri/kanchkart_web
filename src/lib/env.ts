@@ -4,7 +4,7 @@ export const env = {
   authSecret: process.env.AUTH_SECRET,
   googleClientId: process.env.GOOGLE_CLIENT_ID,
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME,
+  cloudinaryCloudName: process.env.CLOUDINARY_CLOUD_NAME || "eeshmj29",
   cloudinaryApiKey: process.env.CLOUDINARY_API_KEY,
   cloudinaryApiSecret: process.env.CLOUDINARY_API_SECRET,
   cloudinaryUploadFolder: process.env.CLOUDINARY_UPLOAD_FOLDER || "kanchkart",
