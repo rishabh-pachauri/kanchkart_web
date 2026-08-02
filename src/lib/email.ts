@@ -15,7 +15,7 @@ export async function sendOrderConfirmation(order: Order) {
   const sender = process.env.EMAIL_FROM || env.emailFrom || "KanchKart <onboarding@resend.dev>";
 
   return resend.emails.send({
-    from: sender.includes("kanchkart.com") ? "KanchKart <onboarding@resend.dev>" : sender,
+    from: sender,
     to: order.customerEmail,
     subject: `KanchKart Order ${order.orderNumber} Confirmed`,
     html: `
@@ -36,7 +36,7 @@ export async function sendAdminNotification(subject: string, body: string) {
   const sender = process.env.EMAIL_FROM || env.emailFrom || "KanchKart <onboarding@resend.dev>";
 
   return resend.emails.send({
-    from: sender.includes("kanchkart.com") ? "KanchKart <onboarding@resend.dev>" : sender,
+    from: sender,
     to: env.adminNotificationEmail,
     subject,
     html: `<div style="font-family:Inter,Arial,sans-serif;line-height:1.6;color:#24211D">${body}</div>`
