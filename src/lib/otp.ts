@@ -37,8 +37,7 @@ export async function createAndSendOtp(identifier: string, name?: string) {
     const sender = process.env.EMAIL_FROM || env.emailFrom || "KanchKart <onboarding@resend.dev>";
 
     try {
-      // First try configured sender (e.g. verified domain or custom EMAIL_FROM)
-      let res = await resend.emails.send({
+      const res = await resend.emails.send({
         from: sender,
         to: cleanIdentifier,
         subject: `Your KanchKart Verification OTP Code: ${otp}`,
@@ -68,35 +67,6 @@ export async function createAndSendOtp(identifier: string, name?: string) {
         `
       });
 
-      // If sending from custom domain failed because it wasn't recognized, fallback to onboarding@resend.dev
-      if (res.error && sender !== "KanchKart <onboarding@resend.dev>") {
-        console.warn(`[OTP RESEND RETRY] Initial sender '${sender}' failed (${res.error.message}), trying onboarding@resend.dev...`);
-        res = await resend.emails.send({
-          from: "KanchKart <onboarding@resend.dev>",
-          to: cleanIdentifier,
-          subject: `Your KanchKart Verification OTP Code: ${otp}`,
-          html: `
-            <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
-              <div style="text-align: center; margin-bottom: 20px;">
-                <h1 style="font-family: Georgia, serif; color: #1e293b; margin: 0; font-size: 28px;">Kanch<span style="color: #d97706;">Kart</span></h1>
-                <p style="color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; margin-top: 4px;">Pure Glassware Account Verification</p>
-              </div>
-
-              <div style="background-color: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 20px; text-align: center; margin: 20px 0;">
-                <p style="color: #92400e; font-size: 14px; margin: 0 0 10px 0; font-weight: bold;">Your 6-Digit Verification Code</p>
-                <div style="font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #78350f; font-family: monospace;">${otp}</div>
-                <p style="color: #b45309; font-size: 12px; margin: 10px 0 0 0;">Valid for 10 minutes. Do not share this code with anyone.</p>
-              </div>
-
-              <p style="color: #475569; font-size: 14px; line-height: 1.6;">
-                Hello ${name || "Valued Customer"},<br/>
-                Please enter this verification code on KanchKart to complete your account setup and unlock express checkout.
-              </p>
-            </div>
-          `
-        });
-      }
-
       if (!res.error) {
         emailSent = true;
       } else {
@@ -108,7 +78,7 @@ export async function createAndSendOtp(identifier: string, name?: string) {
       console.error("[OTP EMAIL EXCEPTION]:", error);
     }
   } else {
-    emailError = "Resend API key is missing. Add RESEND_API_KEY=re_xxxxxxxxx to environment variables.";
+    emailError = "Resend API key is missing. Add RESEND_API_KEY=re_xxxxxxxxx to Vercel environment variables.";
   }
 
   return { success: true, expires, emailSent, emailError };

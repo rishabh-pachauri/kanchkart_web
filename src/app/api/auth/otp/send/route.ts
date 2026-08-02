@@ -34,25 +34,16 @@ export async function POST(request: NextRequest) {
 
     const result = await createAndSendOtp(email, parsed.data.name);
 
-    // Check if Resend returned free-tier restriction error (only allows sending to account owner email until domain is verified)
-    const isDomainRestriction = result.emailError?.includes("testing emails") || 
-                                 result.emailError?.includes("resend.com/domains") || 
-                                 result.emailError?.includes("only send");
-
     if (!result.emailSent) {
-      if (isDomainRestriction) {
-        return NextResponse.json({
-          success: true,
-          isTestingMode: true,
-          message: `Resend is in testing mode (sending enabled for account owner email). You can complete signup directly for ${email} below!`,
-          canBypass: true
-        });
-      }
+      const isDomainTestingRestriction = result.emailError?.includes("testing emails") || 
+                                          result.emailError?.includes("resend.com/domains") || 
+                                          result.emailError?.includes("only send");
 
       return NextResponse.json(
         {
-          error: result.emailError || "Could not deliver email. Please check your Resend API Key or domain verification.",
-          canBypass: true
+          error: `Resend Email Delivery Error: ${result.emailError}`,
+          canBypass: true,
+          isTestingMode: isDomainTestingRestriction
         },
         { status: 400 }
       );
