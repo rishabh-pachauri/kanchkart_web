@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ShieldCheck, UserPlus, KeyRound, ArrowRight, Loader2, CheckCircle2, AlertCircle, RefreshCw, Mail, UserCheck } from "lucide-react";
+import { ShieldCheck, UserPlus, KeyRound, ArrowRight, Loader2, CheckCircle2, AlertCircle, RefreshCw, Mail, UserCheck, Sparkles } from "lucide-react";
 
 export function AuthOtpForm() {
   const router = useRouter();
@@ -77,6 +77,9 @@ export function AuthOtpForm() {
       if (res.ok && data.success) {
         setStep(2);
         setInfoMessage(data.message || `Verification OTP sent to ${formData.email}. Please check your email inbox.`);
+        if (data.canBypass) {
+          setCanDirectRegister(true);
+        }
         setResendTimer(60);
       } else {
         setError(data.error || "Failed to send verification OTP.");
@@ -90,16 +93,10 @@ export function AuthOtpForm() {
     }
   }
 
-  // Handle Direct Signup Fallback if Resend API Key is missing or restricted
+  // Handle Direct Signup Fallback if Resend API Key is restricted
   async function handleDirectRegister() {
     setError(null);
     setLoading(true);
-
-    const formDataPayload = new FormData();
-    formDataPayload.append("name", formData.name);
-    formDataPayload.append("email", formData.email);
-    formDataPayload.append("password", formData.password);
-    if (callbackUrl) formDataPayload.append("callbackUrl", callbackUrl);
 
     try {
       const res = await fetch("/api/auth/otp/register", {
@@ -109,7 +106,7 @@ export function AuthOtpForm() {
           name: formData.name,
           email: formData.email,
           password: formData.password,
-          otp: "BYPASS" // Bypass if Resend delivery failed
+          otp: "BYPASS"
         })
       });
 
@@ -218,12 +215,12 @@ export function AuthOtpForm() {
           {step === 1 ? <UserPlus className="w-6 h-6" /> : <Mail className="w-6 h-6" />}
         </div>
         <h1 className="font-serif text-3xl font-bold text-slate-900">
-          {step === 1 ? "Create KanchKart Account" : "Check Your Email for OTP"}
+          {step === 1 ? "Create KanchKart Account" : "Enter Verification OTP"}
         </h1>
         <p className="text-xs text-slate-500">
           {step === 1
             ? "Sign up with email OTP verification to start shopping & tracking orders"
-            : `We sent a 6-digit verification code to ${formData.email}`}
+            : `Verification code sent to ${formData.email}`}
         </p>
       </div>
 
@@ -251,7 +248,7 @@ export function AuthOtpForm() {
               className="w-full font-bold py-2 text-slate-950 text-xs rounded-lg gap-1.5"
             >
               <UserCheck className="w-4 h-4" />
-              <span>Direct Signup Without Email OTP</span>
+              <span>Complete Account Signup Now</span>
             </Button>
           )}
         </div>
@@ -354,6 +351,21 @@ export function AuthOtpForm() {
               </>
             )}
           </Button>
+
+          {canDirectRegister && (
+            <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-center space-y-2">
+              <p className="text-[11px] text-amber-900 font-medium">Resend Testing Mode Active: You can complete registration directly below.</p>
+              <Button
+                type="button"
+                onClick={handleDirectRegister}
+                variant="gold"
+                size="sm"
+                className="w-full font-bold text-slate-950 text-xs rounded-lg"
+              >
+                Complete Account Signup Now
+              </Button>
+            </div>
+          )}
 
           {/* Resend OTP & Back options */}
           <div className="flex items-center justify-between text-xs text-slate-600 pt-2 border-t border-slate-100">

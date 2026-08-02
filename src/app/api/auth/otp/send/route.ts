@@ -34,7 +34,21 @@ export async function POST(request: NextRequest) {
 
     const result = await createAndSendOtp(email, parsed.data.name);
 
+    // Check if Resend returned free-tier restriction error (only allows sending to account owner email until domain is verified)
+    const isDomainRestriction = result.emailError?.includes("testing emails") || 
+                                 result.emailError?.includes("resend.com/domains") || 
+                                 result.emailError?.includes("only send");
+
     if (!result.emailSent) {
+      if (isDomainRestriction) {
+        return NextResponse.json({
+          success: true,
+          isTestingMode: true,
+          message: `Resend is in testing mode (sending enabled for account owner email). You can complete signup directly for ${email} below!`,
+          canBypass: true
+        });
+      }
+
       return NextResponse.json(
         {
           error: result.emailError || "Could not deliver email. Please check your Resend API Key or domain verification.",
@@ -46,7 +60,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: `A 6-digit verification OTP has been sent to ${email}. Please check your inbox and spam folder.`
+      message: `A 6-digit verification OTP code has been sent to ${email}. Please check your email inbox and spam folder.`
     });
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : "Failed to send OTP";
