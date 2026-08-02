@@ -12,8 +12,15 @@ export const metadata = siteMetadata({
 export default async function OffersPage() {
   const [products, coupons] = await Promise.all([
     getProducts({ sort: "featured" }),
+    // Only display public promotional coupons (exclude 1-time private personal coupons)
     db.coupon.findMany({
-      where: { isActive: true },
+      where: {
+        isActive: true,
+        OR: [
+          { usageLimit: null },
+          { usageLimit: { gt: 1 } }
+        ]
+      },
       orderBy: { createdAt: "desc" },
       take: 6
     })
@@ -46,4 +53,3 @@ export default async function OffersPage() {
     </section>
   );
 }
-

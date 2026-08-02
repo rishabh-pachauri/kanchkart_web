@@ -22,7 +22,13 @@ export async function SiteHeader() {
     getNavigationData(),
     auth(),
     db.coupon.findFirst({
-      where: { isActive: true },
+      where: {
+        isActive: true,
+        OR: [
+          { usageLimit: null },
+          { usageLimit: { gt: 1 } }
+        ]
+      },
       orderBy: { createdAt: "desc" }
     })
   ]);
