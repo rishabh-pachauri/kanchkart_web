@@ -1,17 +1,39 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { Minus, Plus, Trash2, Truck } from "lucide-react";
 import { useCart } from "@/components/cart/cart-provider";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
-import { formatPrice, shippingFor } from "@/lib/money";
+import { formatPrice } from "@/lib/money";
 
 export function CartPageClient() {
   const { items, subtotal, updateQuantity, removeItem } = useCart();
-  const shipping = shippingFor(subtotal);
+  const [shippingConfig, setShippingConfig] = useState({
+    defaultShippingCost: 50,
+    freeShippingThreshold: 1999
+  });
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.settings) {
+          setShippingConfig({
+            defaultShippingCost: Number(data.settings.defaultShippingCost ?? 50),
+            freeShippingThreshold: Number(data.settings.freeShippingThreshold ?? 1999)
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const isFreeShipping = subtotal >= shippingConfig.freeShippingThreshold;
+  const shipping = isFreeShipping ? 0 : shippingConfig.defaultShippingCost;
   const total = subtotal + shipping;
+  const amountToFreeShipping = Math.max(0, shippingConfig.freeShippingThreshold - subtotal);
 
   if (!items.length) {
     return (
@@ -25,68 +47,87 @@ export function CartPageClient() {
   }
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[1fr_360px]">
-      <div className="grid gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="lg:col-span-2 space-y-4">
+        {/* Free Shipping Progress Banner */}
+        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 flex items-center gap-3">
+          <Truck className="w-5 h-5 text-emerald-600 shrink-0" />
+          <p className="text-sm font-medium">
+            {isFreeShipping ? (
+              <span className="font-semibold text-emerald-700">🎉 Congratulations! You qualify for FREE Shipping.</span>
+            ) : (
+              <span>
+                Add <strong className="font-bold text-emerald-700">{formatPrice(amountToFreeShipping)}</strong> more to get <strong className="text-emerald-700">FREE Shipping!</strong>
+              </span>
+            )}
+          </p>
+        </div>
+
         {items.map((item) => (
-          <div key={`${item.productId}-${item.variantId || "default"}`} className="grid gap-4 rounded-md border bg-white/70 p-4 sm:grid-cols-[112px_1fr_auto]">
-            <div className="relative aspect-square overflow-hidden rounded-md bg-secondary">
-              <Image src={item.image || "/brand/drinkware.svg"} alt={item.name} fill sizes="112px" className="object-cover" />
+          <div key={item.id} className="flex gap-4 border rounded-xl p-4 bg-white shadow-sm">
+            <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-slate-100 shrink-0">
+              <Image src={item.image} alt={item.name} fill className="object-cover" />
             </div>
-            <div>
-              <Link href={`/product/${item.slug}`} className="font-serif text-2xl font-semibold">
-                {item.name}
-              </Link>
-              <p className="mt-2 text-sm text-muted-foreground">{formatPrice(item.price)}</p>
-              <div className="mt-4 inline-flex items-center rounded-md border bg-white">
+            <div className="flex-1 min-w-0">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="font-medium text-charcoal truncate">{item.name}</h3>
+                  <p className="text-sm text-slate-500">{formatPrice(item.price)}</p>
+                </div>
                 <button
-                  className="focus-ring h-10 w-10 rounded-md"
-                  aria-label="Decrease quantity"
-                  onClick={() => updateQuantity(item.productId, item.quantity - 1, item.variantId)}
+                  onClick={() => removeItem(item.id)}
+                  className="text-slate-400 hover:text-rose-500 p-1"
                 >
-                  <Minus className="mx-auto h-4 w-4" />
-                </button>
-                <span className="w-10 text-center text-sm font-semibold">{item.quantity}</span>
-                <button
-                  className="focus-ring h-10 w-10 rounded-md"
-                  aria-label="Increase quantity"
-                  onClick={() => updateQuantity(item.productId, item.quantity + 1, item.variantId)}
-                >
-                  <Plus className="mx-auto h-4 w-4" />
+                  <Trash2 className="w-4 h-4" />
                 </button>
               </div>
+              <div className="flex items-center justify-between mt-3">
+                <div className="flex items-center border rounded-lg">
+                  <button
+                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                    className="p-1 hover:bg-slate-50 text-slate-600"
+                  >
+                    <Minus className="w-4 h-4" />
+                  </button>
+                  <span className="px-3 text-sm font-medium text-charcoal">{item.quantity}</span>
+                  <button
+                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                    className="p-1 hover:bg-slate-50 text-slate-600"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+                <span className="font-semibold text-charcoal">
+                  {formatPrice(item.price * item.quantity)}
+                </span>
+              </div>
             </div>
-            <button
-              className="focus-ring h-10 w-10 rounded-md border"
-              aria-label="Remove item"
-              onClick={() => removeItem(item.productId, item.variantId)}
-            >
-              <Trash2 className="mx-auto h-4 w-4" />
-            </button>
           </div>
         ))}
       </div>
 
-      <aside className="h-fit rounded-md border bg-white/70 p-5 shadow-sm">
-        <h2 className="font-serif text-3xl font-semibold">Order summary</h2>
-        <div className="mt-5 grid gap-3 text-sm">
-          <p className="flex justify-between">
+      <div className="bg-white border rounded-xl p-6 h-fit space-y-4 shadow-sm">
+        <h2 className="text-lg font-bold text-charcoal">Order Summary</h2>
+        <div className="space-y-2 text-sm text-slate-600 border-b pb-4">
+          <div className="flex justify-between">
             <span>Subtotal</span>
-            <span>{formatPrice(subtotal)}</span>
-          </p>
-          <p className="flex justify-between">
-            <span>Shipping</span>
-            <span>{shipping ? formatPrice(shipping) : "Free"}</span>
-          </p>
-          <p className="border-t pt-3 flex justify-between text-base font-semibold">
-            <span>Total</span>
-            <span>{formatPrice(total)}</span>
-          </p>
+            <span className="font-medium text-charcoal">{formatPrice(subtotal)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span>Estimated Shipping</span>
+            <span className="font-medium text-charcoal">{shipping ? formatPrice(shipping) : "FREE"}</span>
+          </div>
         </div>
-        <Button asChild variant="gold" className="mt-6 w-full">
-          <Link href="/checkout">Checkout</Link>
-        </Button>
-      </aside>
+        <div className="flex justify-between font-bold text-base text-charcoal pt-1">
+          <span>Total</span>
+          <span>{formatPrice(total)}</span>
+        </div>
+        <Link href="/checkout" className="block w-full">
+          <Button className="w-full bg-gold hover:bg-gold/90 text-charcoal font-semibold py-3 rounded-xl">
+            Proceed to Checkout
+          </Button>
+        </Link>
+      </div>
     </div>
   );
 }
-

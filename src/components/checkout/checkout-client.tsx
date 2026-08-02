@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSession } from "next-auth/react";
 import { CreditCard, AlertCircle, ShieldCheck, Tag, CheckCircle2, X } from "lucide-react";
 import { useCart } from "@/components/cart/cart-provider";
@@ -40,8 +40,27 @@ export function CheckoutClient() {
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponError, setCouponError] = useState<string | null>(null);
 
+  const [shippingConfig, setShippingConfig] = useState({
+    defaultShippingCost: 50,
+    freeShippingThreshold: 1999
+  });
+
+  useEffect(() => {
+    fetch("/api/settings")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.settings) {
+          setShippingConfig({
+            defaultShippingCost: Number(data.settings.defaultShippingCost ?? 50),
+            freeShippingThreshold: Number(data.settings.freeShippingThreshold ?? 1999)
+          });
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const paymentMethod = "RAZORPAY";
-  const shipping = shippingFor(subtotal);
+  const shipping = subtotal >= shippingConfig.freeShippingThreshold ? 0 : shippingConfig.defaultShippingCost;
   const discount = appliedCoupon?.discount ?? 0;
   const total = useMemo(
     () => Math.max(0, subtotal + shipping - discount),

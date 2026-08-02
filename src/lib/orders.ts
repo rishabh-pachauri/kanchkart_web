@@ -2,6 +2,7 @@ import { OrderStatus, PaymentMethod, PaymentStatus, Prisma } from "@prisma/clien
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { formatPrice, gstIncluded, shippingFor, toNumber } from "@/lib/money";
+import { calculateShippingCost } from "@/lib/settings";
 import { checkoutSchema } from "@/lib/validators";
 import { sendAdminNotification, sendOrderConfirmation } from "@/lib/email";
 
@@ -84,7 +85,7 @@ export async function createOrderFromCheckout(input: unknown) {
 
     const subtotal = rows.reduce((sum, row) => sum + row.lineTotal, 0);
     const gstTotal = rows.reduce((sum, row) => sum + row.gstTotal, 0);
-    const shippingTotal = shippingFor(subtotal);
+    const shippingTotal = await calculateShippingCost(subtotal);
     const coupon = parsed.couponCode
       ? await tx.coupon.findFirst({
           where: {
