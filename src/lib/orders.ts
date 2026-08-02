@@ -157,7 +157,7 @@ export async function createOrderFromCheckout(input: unknown) {
       }
     });
 
-    if (parsed.paymentMethod === "COD" && coupon?.id) {
+    if (coupon?.id) {
       const updated = await tx.coupon.update({
         where: { id: coupon.id },
         data: { usedCount: { increment: 1 } }
