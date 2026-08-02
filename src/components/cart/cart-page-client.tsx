@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Minus, Plus, Trash2, Truck } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { Minus, Plus, Trash2, Truck, ArrowRight, ShieldCheck } from "lucide-react";
 import { useCart } from "@/components/cart/cart-provider";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
@@ -11,6 +13,9 @@ import { formatPrice } from "@/lib/money";
 
 export function CartPageClient() {
   const { items, subtotal, updateQuantity, removeItem } = useCart();
+  const { data: session } = useSession();
+  const router = useRouter();
+
   const [shippingConfig, setShippingConfig] = useState({
     defaultShippingCost: 50,
     freeShippingThreshold: 1999
@@ -34,6 +39,14 @@ export function CartPageClient() {
   const shipping = isFreeShipping ? 0 : shippingConfig.defaultShippingCost;
   const total = subtotal + shipping;
   const amountToFreeShipping = Math.max(0, shippingConfig.freeShippingThreshold - subtotal);
+
+  function handleProceedToCheckout() {
+    if (!session?.user) {
+      router.push("/register?callbackUrl=/checkout&message=Please+sign+up+or+log+in+first+to+complete+your+checkout");
+      return;
+    }
+    router.push("/checkout");
+  }
 
   if (!items.length) {
     return (
@@ -127,11 +140,14 @@ export function CartPageClient() {
           <span>Total</span>
           <span>{formatPrice(total)}</span>
         </div>
-        <Link href="/checkout" className="block w-full">
-          <Button className="w-full bg-gold hover:bg-gold/90 text-charcoal font-semibold py-3 rounded-xl">
-            Proceed to Checkout
-          </Button>
-        </Link>
+
+        <Button
+          onClick={handleProceedToCheckout}
+          className="w-full bg-gold hover:bg-gold/90 text-charcoal font-bold py-3.5 rounded-xl transition shadow-md gap-2"
+        >
+          <span>Proceed to Checkout</span>
+          <ArrowRight className="w-4 h-4" />
+        </Button>
       </div>
     </div>
   );

@@ -4,7 +4,8 @@ import { auth } from "@/lib/auth";
 export async function requireUser() {
   const session = await auth();
   if (!session?.user?.id) {
-    redirect("/login");
+    const message = encodeURIComponent("Please sign up or log in first to complete your order.");
+    redirect(`/register?callbackUrl=/checkout&message=${message}`);
   }
   return session.user;
 }
@@ -25,4 +26,3 @@ export function securityHeaders() {
     "Permissions-Policy": "camera=(), microphone=(), geolocation=(self)"
   };
 }
-

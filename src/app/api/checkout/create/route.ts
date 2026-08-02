@@ -5,11 +5,20 @@ import { createRazorpayOrder } from "@/lib/razorpay";
 import { env } from "@/lib/env";
 import { db } from "@/lib/db";
 import { rateLimit } from "@/lib/rate-limit";
+import { auth } from "@/lib/auth";
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for") || "unknown";
   const limited = await rateLimit(`checkout:${ip}`, 10, 60);
   if (!limited.ok) return NextResponse.json({ error: "Too many requests. Please wait a moment." }, { status: 429 });
+
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json(
+      { error: "Authentication required. Please sign up or log in to place an order." },
+      { status: 401 }
+    );
+  }
 
   let payload: unknown;
   try {
@@ -33,7 +42,6 @@ export async function POST(request: NextRequest) {
         : "Invalid checkout data submitted.";
     } else if (error instanceof Error) {
       errorMessage = error.message;
-      // Database/server errors get a 500
       if (
         errorMessage.includes("Foreign key") ||
         errorMessage.includes("Unique constraint") ||
@@ -61,7 +69,6 @@ export async function POST(request: NextRequest) {
       }
     });
 
-    // Always use the same key_id that was used to create the Razorpay order
     const razorpayPublicKey = env.razorpayKeyId;
 
     return NextResponse.json({

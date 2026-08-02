@@ -82,11 +82,14 @@ export async function createOrderFromCheckout(input: unknown) {
     }
   }
 
-  const validUserId = session?.user?.id
-    ? (await db.user.findUnique({ where: { id: session.user.id } }))
-      ? session.user.id
-      : undefined
-    : undefined;
+  if (!session?.user?.id) {
+    throw new Error("You must be logged in to place an order. Please sign up or log in.");
+  }
+  const dbUser = await db.user.findUnique({ where: { id: session.user.id } });
+  if (!dbUser) {
+    throw new Error("User account not found. Please log in or sign up first.");
+  }
+  const validUserId = dbUser.id;
 
   const order = await db.$transaction(async (tx) => {
     const address = await tx.address.create({
