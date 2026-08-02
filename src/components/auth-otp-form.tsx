@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ShieldCheck, UserPlus, KeyRound, ArrowRight, Loader2, CheckCircle2, AlertCircle, RefreshCw, Sparkles } from "lucide-react";
+import { ShieldCheck, UserPlus, KeyRound, ArrowRight, Loader2, CheckCircle2, AlertCircle, RefreshCw, Mail } from "lucide-react";
 
 export function AuthOtpForm() {
   const router = useRouter();
@@ -14,7 +14,7 @@ export function AuthOtpForm() {
   const callbackUrl = searchParams.get("callbackUrl") || "";
 
   // Step 1: Input details (Name, Email, Password)
-  // Step 2: Input 6-digit OTP
+  // Step 2: Input 6-digit OTP received in email
   const [step, setStep] = useState<1 | 2>(1);
 
   const [formData, setFormData] = useState({
@@ -24,7 +24,6 @@ export function AuthOtpForm() {
   });
 
   const [otpCode, setOtpCode] = useState(["", "", "", "", "", ""]);
-  const [demoOtp, setDemoOtp] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
@@ -39,19 +38,11 @@ export function AuthOtpForm() {
     return () => clearInterval(interval);
   }, [resendTimer]);
 
-  // Auto-fill demo OTP helper
-  function handleAutoFill(codeStr: string) {
-    if (codeStr && codeStr.length === 6) {
-      setOtpCode(codeStr.split(""));
-    }
-  }
-
-  // Handle Step 1: Send OTP
+  // Handle Step 1: Send OTP to Email
   async function handleSendOtp(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setInfoMessage(null);
-    setDemoOtp(null);
 
     if (!formData.name.trim() || formData.name.trim().length < 2) {
       setError("Please enter a valid full name.");
@@ -83,10 +74,7 @@ export function AuthOtpForm() {
 
       if (res.ok && data.success) {
         setStep(2);
-        setInfoMessage(data.message || `Verification OTP code sent to ${formData.email}.`);
-        if (data.demoOtp) {
-          setDemoOtp(data.demoOtp);
-        }
+        setInfoMessage(data.message || `Verification OTP sent to ${formData.email}. Please check your email inbox.`);
         setResendTimer(60);
       } else {
         setError(data.error || "Failed to send verification OTP.");
@@ -138,7 +126,7 @@ export function AuthOtpForm() {
 
     const fullOtp = otpCode.join("");
     if (fullOtp.length !== 6) {
-      setError("Please enter the complete 6-digit OTP code.");
+      setError("Please enter the complete 6-digit OTP code sent to your email.");
       return;
     }
 
@@ -160,7 +148,7 @@ export function AuthOtpForm() {
       setLoading(false);
 
       if (res.ok && data.success) {
-        setInfoMessage("🎉 OTP Verified! Account created successfully. Redirecting to login...");
+        setInfoMessage("🎉 Email Verified! Account created successfully. Redirecting to login...");
         setTimeout(() => {
           const successMsg = encodeURIComponent("Account verified & created successfully! Please log in to continue.");
           const target = `/login?message=${successMsg}${callbackUrl ? `&callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`;
@@ -180,15 +168,15 @@ export function AuthOtpForm() {
       {/* Header Banner */}
       <div className="text-center space-y-2">
         <div className="mx-auto w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center text-amber-700">
-          {step === 1 ? <UserPlus className="w-6 h-6" /> : <KeyRound className="w-6 h-6" />}
+          {step === 1 ? <UserPlus className="w-6 h-6" /> : <Mail className="w-6 h-6" />}
         </div>
         <h1 className="font-serif text-3xl font-bold text-slate-900">
-          {step === 1 ? "Create KanchKart Account" : "Enter Verification OTP"}
+          {step === 1 ? "Create KanchKart Account" : "Check Your Email for OTP"}
         </h1>
         <p className="text-xs text-slate-500">
           {step === 1
-            ? "Sign up with OTP verification to start shopping & tracking orders"
-            : `Enter the 6-digit code sent to ${formData.email}`}
+            ? "Sign up with email OTP verification to start shopping & tracking orders"
+            : `We sent a 6-digit verification code to ${formData.email}`}
         </p>
       </div>
 
@@ -197,26 +185,6 @@ export function AuthOtpForm() {
         <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-semibold flex items-start gap-2.5">
           <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600 shrink-0 mt-0.5" />
           <span>{infoMessage}</span>
-        </div>
-      )}
-
-      {/* Instant Demo OTP Code Banner (for quick testing on screen) */}
-      {demoOtp && step === 2 && (
-        <div className="p-4 rounded-2xl bg-amber-50 border-2 border-amber-300 text-slate-900 text-center space-y-2 shadow-sm">
-          <div className="flex items-center justify-center gap-1.5 text-amber-800 text-xs font-bold uppercase tracking-wider">
-            <Sparkles className="w-4 h-4 text-amber-600 animate-pulse" />
-            <span>Your Verification OTP Code</span>
-          </div>
-          <div className="font-mono text-3xl font-black text-amber-900 tracking-widest bg-white py-2 rounded-xl border border-amber-200 shadow-inner">
-            {demoOtp}
-          </div>
-          <button
-            type="button"
-            onClick={() => handleAutoFill(demoOtp)}
-            className="text-xs font-bold text-amber-800 hover:text-amber-900 underline bg-amber-100/80 px-3 py-1 rounded-full transition"
-          >
-            Click to Auto-Fill Code ({demoOtp})
-          </button>
         </div>
       )}
 
@@ -275,11 +243,11 @@ export function AuthOtpForm() {
             {loading ? (
               <>
                 <Loader2 className="w-5 h-5 animate-spin" />
-                Sending OTP...
+                Sending OTP to Email...
               </>
             ) : (
               <>
-                <span>Send OTP Verification Code</span>
+                <span>Send OTP to Email</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
@@ -290,7 +258,7 @@ export function AuthOtpForm() {
         <form onSubmit={handleVerifyOtp} className="space-y-6">
           <div className="space-y-2">
             <Label className="text-xs font-bold text-slate-700 text-center block">
-              Enter 6-Digit OTP Code *
+              Enter 6-Digit Email OTP Code *
             </Label>
             
             {/* 6 Digit Input Boxes */}
@@ -343,7 +311,7 @@ export function AuthOtpForm() {
               className="font-bold text-amber-700 hover:text-amber-800 disabled:opacity-50 flex items-center gap-1"
             >
               <RefreshCw className="w-3 h-3" />
-              {resendTimer > 0 ? `Resend OTP in ${resendTimer}s` : "Resend OTP"}
+              {resendTimer > 0 ? `Resend OTP in ${resendTimer}s` : "Resend Email OTP"}
             </button>
           </div>
         </form>

@@ -27,17 +27,20 @@ export async function POST(request: NextRequest) {
     const existing = await db.user.findUnique({ where: { email } });
     if (existing) {
       return NextResponse.json(
-        { error: "An account already exists for this email. Please click Login instead." },
+        { error: "An account already exists for this email. Please click Log In below." },
         { status: 400 }
       );
     }
 
     const result = await createAndSendOtp(email, parsed.data.name);
 
+    if (!result.emailSent) {
+      console.warn(`[OTP WARNING] Email sending failed: ${result.emailError}`);
+    }
+
     return NextResponse.json({
       success: true,
-      message: `Verification code sent to ${email}.`,
-      demoOtp: result.otp
+      message: `A 6-digit verification OTP has been sent to ${email}. Please check your inbox and spam folder.`
     });
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : "Failed to send OTP";
