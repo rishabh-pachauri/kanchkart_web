@@ -31,7 +31,7 @@ export const addressSchema = z.object({
 export const checkoutSchema = z.object({
   items: z.array(cartItemSchema).min(1, "Your cart is empty"),
   address: addressSchema,
-  paymentMethod: z.enum(["RAZORPAY"]),
+  paymentMethod: z.enum(["RAZORPAY", "COD"]),
   couponCode: z.preprocess(
     (val) => (val === "" || val === null ? undefined : val),
     z.string().trim().max(40).optional()
