@@ -2,6 +2,7 @@
 
 import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 import { signIn, signOut } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -14,7 +15,7 @@ const registerSchema = z.object({
 
 export async function loginAction(_: unknown, formData: FormData) {
   try {
-    const email = String(formData.get("email") || "").toLowerCase();
+    const email = String(formData.get("email") || "").toLowerCase().trim();
     const password = String(formData.get("password") || "");
     const callbackUrl = String(formData.get("callbackUrl") || "").trim();
 
@@ -43,6 +44,7 @@ export async function loginAction(_: unknown, formData: FormData) {
     if (err instanceof AuthError) {
       return { error: "Invalid email or password." };
     }
+    // Re-throw Next.js redirect exceptions so navigation works
     throw err;
   }
 }
@@ -59,14 +61,14 @@ export async function registerAction(_: unknown, formData: FormData) {
     return { error: parsed.error.issues[0]?.message || "Enter a valid name, email, and password (at least 8 characters)." };
   }
 
-  const email = parsed.data.email.toLowerCase();
+  const email = parsed.data.email.toLowerCase().trim();
 
   const existing = await db.user.findUnique({ 
     where: { email } 
   });
 
   if (existing) {
-    return { error: "An account already exists for this email. Please click Login below." };
+    return { error: "An account already exists for this email. Please log in below." };
   }
 
   try {
@@ -77,17 +79,15 @@ export async function registerAction(_: unknown, formData: FormData) {
         passwordHash: await bcrypt.hash(parsed.data.password, 12)
       }
     });
-
-    const targetUrl = callbackUrl && !callbackUrl.startsWith("/admin") ? callbackUrl : "/account";
-
-    await signIn("credentials", {
-      email,
-      password: parsed.data.password,
-      redirectTo: targetUrl
-    });
   } catch {
     return { error: "Failed to create account. Please try again." };
   }
+
+  // Redirect directly to the login page with success notification
+  const successMessage = encodeURIComponent("Account created successfully! Please log in to continue.");
+  const targetLogin = `/login?message=${successMessage}${callbackUrl ? `&callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`;
+  
+  redirect(targetLogin);
 }
 
 export async function logoutAction() {

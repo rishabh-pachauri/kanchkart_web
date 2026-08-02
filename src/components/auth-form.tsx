@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { loginAction, registerAction } from "@/actions/auth-actions";
-import { ShieldCheck, UserPlus, LogIn, AlertCircle, Info } from "lucide-react";
+import { ShieldCheck, UserPlus, LogIn, AlertCircle, Info, CheckCircle2 } from "lucide-react";
 
 export function AuthForm({ mode }: { mode: "login" | "register" }) {
   const [state, action, pending] = useActionState(mode === "login" ? loginAction : registerAction, null);
@@ -15,6 +15,7 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
   
   const callbackUrl = searchParams.get("callbackUrl") || "";
   const messageParam = searchParams.get("message") || searchParams.get("error") || "";
+  const isSuccessMessage = messageParam.toLowerCase().includes("success") || messageParam.toLowerCase().includes("created");
 
   const loginLink = callbackUrl ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/login";
   const registerLink = callbackUrl ? `/register?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/register";
@@ -37,10 +38,20 @@ export function AuthForm({ mode }: { mode: "login" | "register" }) {
         </p>
       </div>
 
-      {/* Alert Banner for prompt messages */}
+      {/* Alert / Success Banners */}
       {messageParam && !state?.error ? (
-        <div className="p-3.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-xs font-semibold flex items-start gap-2.5">
-          <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+        <div
+          className={`p-3.5 rounded-xl text-xs font-semibold flex items-start gap-2.5 border ${
+            isSuccessMessage
+              ? "bg-emerald-50 border-emerald-200 text-emerald-900"
+              : "bg-amber-50 border-amber-200 text-amber-900"
+          }`}
+        >
+          {isSuccessMessage ? (
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+          ) : (
+            <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+          )}
           <span>{messageParam}</span>
         </div>
       ) : null}
