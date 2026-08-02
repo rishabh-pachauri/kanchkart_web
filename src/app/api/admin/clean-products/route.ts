@@ -9,6 +9,9 @@ import { TWISTED_BOTTLE_IMAGES_DATA } from "@/lib/twisted-bottle-images-data";
 import { MASON_JAR_IMAGES_DATA } from "@/lib/mason-jar-images-data";
 import { MATKI_JAR_IMAGES_DATA } from "@/lib/matki-jar-images-data";
 import { RIBBED_JAR_IMAGES_DATA } from "@/lib/ribbed-jar-images-data";
+import { SQUARE_CHECK_1L_IMAGES_DATA } from "@/lib/square-check-1l-images-data";
+import { ROUND_RIBBED_750_IMAGES_DATA } from "@/lib/round-ribbed-750-images-data";
+import { JARS_550ML_IMAGES_DATA } from "@/lib/jars-550ml-images-data";
 
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get("token");
@@ -86,11 +89,14 @@ export async function GET(request: NextRequest) {
     const slug5 = "glass-mason-jar-mug-with-black-lid-450ml";
     const slug6 = "floral-embossed-glass-matki-jars-350ml-pack-of-2";
     const slug7 = "premium-ribbed-glass-storage-jars-300ml-pack-of-2";
+    const slug8 = "1-liter-square-check-glass-water-bottle";
+    const slug9 = "premium-round-spiral-ribbed-glass-bottle-750ml";
+    const slug10 = "round-glass-storage-jars-550ml-pack-of-2";
 
     // 2. Delete ALL other products from database (and their media) to eliminate duplicates
     const deleteResult = await db.product.deleteMany({
       where: {
-        slug: { notIn: [slug1, slug2, slug3, slug4, slug5, slug6, slug7] }
+        slug: { notIn: [slug1, slug2, slug3, slug4, slug5, slug6, slug7, slug8, slug9, slug10] }
       }
     });
 
@@ -455,6 +461,144 @@ export async function GET(request: NextRequest) {
     await db.productMedia.deleteMany({ where: { productId: p7.id } });
     await db.productMedia.createMany({
       data: product7Media.map((m) => ({ ...m, productId: p7.id }))
+    });
+
+    // ── Product 8: 1-Liter Square Check Glass Water Bottle (₹199, MRP ₹299) ──
+    const product8Media = await uploadImageSet(slug8, [
+      { name: "banner", b64Data: SQUARE_CHECK_1L_IMAGES_DATA.banner, fallbackUrl: "/products/square-check-1l-banner.jpg" },
+      { name: "studio", b64Data: SQUARE_CHECK_1L_IMAGES_DATA.studio, fallbackUrl: "/products/square-check-1l-studio.jpg" },
+      { name: "macro", b64Data: SQUARE_CHECK_1L_IMAGES_DATA.macro, fallbackUrl: "/products/square-check-1l-macro.jpg" },
+      { name: "desk", b64Data: SQUARE_CHECK_1L_IMAGES_DATA.desk, fallbackUrl: "/products/square-check-1l-desk.jpg" }
+    ]);
+
+    const p8 = await db.product.upsert({
+      where: { slug: slug8 },
+      update: {
+        name: "1-Liter Square Check Glass Water Bottle",
+        sku: "KK-BTL-SQ-1000",
+        description: "Stay hydrated in style with our 1-Liter Square Check Glass Water Bottle. Crafted from premium high-clarity borosilicate glass, this bottle stands 28cm tall and features an anti-slip square check grid pattern. Equipped with an airtight leak-proof stainless steel screw cap to keep water, juices, and beverages fresh and secure. Designed for modern dining tables, home refrigerators, and office desks.",
+        shortDescription: "1-Liter premium leak-proof glass water bottle with square check grid pattern.",
+        categoryId: bottleCategory.id,
+        price: 199.00,
+        compareAtPrice: 299.00,
+        stock: 300,
+        isActive: true,
+        isFeatured: true,
+        isBestSeller: true,
+        isNewArrival: true
+      },
+      create: {
+        name: "1-Liter Square Check Glass Water Bottle",
+        slug: slug8,
+        sku: "KK-BTL-SQ-1000",
+        description: "Stay hydrated in style with our 1-Liter Square Check Glass Water Bottle. Crafted from premium high-clarity borosilicate glass, this bottle stands 28cm tall and features an anti-slip square check grid pattern. Equipped with an airtight leak-proof stainless steel screw cap to keep water, juices, and beverages fresh and secure. Designed for modern dining tables, home refrigerators, and office desks.",
+        shortDescription: "1-Liter premium leak-proof glass water bottle with square check grid pattern.",
+        categoryId: bottleCategory.id,
+        price: 199.00,
+        compareAtPrice: 299.00,
+        stock: 300,
+        isActive: true,
+        isFeatured: true,
+        isBestSeller: true,
+        isNewArrival: true
+      }
+    });
+
+    await db.productMedia.deleteMany({ where: { productId: p8.id } });
+    await db.productMedia.createMany({
+      data: product8Media.map((m) => ({ ...m, productId: p8.id }))
+    });
+
+    // ── Product 9: Premium Round Spiral Ribbed Glass Bottle (750ml) (₹199, MRP ₹299) ──
+    const product9Media = await uploadImageSet(slug9, [
+      { name: "banner", b64Data: ROUND_RIBBED_750_IMAGES_DATA.banner, fallbackUrl: "/products/round-ribbed-750-banner.jpg" },
+      { name: "studio", b64Data: ROUND_RIBBED_750_IMAGES_DATA.studio, fallbackUrl: "/products/round-ribbed-750-studio.jpg" },
+      { name: "macro", b64Data: ROUND_RIBBED_750_IMAGES_DATA.macro, fallbackUrl: "/products/round-ribbed-750-macro.jpg" },
+      { name: "desk", b64Data: ROUND_RIBBED_750_IMAGES_DATA.desk, fallbackUrl: "/products/round-ribbed-750-desk.jpg" }
+    ]);
+
+    const p9 = await db.product.upsert({
+      where: { slug: slug9 },
+      update: {
+        name: "Premium Round Spiral Ribbed Glass Bottle (750ml)",
+        sku: "KK-BTL-ROUND-RIBBED-750",
+        description: "Hydrate elegantly with our Premium Round Spiral Ribbed Glass Bottle (750ml). Featuring a beautiful vertical spiral wave rib texture for a comfortable non-slip grip, this 750ml bottle is crafted from lead-free, eco-friendly food-grade glass. Finished with an airtight leak-proof stainless steel cap, it's perfect for keeping your water fresh on dining tables, in fridges, or in the office.",
+        shortDescription: "750ml clear glass bottle with elegant round spiral ribbed pattern and stainless steel cap.",
+        categoryId: bottleCategory.id,
+        price: 199.00,
+        compareAtPrice: 299.00,
+        stock: 350,
+        isActive: true,
+        isFeatured: true,
+        isBestSeller: true,
+        isNewArrival: true
+      },
+      create: {
+        name: "Premium Round Spiral Ribbed Glass Bottle (750ml)",
+        slug: slug9,
+        sku: "KK-BTL-ROUND-RIBBED-750",
+        description: "Hydrate elegantly with our Premium Round Spiral Ribbed Glass Bottle (750ml). Featuring a beautiful vertical spiral wave rib texture for a comfortable non-slip grip, this 750ml bottle is crafted from lead-free, eco-friendly food-grade glass. Finished with an airtight leak-proof stainless steel cap, it's perfect for keeping your water fresh on dining tables, in fridges, or in the office.",
+        shortDescription: "750ml clear glass bottle with elegant round spiral ribbed pattern and stainless steel cap.",
+        categoryId: bottleCategory.id,
+        price: 199.00,
+        compareAtPrice: 299.00,
+        stock: 350,
+        isActive: true,
+        isFeatured: true,
+        isBestSeller: true,
+        isNewArrival: true
+      }
+    });
+
+    await db.productMedia.deleteMany({ where: { productId: p9.id } });
+    await db.productMedia.createMany({
+      data: product9Media.map((m) => ({ ...m, productId: p9.id }))
+    });
+
+    // ── Product 10: Round Glass Storage Jars (550ml - Pack of 2) (₹199, MRP ₹299) ──
+    const product10Media = await uploadImageSet(slug10, [
+      { name: "banner", b64Data: JARS_550ML_IMAGES_DATA.banner, fallbackUrl: "/products/jars-550ml-pack2-banner.jpg" },
+      { name: "studio", b64Data: JARS_550ML_IMAGES_DATA.studio, fallbackUrl: "/products/jars-550ml-pack2-studio.jpg" },
+      { name: "macro", b64Data: JARS_550ML_IMAGES_DATA.macro, fallbackUrl: "/products/jars-550ml-pack2-macro.jpg" },
+      { name: "desk", b64Data: JARS_550ML_IMAGES_DATA.desk, fallbackUrl: "/products/jars-550ml-pack2-desk.jpg" }
+    ]);
+
+    const p10 = await db.product.upsert({
+      where: { slug: slug10 },
+      update: {
+        name: "Round Glass Storage Jars (550ml - Pack of 2)",
+        sku: "KK-JAR-ROUND-550-P2",
+        description: "Keep your kitchen pantry neat, fresh, and beautiful with our Round Glass Storage Jars (550ml - Pack of 2). These 550ml jars feature clean round high-clarity glass structures with premium airtight golden metal screw lids. Perfect for serving and storing large portions of dry fruits, almonds, cashews, spices, flour, pickles, and candy. Safe, durable, and lead-free.",
+        shortDescription: "Pack of 2 classic round 550ml glass storage jars with airtight golden screw lids.",
+        categoryId: storageCategory.id,
+        price: 199.00,
+        compareAtPrice: 299.00,
+        stock: 250,
+        isActive: true,
+        isFeatured: true,
+        isBestSeller: true,
+        isNewArrival: true
+      },
+      create: {
+        name: "Round Glass Storage Jars (550ml - Pack of 2)",
+        slug: slug10,
+        sku: "KK-JAR-ROUND-550-P2",
+        description: "Keep your kitchen pantry neat, fresh, and beautiful with our Round Glass Storage Jars (550ml - Pack of 2). These 550ml jars feature clean round high-clarity glass structures with premium airtight golden metal screw lids. Perfect for serving and storing large portions of dry fruits, almonds, cashews, spices, flour, pickles, and candy. Safe, durable, and lead-free.",
+        shortDescription: "Pack of 2 classic round 550ml glass storage jars with airtight golden screw lids.",
+        categoryId: storageCategory.id,
+        price: 199.00,
+        compareAtPrice: 299.00,
+        stock: 250,
+        isActive: true,
+        isFeatured: true,
+        isBestSeller: true,
+        isNewArrival: true
+      }
+    });
+
+    await db.productMedia.deleteMany({ where: { productId: p10.id } });
+    await db.productMedia.createMany({
+      data: product10Media.map((m) => ({ ...m, productId: p10.id }))
     });
 
     const activeListings = await db.product.findMany({

@@ -261,6 +261,89 @@ async function main() {
       }
     },
     {
+      name: "1-Liter Square Check Glass Water Bottle",
+      slug: "1-liter-square-check-glass-water-bottle",
+      sku: "KK-BTL-SQ-1000",
+      description:
+        "Stay hydrated in style with our 1-Liter Square Check Glass Water Bottle. Crafted from premium high-clarity borosilicate glass, this bottle stands 28cm tall and features an anti-slip square check grid pattern. Equipped with an airtight leak-proof stainless steel screw cap to keep water, juices, and beverages fresh and secure. Designed for modern dining tables, home refrigerators, and office desks.",
+      shortDescription: "1-Liter premium leak-proof glass water bottle with square check grid pattern.",
+      categoryId: bottles.id,
+      price: "199.00",
+      compareAtPrice: "299.00",
+      stock: 300,
+      images: [
+        "/products/square-check-1l-banner.jpg",
+        "/products/square-check-1l-studio.jpg",
+        "/products/square-check-1l-macro.jpg",
+        "/products/square-check-1l-desk.jpg"
+      ],
+      isFeatured: true,
+      isBestSeller: true,
+      isNewArrival: true,
+      specifications: {
+        capacity: "1000 ml / 1 Liter",
+        height: "28 cm",
+        dimensions: "8 cm x 8 cm",
+        material: "High-Clarity Glass",
+        cap: "Stainless Steel Screw Cap"
+      }
+    },
+    {
+      name: "Premium Round Spiral Ribbed Glass Bottle (750ml)",
+      slug: "premium-round-spiral-ribbed-glass-bottle-750ml",
+      sku: "KK-BTL-ROUND-RIBBED-750",
+      description:
+        "Hydrate elegantly with our Premium Round Spiral Ribbed Glass Bottle (750ml). Featuring a beautiful vertical spiral wave rib texture for a comfortable non-slip grip, this 750ml bottle is crafted from lead-free, eco-friendly food-grade glass. Finished with an airtight leak-proof stainless steel cap, it's perfect for keeping your water fresh on dining tables, in fridges, or in the office.",
+      shortDescription: "750ml clear glass bottle with elegant round spiral ribbed pattern and stainless steel cap.",
+      categoryId: bottles.id,
+      price: "199.00",
+      compareAtPrice: "299.00",
+      stock: 350,
+      images: [
+        "/products/round-ribbed-750-banner.jpg",
+        "/products/round-ribbed-750-studio.jpg",
+        "/products/round-ribbed-750-macro.jpg",
+        "/products/round-ribbed-750-desk.jpg"
+      ],
+      isFeatured: true,
+      isBestSeller: true,
+      isNewArrival: true,
+      specifications: {
+        capacity: "750 ml",
+        material: "Eco-Friendly Food-Safe Glass",
+        cap: "Leak-proof Stainless Steel Screw Cap",
+        design: "Vertical Spiral Wave Ribs"
+      }
+    },
+    {
+      name: "Round Glass Storage Jars (550ml - Pack of 2)",
+      slug: "round-glass-storage-jars-550ml-pack-of-2",
+      sku: "KK-JAR-ROUND-550-P2",
+      description:
+        "Keep your kitchen pantry neat, fresh, and beautiful with our Round Glass Storage Jars (550ml - Pack of 2). These 550ml jars feature clean round high-clarity glass structures with premium airtight golden metal screw lids. Perfect for serving and storing large portions of dry fruits, almonds, cashews, spices, flour, pickles, and candy. Safe, durable, and lead-free.",
+      shortDescription: "Pack of 2 classic round 550ml glass storage jars with airtight golden screw lids.",
+      categoryId: storage.id,
+      price: "199.00",
+      compareAtPrice: "299.00",
+      stock: 250,
+      images: [
+        "/products/jars-550ml-pack2-banner.jpg",
+        "/products/jars-550ml-pack2-studio.jpg",
+        "/products/jars-550ml-pack2-macro.jpg",
+        "/products/jars-550ml-pack2-desk.jpg"
+      ],
+      isFeatured: true,
+      isBestSeller: true,
+      isNewArrival: true,
+      specifications: {
+        set: "Pack of 2 Jars",
+        capacity: "550 ml per jar",
+        material: "High-Clarity Glass",
+        lid: "Airtight Golden Metal Screw Lid",
+        care: "Dishwasher safe"
+      }
+    },
+    {
       name: "Crystal Diamond Cut Glass Bottle (1000ml)",
       slug: "crystal-diamond-cut-glass-bottle-1000ml",
       sku: "KK-BTL-DC-299",
