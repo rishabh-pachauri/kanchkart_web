@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { formatPrice, toNumber } from "@/lib/money";
+import { formatPrice, toNumber, formatDateTime } from "@/lib/money";
+import { Calendar, Clock, Search, Truck, Package, ShieldCheck } from "lucide-react";
 
 type TrackingResult = {
   orderNumber: string;
@@ -14,6 +15,7 @@ type TrackingResult = {
   grandTotal: number | string;
   trackingNumber?: string | null;
   courierPartner?: string | null;
+  createdAt?: string | Date;
   timeline?: Array<{
     id: string;
     title: string;
@@ -35,6 +37,42 @@ export function TrackOrderClient({ defaultOrderNumber }: { defaultOrderNumber?: 
   const [result, setResult] = useState<TrackingResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [orderNumberInput, setOrderNumberInput] = useState(defaultOrderNumber || "");
+
+  useEffect(() => {
+    if (defaultOrderNumber) {
+      performTracking(defaultOrderNumber);
+    }
+  }, [defaultOrderNumber]);
+
+  async function performTracking(orderNum: string, emailStr?: string) {
+    if (!orderNum.trim()) return;
+    setError(null);
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/orders/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          orderNumber: orderNum.trim(),
+          email: emailStr?.trim() || undefined
+        })
+      });
+      const payload = await response.json();
+      setLoading(false);
+      if (response.ok) {
+        setResult(payload);
+      } else {
+        setError(payload.error || "Order not found. Please check your Order Number.");
+        setResult(null);
+      }
+    } catch {
+      setLoading(false);
+      setError("Network error while searching for order status.");
+      setResult(null);
+    }
+  }
 
   const statusWorkflow = [
     { key: "ORDER_RECEIVED", label: "Order Received" },
@@ -53,56 +91,32 @@ export function TrackOrderClient({ defaultOrderNumber }: { defaultOrderNumber?: 
   }
 
   return (
-    <div className="space-y-6">
-      <div className="rounded-2xl border border-gold/20 bg-white/90 p-6 shadow-sm">
+    <div className="space-y-6 max-w-3xl mx-auto">
+      {/* Search Bar */}
+      <div className="rounded-2xl border border-amber-200/60 bg-white/95 p-6 shadow-sm">
         <form
-          className="grid gap-4 sm:grid-cols-[1fr_1fr_auto]"
-          onSubmit={async (event) => {
+          className="grid gap-4 sm:grid-cols-[1fr_auto]"
+          onSubmit={(event) => {
             event.preventDefault();
-            setError(null);
-            setLoading(true);
-            const form = new FormData(event.currentTarget);
-            const response = await fetch("/api/orders/track", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                orderNumber: form.get("orderNumber"),
-                email: form.get("email")
-              })
-            });
-            const payload = await response.json();
-            setLoading(false);
-            if (response.ok) setResult(payload);
-            else setError(payload.error || "Order not found. Please check your Order ID and Email.");
+            performTracking(orderNumberInput);
           }}
         >
           <div className="grid gap-2">
-            <Label htmlFor="orderNumber" className="text-xs font-bold uppercase tracking-wider text-charcoal">
+            <Label htmlFor="orderNumber" className="text-xs font-bold uppercase tracking-wider text-charcoal flex items-center gap-1.5">
+              <Search className="w-3.5 h-3.5 text-amber-600" />
               Order ID / Number *
             </Label>
             <Input
               id="orderNumber"
               name="orderNumber"
-              defaultValue={defaultOrderNumber}
-              placeholder="e.g. ord_12345"
+              value={orderNumberInput}
+              onChange={(e) => setOrderNumberInput(e.target.value)}
+              placeholder="e.g. ord_1234567890"
               required
-              className="bg-white border-gold/20 focus:border-gold font-mono"
+              className="bg-white border-amber-200 focus:border-amber-500 font-mono text-base py-3"
             />
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="email" className="text-xs font-bold uppercase tracking-wider text-charcoal">
-              Email Address *
-            </Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="e.g. customer@example.com"
-              required
-              className="bg-white border-gold/20 focus:border-gold"
-            />
-          </div>
-          <Button variant="gold" className="self-end px-8 font-bold" type="submit" disabled={loading}>
+          <Button variant="gold" className="self-end px-8 font-bold py-6 text-slate-950" type="submit" disabled={loading}>
             {loading ? "Searching..." : "Track Order"}
           </Button>
         </form>
@@ -110,30 +124,44 @@ export function TrackOrderClient({ defaultOrderNumber }: { defaultOrderNumber?: 
       </div>
 
       {result ? (
-        <div className="rounded-2xl border border-gold/20 bg-white/95 p-6 shadow-md space-y-6">
+        <div className="rounded-2xl border border-amber-200/60 bg-white/95 p-6 shadow-md space-y-6">
           {/* Header */}
-          <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-gold/15">
+          <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-amber-100">
             <div>
               <div className="flex items-center gap-3">
                 <h3 className="font-serif text-2xl font-bold text-charcoal">Order #{result.orderNumber}</h3>
-                <span className="rounded-full bg-gold/20 border border-gold/40 px-3 py-0.5 text-xs font-bold text-charcoal">
+                <span className="rounded-full bg-emerald-100 border border-emerald-300 px-3 py-0.5 text-xs font-bold text-emerald-900">
                   {result.status.replaceAll("_", " ")}
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">Total Paid: <strong className="text-charcoal font-bold">{formatPrice(toNumber(result.grandTotal))}</strong> • Online Prepaid ({result.paymentStatus})</p>
+              
+              {/* Placed Date & Time Display */}
+              <div className="flex flex-wrap items-center gap-4 text-xs text-slate-600 mt-2">
+                {result.createdAt && (
+                  <span className="flex items-center gap-1 font-medium text-amber-900 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-md">
+                    <Clock className="w-3.5 h-3.5 text-amber-600" />
+                    <strong>Placed On:</strong> {formatDateTime(result.createdAt)}
+                  </span>
+                )}
+                <span>Total: <strong className="text-charcoal font-bold">{formatPrice(toNumber(result.grandTotal))}</strong></span>
+                <span className="capitalize">({result.paymentStatus.toLowerCase()})</span>
+              </div>
             </div>
 
             {result.courierPartner ? (
-              <div className="text-right text-xs bg-gold/10 border border-gold/30 p-3 rounded-xl">
+              <div className="text-right text-xs bg-amber-50 border border-amber-200 p-3 rounded-xl">
                 <p className="font-bold text-charcoal">{result.courierPartner}</p>
-                {result.trackingNumber ? <p className="font-mono text-gold font-semibold">AWB: {result.trackingNumber}</p> : null}
+                {result.trackingNumber ? <p className="font-mono text-amber-700 font-semibold">AWB: {result.trackingNumber}</p> : null}
               </div>
             ) : null}
           </div>
 
           {/* Real-time Order Progress Bar */}
           <div className="py-2">
-            <p className="text-xs font-bold uppercase tracking-wider text-gold mb-4">Real-Time Delivery Timeline</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-amber-700 mb-4 flex items-center gap-1.5">
+              <Truck className="w-4 h-4" />
+              Real-Time Delivery Timeline
+            </p>
             <div className="grid grid-cols-5 gap-2 text-center">
               {statusWorkflow.map((step, index) => {
                 const currentIndex = getStepIndex(result.status);
@@ -143,13 +171,13 @@ export function TrackOrderClient({ defaultOrderNumber }: { defaultOrderNumber?: 
                     <div
                       className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
                         isPassed
-                          ? "bg-gold text-charcoal shadow-gold-glow"
-                          : "bg-muted text-muted-foreground border border-gold/20"
+                          ? "bg-amber-400 text-slate-950 font-extrabold shadow-md"
+                          : "bg-slate-100 text-slate-400 border border-slate-200"
                       }`}
                     >
                       {index + 1}
                     </div>
-                    <p className={`mt-2 text-[11px] font-semibold leading-tight ${isPassed ? "text-charcoal" : "text-muted-foreground"}`}>
+                    <p className={`mt-2 text-[11px] font-semibold leading-tight ${isPassed ? "text-slate-900" : "text-slate-400"}`}>
                       {step.label}
                     </p>
                   </div>
@@ -160,22 +188,25 @@ export function TrackOrderClient({ defaultOrderNumber }: { defaultOrderNumber?: 
 
           {/* Ordered Item Pictures & Details */}
           {result.items && result.items.length > 0 ? (
-            <div className="pt-4 border-t border-gold/15">
-              <p className="text-xs font-bold uppercase tracking-wider text-charcoal mb-3">Order Items Recieved ({result.items.length})</p>
-              <div className="divide-y divide-gold/10">
+            <div className="pt-4 border-t border-amber-100">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-800 mb-3 flex items-center gap-1.5">
+                <Package className="w-4 h-4 text-amber-600" />
+                Ordered Items ({result.items.length})
+              </p>
+              <div className="divide-y divide-amber-100/60">
                 {result.items.map((item) => (
                   <div key={item.id} className="py-3 first:pt-0 last:pb-0 flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
-                      <div className="relative h-14 w-14 rounded-lg border border-gold/20 bg-ivory overflow-hidden shrink-0">
+                      <div className="relative h-14 w-14 rounded-lg border border-slate-200 bg-slate-50 overflow-hidden shrink-0">
                         <Image src={item.image} alt={item.name} fill className="object-cover" />
                       </div>
                       <div>
-                        <p className="font-serif font-bold text-charcoal text-sm">{item.name}</p>
-                        <p className="text-[11px] text-muted-foreground font-mono">SKU: {item.sku}</p>
-                        <p className="text-xs text-gold font-semibold">{formatPrice(toNumber(item.unitPrice))} × {item.quantity} qty</p>
+                        <p className="font-bold text-slate-900 text-sm">{item.name}</p>
+                        <p className="text-[11px] text-slate-500 font-mono">SKU: {item.sku}</p>
+                        <p className="text-xs text-amber-800 font-semibold">{formatPrice(toNumber(item.unitPrice))} × {item.quantity} qty</p>
                       </div>
                     </div>
-                    <p className="font-bold text-charcoal text-sm">{formatPrice(toNumber(item.lineTotal))}</p>
+                    <p className="font-bold text-slate-900 text-sm">{formatPrice(toNumber(item.lineTotal))}</p>
                   </div>
                 ))}
               </div>
@@ -184,13 +215,13 @@ export function TrackOrderClient({ defaultOrderNumber }: { defaultOrderNumber?: 
 
           {/* Activity Log */}
           {result.timeline && result.timeline.length > 0 ? (
-            <div className="pt-4 border-t border-gold/15">
-              <p className="text-xs font-bold uppercase tracking-wider text-charcoal mb-3">Activity Status History</p>
+            <div className="pt-4 border-t border-amber-100">
+              <p className="text-xs font-bold uppercase tracking-wider text-slate-800 mb-3">Activity Status History</p>
               <div className="space-y-2">
                 {result.timeline.map((event) => (
-                  <div key={event.id} className="border-l-2 border-gold pl-3 py-1 text-xs">
-                    <p className="font-bold text-charcoal capitalize">{event.title}</p>
-                    {event.description ? <p className="text-muted-foreground">{event.description}</p> : null}
+                  <div key={event.id} className="border-l-2 border-amber-400 pl-3 py-1 text-xs">
+                    <p className="font-bold text-slate-900 capitalize">{event.title}</p>
+                    {event.description ? <p className="text-slate-500">{event.description}</p> : null}
                   </div>
                 ))}
               </div>

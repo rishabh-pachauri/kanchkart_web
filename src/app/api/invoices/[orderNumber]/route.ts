@@ -2,7 +2,7 @@ import PDFDocument from "pdfkit";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { formatPrice } from "@/lib/money";
+import { formatPrice, formatDateTime } from "@/lib/money";
 
 async function renderInvoicePdf(orderNumber: string) {
   const order = await db.order.findUnique({
@@ -23,7 +23,7 @@ async function renderInvoicePdf(orderNumber: string) {
   doc.moveDown(0.5);
   doc.fontSize(10).text(`Invoice: ${order.invoice?.invoiceNumber || order.orderNumber}`);
   doc.text(`Order: ${order.orderNumber}`);
-  doc.text(`Date: ${order.createdAt.toLocaleDateString("en-IN")}`);
+  doc.text(`Date & Time Placed: ${formatDateTime(order.createdAt)}`);
   doc.moveDown();
   doc.fontSize(12).text(`Bill To: ${order.customerName}`);
   doc.fontSize(10).text(order.customerEmail);

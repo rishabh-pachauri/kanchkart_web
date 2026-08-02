@@ -5,16 +5,21 @@ import { trackOrderSchema } from "@/lib/validators";
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for") || "unknown";
-  const limited = await rateLimit(`track:${ip}`, 20, 60);
+  const limited = await rateLimit(`track:${ip}`, 30, 60);
   if (!limited.ok) return NextResponse.json({ error: "Too many requests." }, { status: 429 });
 
   const parsed = trackOrderSchema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ error: "Invalid tracking request." }, { status: 400 });
 
+  const orderNumClean = parsed.data.orderNumber.trim();
+
   const order = await db.order.findFirst({
     where: {
-      orderNumber: parsed.data.orderNumber,
-      customerEmail: parsed.data.email
+      OR: [
+        { orderNumber: { equals: orderNumClean, mode: "insensitive" } },
+        { id: orderNumClean }
+      ],
+      ...(parsed.data.email ? { customerEmail: { equals: parsed.data.email.trim(), mode: "insensitive" } } : {})
     },
     include: {
       items: {
@@ -30,7 +35,9 @@ export async function POST(request: NextRequest) {
     }
   });
 
-  if (!order) return NextResponse.json({ error: "Order not found." }, { status: 404 });
+  if (!order) {
+    return NextResponse.json({ error: `Order '${orderNumClean}' not found. Please verify your Order Number.` }, { status: 404 });
+  }
 
   return NextResponse.json({
     orderNumber: order.orderNumber,
@@ -40,6 +47,7 @@ export async function POST(request: NextRequest) {
     trackingNumber: order.trackingNumber,
     courierPartner: order.courierPartner,
     estimatedDelivery: order.estimatedDelivery,
+    createdAt: order.createdAt,
     timeline: order.trackingEvents,
     items: order.items.map((item) => ({
       id: item.id,

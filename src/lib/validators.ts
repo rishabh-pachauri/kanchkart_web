@@ -102,6 +102,9 @@ export const cmsSectionSchema = z.object({
 
 export const trackOrderSchema = z.object({
   orderNumber: z.string().trim().min(4).max(80),
-  email: emailSchema
+  email: z.preprocess(
+    (val) => (val === "" || val === null ? undefined : val),
+    z.string().email().optional()
+  )
 });
 

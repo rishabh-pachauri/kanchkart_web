@@ -8,8 +8,7 @@ import { OrderStatus } from "@prisma/client";
 import { CheckCircle2, Package, Truck, ShieldCheck, Printer, Eye, CheckSquare, Square } from "lucide-react";
 import { bulkUpdateOrderStatusAction } from "@/actions/admin-actions";
 import { Button } from "@/components/ui/button";
-import { formatPrice } from "@/lib/money";
-import { formatDate } from "@/lib/utils";
+import { formatPrice, formatDateTime } from "@/lib/money";
 
 type SerializedOrder = {
   id: string;
@@ -291,7 +290,7 @@ export function AdminOrdersPipeline({ initialOrders }: PipelineProps) {
                         </span>
                       </div>
                       <p className="text-xs text-slate-400 mt-0.5">
-                        Placed on {formatDate(order.createdAt)} • {order.items.length} items
+                        Placed on {formatDateTime(order.createdAt)} • {order.items.length} items
                       </p>
                     </div>
                   </div>

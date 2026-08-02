@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { db } from "@/lib/db";
-import { formatPrice, toNumber } from "@/lib/money";
+import { formatPrice, toNumber, formatDateTime } from "@/lib/money";
 import { formatDate } from "@/lib/utils";
 
 export const metadata = {
@@ -77,7 +77,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
               </span>
             </div>
             <p className="text-xs text-slate-400 mt-1">
-              Placed on {formatDate(order.createdAt)} • {order.items.length} items
+              Placed on {formatDateTime(order.createdAt)} • {order.items.length} items
             </p>
           </div>
         </div>

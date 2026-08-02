@@ -24,3 +24,19 @@ export function shippingFor(subtotal: number) {
 export function gstIncluded(lineTotal: number, gstPercent: number) {
   return Number(((lineTotal * gstPercent) / (100 + gstPercent)).toFixed(2));
 }
+
+export function formatDateTime(dateInput: Date | string | number | null | undefined): string {
+  if (!dateInput) return "N/A";
+  const date = new Date(dateInput);
+  if (isNaN(date.getTime())) return "N/A";
+
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: "Asia/Kolkata"
+  }).format(date);
+}

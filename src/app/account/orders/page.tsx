@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { formatPrice } from "@/lib/money";
+import { formatPrice, formatDateTime } from "@/lib/money";
 import { siteMetadata } from "@/lib/seo";
 import { requireUser } from "@/lib/security";
 
@@ -20,18 +20,18 @@ export default async function AccountOrdersPage() {
       <h1 className="mt-2 font-serif text-5xl font-semibold">Order history</h1>
       <div className="mt-8 grid gap-4">
         {orders.map((order) => (
-          <Link key={order.id} href={`/track-order?orderNumber=${order.orderNumber}`} className="rounded-md border bg-white/70 p-5">
+          <Link key={order.id} href={`/track-order?orderNumber=${order.orderNumber}`} className="rounded-md border bg-white/70 p-5 hover:border-gold transition">
             <div className="flex flex-col justify-between gap-2 md:flex-row md:items-center">
-              <h2 className="font-serif text-2xl font-semibold">{order.orderNumber}</h2>
-              <p className="font-semibold">{formatPrice(order.grandTotal)}</p>
+              <h2 className="font-serif text-2xl font-semibold">#{order.orderNumber}</h2>
+              <p className="font-semibold text-lg text-amber-900">{formatPrice(order.grandTotal)}</p>
             </div>
-            <p className="mt-2 text-sm text-muted-foreground">
-              {order.items.length} item(s) · {order.status}
-            </p>
+            <div className="mt-2 flex flex-wrap items-center justify-between text-sm text-muted-foreground">
+              <span>{order.items.length} item(s) · <strong className="text-charcoal uppercase">{order.status.replaceAll("_", " ")}</strong></span>
+              <span className="text-xs text-slate-500 font-medium">Placed on {formatDateTime(order.createdAt)}</span>
+            </div>
           </Link>
         ))}
       </div>
     </section>
   );
 }
-

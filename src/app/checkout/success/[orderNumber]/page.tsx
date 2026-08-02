@@ -2,7 +2,7 @@ import Link from "next/link";
 import { CheckCircle2, Clock, AlertTriangle, ArrowRight, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { db } from "@/lib/db";
-import { formatPrice } from "@/lib/money";
+import { formatPrice, formatDateTime } from "@/lib/money";
 import { siteMetadata } from "@/lib/seo";
 
 export const metadata = siteMetadata({ title: "Order Status" });
@@ -63,6 +63,10 @@ export default async function OrderSuccessPage({
             <div className="flex justify-between items-center border-b border-gold/15 pb-3">
               <span className="text-xs uppercase font-bold tracking-wider text-muted-foreground">Order Total</span>
               <span className="text-lg font-bold text-amber-900">{formatPrice(order.grandTotal)}</span>
+            </div>
+            <div className="flex justify-between items-center text-xs text-muted-foreground">
+              <span>Date & Time Placed</span>
+              <span className="font-semibold text-charcoal">{formatDateTime(order.createdAt)}</span>
             </div>
             <div className="flex justify-between items-center text-xs text-muted-foreground">
               <span>Customer</span>
