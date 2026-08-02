@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatPrice, toNumber, formatDateTime } from "@/lib/money";
-import { Calendar, Clock, Search, Truck, Package, ShieldCheck, AlertCircle, ArrowRight } from "lucide-react";
+import { Clock, Search, Truck, Package, ShieldCheck, AlertCircle, ArrowRight } from "lucide-react";
 
 type TrackingResult = {
   isPaymentPending?: boolean;

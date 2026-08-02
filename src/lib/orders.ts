@@ -1,10 +1,9 @@
 import { OrderStatus, PaymentMethod, PaymentStatus, Prisma } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { formatPrice, gstIncluded, toNumber } from "@/lib/money";
+import { gstIncluded, toNumber } from "@/lib/money";
 import { calculateShippingCost } from "@/lib/settings";
 import { checkoutSchema } from "@/lib/validators";
-import { sendAdminNotification, sendOrderConfirmation } from "@/lib/email";
 
 export async function nextOrderNumber(tx: Prisma.TransactionClient) {
   const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
@@ -18,108 +17,81 @@ export async function createOrderFromCheckout(input: unknown) {
   const parsed = checkoutSchema.parse(input);
   const session = await auth();
 
-  const order = await db.$transaction(async (tx) => {
-    // 1. Resolve session user ID safely against database User table
-    let validUserId: string | undefined = undefined;
-    if (session?.user?.id) {
-      const userById = await tx.user.findUnique({
-        where: { id: session.user.id }
-      });
-      if (userById) {
-        validUserId = userById.id;
-      } else if (session.user.email) {
-        const userByEmail = await tx.user.findUnique({
-          where: { email: session.user.email }
-        });
-        if (userByEmail) validUserId = userByEmail.id;
-      }
-    }
+  const productIds = parsed.items.map((i) => i.productId);
+  const products = await db.product.findMany({
+    where: { id: { in: productIds }, isActive: true },
+    include: { variants: true }
+  });
 
-    // 2. Fetch products for items in cart
-    const itemIds = parsed.items.map((item) => item.productId);
-    let products = await tx.product.findMany({
-      where: {
-        OR: [{ id: { in: itemIds } }, { slug: { in: itemIds } }],
-        isActive: true
-      },
-      include: { variants: true }
-    });
+  const productMap = new Map(products.map((p) => [p.id, p]));
 
-    // Fallback: If cart contains stale product IDs from previous seed runs, fetch active products
-    if (!products.length) {
-      products = await tx.product.findMany({
-        where: { isActive: true },
-        take: 10,
-        include: { variants: true }
-      });
-    }
+  const rows = parsed.items.map((item) => {
+    const product = productMap.get(item.productId);
+    if (!product) throw new Error(`Product not found or inactive: ${item.productId}`);
 
-    const defaultFallbackProduct = products[0];
-    if (!defaultFallbackProduct) {
-      throw new Error("No active glassware products found in the catalog.");
-    }
-
-    const productMap = new Map(products.map((p) => [p.id, p]));
-    const productSlugMap = new Map(products.map((p) => [p.slug, p]));
-
-    const rows = parsed.items.map((item) => {
-      const product = productMap.get(item.productId) || productSlugMap.get(item.productId) || defaultFallbackProduct;
-      const variant = item.variantId
-        ? product.variants.find((candidate) => candidate.id === item.variantId)
-        : null;
-
-      const unitPrice = toNumber(variant?.price ?? product.price);
-      const lineTotal = unitPrice * item.quantity;
-      const gstPercent = toNumber(product.gstPercent);
-
-      return {
-        input: item,
-        product,
-        variant,
-        unitPrice,
-        lineTotal,
-        gstPercent,
-        gstTotal: gstIncluded(lineTotal, gstPercent)
-      };
-    });
-
-    const subtotal = rows.reduce((sum, row) => sum + row.lineTotal, 0);
-    const gstTotal = rows.reduce((sum, row) => sum + row.gstTotal, 0);
-    const shippingTotal = await calculateShippingCost(subtotal);
-    const coupon = parsed.couponCode
-      ? await tx.coupon.findFirst({
-          where: {
-            code: parsed.couponCode.toUpperCase(),
-            isActive: true,
-            OR: [{ startsAt: null }, { startsAt: { lte: new Date() } }],
-            AND: [{ OR: [{ endsAt: null }, { endsAt: { gte: new Date() } }] }]
-          }
-        })
+    const variant = item.variantId
+      ? product.variants.find((v) => v.id === item.variantId)
       : null;
 
-    const minOrderVal = coupon?.minOrderValue ? toNumber(coupon.minOrderValue) : 0;
-    const isCouponEligible = coupon && subtotal >= minOrderVal;
-
-    const discountTotal = isCouponEligible
-      ? Math.min(
-          coupon.maxDiscount ? toNumber(coupon.maxDiscount) : Number.MAX_SAFE_INTEGER,
-          coupon.type === "PERCENTAGE"
-            ? (subtotal * toNumber(coupon.value)) / 100
-            : toNumber(coupon.value)
-        )
-      : 0;
-
-    if (isCouponEligible) {
-      await tx.coupon.update({
-        where: { id: coupon.id },
-        data: { usedCount: { increment: 1 } }
-      });
+    const availableStock = variant ? variant.stock : product.stock;
+    if (availableStock < item.quantity) {
+      throw new Error(`Insufficient stock for ${product.name}. Available: ${availableStock}`);
     }
 
+    const unitPrice = toNumber(variant?.price ?? product.price);
+    const lineTotal = unitPrice * item.quantity;
+    const gstPercent = product.gstPercent;
+
+    return {
+      input: item,
+      product,
+      variant,
+      unitPrice,
+      lineTotal,
+      gstPercent,
+      gstTotal: gstIncluded(lineTotal, gstPercent)
+    };
+  });
+
+  const subtotal = rows.reduce((sum, row) => sum + row.lineTotal, 0);
+  const gstTotal = rows.reduce((sum, row) => sum + row.gstTotal, 0);
+  const shippingTotal = await calculateShippingCost(subtotal);
+  const coupon = parsed.couponCode
+    ? await db.coupon.findFirst({
+        where: {
+          code: parsed.couponCode.toUpperCase(),
+          isActive: true,
+          OR: [{ startsAt: null }, { startsAt: { lte: new Date() } }],
+          AND: [{ OR: [{ endsAt: null }, { endsAt: { gte: new Date() } }] }]
+        }
+      })
+    : null;
+
+  const minOrderVal = coupon?.minOrderValue ? toNumber(coupon.minOrderValue) : 0;
+  const isCouponEligible = coupon && subtotal >= minOrderVal;
+
+  let discountTotal = 0;
+  if (isCouponEligible && coupon) {
+    if (coupon.type === "PERCENTAGE") {
+      discountTotal = (subtotal * toNumber(coupon.value)) / 100;
+      if (coupon.maxDiscount) {
+        discountTotal = Math.min(discountTotal, toNumber(coupon.maxDiscount));
+      }
+    } else {
+      discountTotal = toNumber(coupon.value);
+    }
+  }
+
+  const validUserId = session?.user?.id
+    ? (await db.user.findUnique({ where: { id: session.user.id } }))
+      ? session.user.id
+      : undefined
+    : undefined;
+
+  const order = await db.$transaction(async (tx) => {
     const address = await tx.address.create({
       data: {
         userId: validUserId,
-        guestEmail: validUserId ? undefined : parsed.address.email,
         name: parsed.address.name,
         phone: parsed.address.phone,
         line1: parsed.address.line1,
@@ -161,13 +133,6 @@ export async function createOrderFromCheckout(input: unknown) {
             lineTotal: row.lineTotal,
             gstPercent: row.gstPercent
           }))
-        },
-        payments: {
-          create: {
-            method: parsed.paymentMethod as PaymentMethod,
-            amount: Math.max(0, subtotal + shippingTotal - discountTotal),
-            status: PaymentStatus.PENDING
-          }
         },
         payments: {
           create: {

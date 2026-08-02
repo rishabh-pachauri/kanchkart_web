@@ -8,7 +8,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { db } from "@/lib/db";
 import { formatPrice, toNumber, formatDateTime } from "@/lib/money";
-import { formatDate } from "@/lib/utils";
 
 export const metadata = {
   title: "Order Details | Admin Portal | KanchKart"
