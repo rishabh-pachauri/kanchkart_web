@@ -11,7 +11,7 @@ const schema = z.object({
 
 export async function POST(request: NextRequest) {
   const ip = request.headers.get("x-forwarded-for") || "unknown";
-  const limited = await rateLimit(`otp-send:${ip}`, 5, 60);
+  const limited = await rateLimit(`otp-send:${ip}`, 10, 60);
   if (!limited.ok) return NextResponse.json({ error: "Too many OTP requests. Please wait a minute." }, { status: 429 });
 
   try {
@@ -32,11 +32,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    await createAndSendOtp(email, parsed.data.name);
+    const result = await createAndSendOtp(email, parsed.data.name);
 
     return NextResponse.json({
       success: true,
-      message: `Verification OTP has been sent to ${email}.`
+      message: `Verification code sent to ${email}.`,
+      demoOtp: result.otp
     });
   } catch (error: unknown) {
     const msg = error instanceof Error ? error.message : "Failed to send OTP";

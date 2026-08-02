@@ -25,15 +25,21 @@ export async function createAndSendOtp(identifier: string, name?: string) {
     }
   });
 
-  // Send OTP Email
+  let emailSent = false;
+
+  // Send OTP Email via Resend with fallback sender
   if (resend) {
+    const sender = env.emailFrom && !env.emailFrom.includes("kanchkart.com")
+      ? env.emailFrom
+      : "KanchKart <onboarding@resend.dev>";
+
     try {
-      await resend.emails.send({
-        from: env.emailFrom || "KanchKart <noreply@kanchkart.com>",
+      const res = await resend.emails.send({
+        from: sender,
         to: cleanIdentifier,
-        subject: `Your KanchKart Verification OTP: ${otp}`,
+        subject: `Your KanchKart Verification Code: ${otp}`,
         html: `
-          <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; rounded: 16px; background-color: #ffffff;">
+          <div style="font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 16px; background-color: #ffffff;">
             <div style="text-align: center; margin-bottom: 20px;">
               <h1 style="font-family: Georgia, serif; color: #1e293b; margin: 0; font-size: 28px;">Kanch<span style="color: #d97706;">Kart</span></h1>
               <p style="color: #64748b; font-size: 12px; text-transform: uppercase; letter-spacing: 2px; margin-top: 4px;">Pure Glassware Authentication</p>
@@ -41,7 +47,7 @@ export async function createAndSendOtp(identifier: string, name?: string) {
 
             <div style="background-color: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 20px; text-align: center; margin: 20px 0;">
               <p style="color: #92400e; font-size: 14px; margin: 0 0 10px 0; font-weight: bold;">Your 6-Digit One-Time Password (OTP)</p>
-              <div style="font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #78350f; font-mono: monospace;">${otp}</div>
+              <div style="font-size: 36px; font-weight: 800; letter-spacing: 8px; color: #78350f; font-family: monospace;">${otp}</div>
               <p style="color: #b45309; font-size: 12px; margin: 10px 0 0 0;">Valid for 10 minutes. Do not share this code with anyone.</p>
             </div>
 
@@ -57,17 +63,22 @@ export async function createAndSendOtp(identifier: string, name?: string) {
           </div>
         `
       });
+
+      if (!res.error) {
+        emailSent = true;
+      } else {
+        console.error("[OTP EMAIL ERROR - Resend API]:", res.error);
+      }
     } catch (error) {
-      console.error("[OTP EMAIL ERROR]:", error);
+      console.error("[OTP EMAIL EXCEPTION]:", error);
     }
   }
 
-  // Also log OTP in dev mode / server console for instant testing
   console.log(`\n========================================`);
-  console.log(`🔑 KANCHKART OTP FOR ${cleanIdentifier}: [ ${otp} ]`);
+  console.log(`🔑 KANCHKART OTP FOR ${cleanIdentifier}: [ ${otp} ] (Email Sent: ${emailSent})`);
   console.log(`========================================\n`);
 
-  return { success: true, otp, expires };
+  return { success: true, otp, expires, emailSent };
 }
 
 export async function verifyOtpCode(identifier: string, code: string): Promise<boolean> {

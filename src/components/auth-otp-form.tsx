@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ShieldCheck, UserPlus, KeyRound, ArrowRight, Loader2, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react";
+import { ShieldCheck, UserPlus, KeyRound, ArrowRight, Loader2, CheckCircle2, AlertCircle, RefreshCw, Sparkles } from "lucide-react";
 
 export function AuthOtpForm() {
   const router = useRouter();
@@ -24,6 +24,7 @@ export function AuthOtpForm() {
   });
 
   const [otpCode, setOtpCode] = useState(["", "", "", "", "", ""]);
+  const [demoOtp, setDemoOtp] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
@@ -38,11 +39,19 @@ export function AuthOtpForm() {
     return () => clearInterval(interval);
   }, [resendTimer]);
 
+  // Auto-fill demo OTP helper
+  function handleAutoFill(codeStr: string) {
+    if (codeStr && codeStr.length === 6) {
+      setOtpCode(codeStr.split(""));
+    }
+  }
+
   // Handle Step 1: Send OTP
   async function handleSendOtp(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setInfoMessage(null);
+    setDemoOtp(null);
 
     if (!formData.name.trim() || formData.name.trim().length < 2) {
       setError("Please enter a valid full name.");
@@ -75,6 +84,9 @@ export function AuthOtpForm() {
       if (res.ok && data.success) {
         setStep(2);
         setInfoMessage(data.message || `Verification OTP code sent to ${formData.email}.`);
+        if (data.demoOtp) {
+          setDemoOtp(data.demoOtp);
+        }
         setResendTimer(60);
       } else {
         setError(data.error || "Failed to send verification OTP.");
@@ -88,7 +100,6 @@ export function AuthOtpForm() {
   // Handle OTP Input boxes
   function handleOtpChange(index: number, value: string) {
     if (value.length > 1) {
-      // Handle paste of 6 digits
       const digits = value.replace(/\D/g, "").slice(0, 6).split("");
       if (digits.length > 0) {
         const newOtp = [...otpCode];
@@ -96,7 +107,6 @@ export function AuthOtpForm() {
           if (i < 6) newOtp[i] = digit;
         });
         setOtpCode(newOtp);
-        // Focus last input
         const lastInput = document.getElementById(`otp-input-${Math.min(digits.length - 1, 5)}`);
         lastInput?.focus();
         return;
@@ -108,7 +118,6 @@ export function AuthOtpForm() {
     newOtp[index] = digit;
     setOtpCode(newOtp);
 
-    // Auto-focus next box
     if (digit && index < 5) {
       const nextInput = document.getElementById(`otp-input-${index + 1}`);
       nextInput?.focus();
@@ -188,6 +197,26 @@ export function AuthOtpForm() {
         <div className="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-semibold flex items-start gap-2.5">
           <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600 shrink-0 mt-0.5" />
           <span>{infoMessage}</span>
+        </div>
+      )}
+
+      {/* Instant Demo OTP Code Banner (for quick testing on screen) */}
+      {demoOtp && step === 2 && (
+        <div className="p-4 rounded-2xl bg-amber-50 border-2 border-amber-300 text-slate-900 text-center space-y-2 shadow-sm">
+          <div className="flex items-center justify-center gap-1.5 text-amber-800 text-xs font-bold uppercase tracking-wider">
+            <Sparkles className="w-4 h-4 text-amber-600 animate-pulse" />
+            <span>Your Verification OTP Code</span>
+          </div>
+          <div className="font-mono text-3xl font-black text-amber-900 tracking-widest bg-white py-2 rounded-xl border border-amber-200 shadow-inner">
+            {demoOtp}
+          </div>
+          <button
+            type="button"
+            onClick={() => handleAutoFill(demoOtp)}
+            className="text-xs font-bold text-amber-800 hover:text-amber-900 underline bg-amber-100/80 px-3 py-1 rounded-full transition"
+          >
+            Click to Auto-Fill Code ({demoOtp})
+          </button>
         </div>
       )}
 
