@@ -39,7 +39,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: `Order '${orderNumClean}' not found. Please verify your Order Number.` }, { status: 404 });
   }
 
+  // If payment is NOT paid (PENDING or FAILED), disable tracking dashboard
+  if (order.paymentStatus !== "PAID") {
+    return NextResponse.json({
+      isPaymentPending: true,
+      orderNumber: order.orderNumber,
+      paymentStatus: order.paymentStatus,
+      grandTotal: order.grandTotal,
+      createdAt: order.createdAt,
+      message: `Payment for Order #${order.orderNumber} is ${order.paymentStatus}. Tracking dashboard will be unlocked once payment is completed.`
+    });
+  }
+
   return NextResponse.json({
+    isPaymentPending: false,
     orderNumber: order.orderNumber,
     status: order.status,
     paymentStatus: order.paymentStatus,

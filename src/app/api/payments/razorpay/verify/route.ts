@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { OrderStatus, PaymentStatus } from "@prisma/client";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { sendOrderConfirmation } from "@/lib/email";
+import { sendOrderConfirmation, sendAdminNotification } from "@/lib/email";
 import { verifyRazorpaySignature } from "@/lib/razorpay";
 import { rateLimit } from "@/lib/rate-limit";
+import { formatPrice } from "@/lib/money";
 
 const schema = z.object({
   orderId: z.string(),
@@ -29,7 +30,7 @@ export async function POST(request: NextRequest) {
     where: { id: parsed.data.orderId },
     data: {
       paymentStatus: PaymentStatus.PAID,
-      status: OrderStatus.CONFIRMED,
+      status: OrderStatus.ORDER_RECEIVED,
       payments: {
         updateMany: {
           where: { razorpayOrderId: parsed.data.razorpayOrderId },
@@ -42,15 +43,27 @@ export async function POST(request: NextRequest) {
       },
       trackingEvents: {
         create: {
-          status: OrderStatus.CONFIRMED,
-          title: "Payment confirmed",
-          description: "Your payment has been verified."
+          status: OrderStatus.ORDER_RECEIVED,
+          title: "Order Received & Payment Confirmed",
+          description: "Payment verified successfully. Your order is confirmed and is being processed."
         }
       }
+    },
+    include: {
+      items: true,
+      address: true
     }
   });
 
-  await sendOrderConfirmation(order);
+  try {
+    await sendOrderConfirmation(order);
+    await sendAdminNotification(
+      `New Paid KanchKart Order ${order.orderNumber}`,
+      `<p>New paid order received from <strong>${order.customerName}</strong> (${order.customerEmail}). Total Paid: <strong>${formatPrice(order.grandTotal)}</strong></p>`
+    );
+  } catch (err) {
+    console.error("[EMAIL ERROR - Payment Verification]:", err);
+  }
+
   return NextResponse.json({ ok: true });
 }
-

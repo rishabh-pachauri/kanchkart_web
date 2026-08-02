@@ -169,11 +169,11 @@ export async function createOrderFromCheckout(input: unknown) {
             status: PaymentStatus.PENDING
           }
         },
-        trackingEvents: {
+        payments: {
           create: {
-            status: OrderStatus.ORDER_RECEIVED,
-            title: "Order placed",
-            description: "Your order has been placed successfully."
+            method: parsed.paymentMethod as PaymentMethod,
+            amount: Math.max(0, subtotal + shippingTotal - discountTotal),
+            status: PaymentStatus.PENDING
           }
         }
       },
@@ -201,16 +201,6 @@ export async function createOrderFromCheckout(input: unknown) {
 
     return saved;
   });
-
-  try {
-    await sendOrderConfirmation(order);
-    await sendAdminNotification(
-      `New KanchKart Order ${order.orderNumber}`,
-      `<p>New order received from <strong>${order.customerName}</strong> (${order.customerEmail}). Total: <strong>${formatPrice(order.grandTotal)}</strong></p>`
-    );
-  } catch {
-    // Continue even if email delivery encounters minor issues
-  }
 
   return order;
 }

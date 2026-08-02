@@ -128,15 +128,15 @@ export default async function OrderSuccessPage({
           </div>
 
           <div className="flex flex-col sm:flex-row justify-center gap-3 pt-2">
-            <Button asChild variant="gold" className="font-bold gap-2 py-6">
+            <Button asChild variant="gold" className="font-bold gap-2 py-6 text-slate-950">
               <Link href="/checkout">
                 <ShieldCheck className="h-5 w-5" />
-                <span>Retry Payment at Checkout</span>
+                <span>Complete Payment Now</span>
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </Button>
             <Button asChild variant="outline" className="font-semibold">
-              <Link href={`/track-order?orderNumber=${orderNumber}`}>Check Order Status</Link>
+              <Link href="/shop">Return to Shop</Link>
             </Button>
           </div>
         </div>
