@@ -40,7 +40,7 @@ export async function createOrderFromCheckout(input: unknown) {
 
     const unitPrice = toNumber(variant?.price ?? product.price);
     const lineTotal = unitPrice * item.quantity;
-    const gstPercent = product.gstPercent;
+    const gstPercent = toNumber(product.gstPercent);
 
     return {
       input: item,
