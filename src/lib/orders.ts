@@ -67,8 +67,12 @@ export async function createOrderFromCheckout(input: unknown) {
       })
     : null;
 
+  if (coupon && coupon.usageLimit !== null && coupon.usedCount >= coupon.usageLimit) {
+    throw new Error("This 1-time coupon code has already been used and is expired.");
+  }
+
   const minOrderVal = coupon?.minOrderValue ? toNumber(coupon.minOrderValue) : 0;
-  const isCouponEligible = coupon && subtotal >= minOrderVal;
+  const isCouponEligible = coupon && subtotal >= minOrderVal && (coupon.usageLimit === null || coupon.usedCount < coupon.usageLimit);
 
   let discountTotal = 0;
   if (isCouponEligible && coupon) {
@@ -152,6 +156,19 @@ export async function createOrderFromCheckout(input: unknown) {
         trackingEvents: true
       }
     });
+
+    if (parsed.paymentMethod === "COD" && coupon?.id) {
+      const updated = await tx.coupon.update({
+        where: { id: coupon.id },
+        data: { usedCount: { increment: 1 } }
+      });
+      if (updated.usageLimit !== null && updated.usedCount >= updated.usageLimit) {
+        await tx.coupon.update({
+          where: { id: coupon.id },
+          data: { isActive: false }
+        });
+      }
+    }
 
     for (const row of rows) {
       if (row.variant) {

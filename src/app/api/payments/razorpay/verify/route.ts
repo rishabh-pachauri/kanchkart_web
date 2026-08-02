@@ -55,6 +55,28 @@ export async function POST(request: NextRequest) {
     }
   });
 
+  // Increment usedCount on coupon upon successful payment verification
+  if (order.couponId) {
+    try {
+      const updatedCoupon = await db.coupon.update({
+        where: { id: order.couponId },
+        data: {
+          usedCount: { increment: 1 }
+        }
+      });
+
+      // If usage limit reached, deactivate coupon
+      if (updatedCoupon.usageLimit !== null && updatedCoupon.usedCount >= updatedCoupon.usageLimit) {
+        await db.coupon.update({
+          where: { id: order.couponId },
+          data: { isActive: false }
+        });
+      }
+    } catch (err) {
+      console.error("[COUPON EXPIRE ERROR - Payment Verification]:", err);
+    }
+  }
+
   try {
     await sendOrderConfirmation(order);
     await sendAdminNotification(
