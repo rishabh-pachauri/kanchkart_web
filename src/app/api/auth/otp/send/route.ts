@@ -35,7 +35,13 @@ export async function POST(request: NextRequest) {
     const result = await createAndSendOtp(email, parsed.data.name);
 
     if (!result.emailSent) {
-      console.warn(`[OTP WARNING] Email sending failed: ${result.emailError}`);
+      return NextResponse.json(
+        {
+          error: result.emailError || "Could not deliver email. Please check your Resend API Key or domain verification.",
+          canBypass: true
+        },
+        { status: 400 }
+      );
     }
 
     return NextResponse.json({

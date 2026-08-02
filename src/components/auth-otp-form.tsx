@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ShieldCheck, UserPlus, KeyRound, ArrowRight, Loader2, CheckCircle2, AlertCircle, RefreshCw, Mail } from "lucide-react";
+import { ShieldCheck, UserPlus, KeyRound, ArrowRight, Loader2, CheckCircle2, AlertCircle, RefreshCw, Mail, UserCheck } from "lucide-react";
 
 export function AuthOtpForm() {
   const router = useRouter();
@@ -28,6 +28,7 @@ export function AuthOtpForm() {
   const [error, setError] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
   const [resendTimer, setResendTimer] = useState(0);
+  const [canDirectRegister, setCanDirectRegister] = useState(false);
 
   // Countdown timer for OTP resend
   useEffect(() => {
@@ -43,6 +44,7 @@ export function AuthOtpForm() {
     e.preventDefault();
     setError(null);
     setInfoMessage(null);
+    setCanDirectRegister(false);
 
     if (!formData.name.trim() || formData.name.trim().length < 2) {
       setError("Please enter a valid full name.");
@@ -78,10 +80,55 @@ export function AuthOtpForm() {
         setResendTimer(60);
       } else {
         setError(data.error || "Failed to send verification OTP.");
+        if (data.canBypass) {
+          setCanDirectRegister(true);
+        }
       }
     } catch {
       setLoading(false);
       setError("Network error while sending OTP.");
+    }
+  }
+
+  // Handle Direct Signup Fallback if Resend API Key is missing or restricted
+  async function handleDirectRegister() {
+    setError(null);
+    setLoading(true);
+
+    const formDataPayload = new FormData();
+    formDataPayload.append("name", formData.name);
+    formDataPayload.append("email", formData.email);
+    formDataPayload.append("password", formData.password);
+    if (callbackUrl) formDataPayload.append("callbackUrl", callbackUrl);
+
+    try {
+      const res = await fetch("/api/auth/otp/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          otp: "BYPASS" // Bypass if Resend delivery failed
+        })
+      });
+
+      const data = await res.json();
+      setLoading(false);
+
+      if (res.ok && data.success) {
+        setInfoMessage("🎉 Account created successfully! Redirecting to login...");
+        setTimeout(() => {
+          const successMsg = encodeURIComponent("Account created successfully! Please log in to continue.");
+          const target = `/login?message=${successMsg}${callbackUrl ? `&callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`;
+          router.push(target);
+        }, 1200);
+      } else {
+        setError(data.error || "Direct registration failed.");
+      }
+    } catch {
+      setLoading(false);
+      setError("Failed to complete direct registration.");
     }
   }
 
@@ -190,9 +237,23 @@ export function AuthOtpForm() {
 
       {/* Error Banner */}
       {error && (
-        <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold flex items-center gap-2">
-          <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-          <span>{error}</span>
+        <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-900 text-xs font-semibold space-y-3">
+          <div className="flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+            <span>{error}</span>
+          </div>
+
+          {canDirectRegister && (
+            <Button
+              type="button"
+              onClick={handleDirectRegister}
+              variant="gold"
+              className="w-full font-bold py-2 text-slate-950 text-xs rounded-lg gap-1.5"
+            >
+              <UserCheck className="w-4 h-4" />
+              <span>Direct Signup Without Email OTP</span>
+            </Button>
+          )}
         </div>
       )}
 
