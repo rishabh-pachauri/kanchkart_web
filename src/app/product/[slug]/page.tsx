@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AddToCartButton } from "@/components/cart/add-to-cart-button";
+import { BuyNowButton } from "@/components/cart/buy-now-button";
 import { ProductCard } from "@/components/product-card";
 import { ProductGallery } from "@/components/product-gallery";
 import { Badge } from "@/components/ui/badge";
@@ -78,9 +79,16 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
                 image
               }}
             />
-            <Button asChild variant="outline" className="rounded-full border-gold/30">
-              <Link href="/checkout">Buy Now</Link>
-            </Button>
+            <BuyNowButton
+              disabled={product.stock <= 0}
+              item={{
+                productId: product.id,
+                name: product.name,
+                slug: product.slug,
+                price: toNumber(product.price),
+                image
+              }}
+            />
           </div>
 
           <div className="mt-10 grid gap-4 rounded-2xl border border-gold/15 bg-white/70 p-6 shadow-sm">

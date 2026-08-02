@@ -7,15 +7,16 @@ import { signIn, signOut } from "@/lib/auth";
 import { db } from "@/lib/db";
 
 const registerSchema = z.object({
-  name: z.string().trim().min(2).max(100),
-  email: z.string().trim().email(),
-  password: z.string().min(8)
+  name: z.string().trim().min(2, "Name must be at least 2 characters").max(100),
+  email: z.string().trim().email("Please enter a valid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters")
 });
 
 export async function loginAction(_: unknown, formData: FormData) {
   try {
     const email = String(formData.get("email") || "").toLowerCase();
     const password = String(formData.get("password") || "");
+    const callbackUrl = String(formData.get("callbackUrl") || "").trim();
 
     if (!email || !password) {
       return { error: "Email and password are required." };
@@ -30,12 +31,13 @@ export async function loginAction(_: unknown, formData: FormData) {
       return { error: "Invalid email or password." };
     }
 
-    const redirectUrl = user.role === "ADMIN" ? "/admin" : "/account";
+    const defaultTarget = user.role === "ADMIN" ? "/admin" : "/account";
+    const targetUrl = callbackUrl && !callbackUrl.startsWith("/admin") ? callbackUrl : defaultTarget;
 
     await signIn("credentials", {
       email,
       password,
-      redirectTo: redirectUrl
+      redirectTo: targetUrl
     });
   } catch (err) {
     if (err instanceof AuthError) {
@@ -51,9 +53,10 @@ export async function registerAction(_: unknown, formData: FormData) {
     email: formData.get("email"),
     password: formData.get("password")
   });
+  const callbackUrl = String(formData.get("callbackUrl") || "").trim();
 
   if (!parsed.success) {
-    return { error: "Enter a valid name, email, and password." };
+    return { error: parsed.error.issues[0]?.message || "Enter a valid name, email, and password (at least 8 characters)." };
   }
 
   const email = parsed.data.email.toLowerCase();
@@ -63,7 +66,7 @@ export async function registerAction(_: unknown, formData: FormData) {
   });
 
   if (existing) {
-    return { error: "An account already exists for this email." };
+    return { error: "An account already exists for this email. Please click Login below." };
   }
 
   try {
@@ -75,10 +78,12 @@ export async function registerAction(_: unknown, formData: FormData) {
       }
     });
 
+    const targetUrl = callbackUrl && !callbackUrl.startsWith("/admin") ? callbackUrl : "/account";
+
     await signIn("credentials", {
       email,
       password: parsed.data.password,
-      redirectTo: "/account"
+      redirectTo: targetUrl
     });
   } catch {
     return { error: "Failed to create account. Please try again." };
