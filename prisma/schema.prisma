@@ -245,6 +245,7 @@ model Coupon {
   type           CouponType
   value          Decimal    @db.Decimal(12, 2)
   minOrderValue  Decimal?   @db.Decimal(12, 2)
+  maxOrderValue  Decimal?   @db.Decimal(12, 2)
   maxDiscount    Decimal?   @db.Decimal(12, 2)
   startsAt       DateTime?
   endsAt         DateTime?

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Tag, Percent, Trash2, Edit2, CheckCircle, XCircle, AlertCircle, RefreshCw, Lock, Copy, Check, Sparkles, Share2, User } from "lucide-react";
+import { Plus, Tag, Percent, Trash2, Edit2, CheckCircle, XCircle, AlertCircle, RefreshCw, Lock, Copy, Check, Sparkles, Share2, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -13,6 +13,7 @@ type SerializedCoupon = {
   type: "PERCENTAGE" | "FIXED";
   value: number;
   minOrderValue: number | null;
+  maxOrderValue: number | null;
   maxDiscount: number | null;
   startsAt: string | null;
   endsAt: string | null;
@@ -37,6 +38,7 @@ export function AdminCouponsClient({ initialCoupons }: { initialCoupons: Seriali
   const [type, setType] = useState<"PERCENTAGE" | "FIXED">("PERCENTAGE");
   const [value, setValue] = useState("");
   const [minOrderValue, setMinOrderValue] = useState("");
+  const [maxOrderValue, setMaxOrderValue] = useState("");
   const [maxDiscount, setMaxDiscount] = useState("");
   const [usageLimit, setUsageLimit] = useState("");
   const [isActive, setIsActive] = useState(true);
@@ -46,6 +48,7 @@ export function AdminCouponsClient({ initialCoupons }: { initialCoupons: Seriali
   const [secretType, setSecretType] = useState<"PERCENTAGE" | "FIXED">("PERCENTAGE");
   const [secretValue, setSecretValue] = useState("20");
   const [secretMinOrder, setSecretMinOrder] = useState("");
+  const [secretMaxOrder, setSecretMaxOrder] = useState(""); // Max Order Purchase Threshold Cap
   const [secretCode, setSecretCode] = useState("");
   const [createdSecretCoupon, setCreatedSecretCoupon] = useState<SerializedCoupon | null>(null);
 
@@ -65,6 +68,7 @@ export function AdminCouponsClient({ initialCoupons }: { initialCoupons: Seriali
     setType("PERCENTAGE");
     setValue("10");
     setMinOrderValue("0");
+    setMaxOrderValue("");
     setMaxDiscount("500");
     setUsageLimit("");
     setIsActive(true);
@@ -77,6 +81,7 @@ export function AdminCouponsClient({ initialCoupons }: { initialCoupons: Seriali
     setSecretType("PERCENTAGE");
     setSecretValue("20");
     setSecretMinOrder("0");
+    setSecretMaxOrder("2000"); // Default max threshold e.g. ₹2,000
     setSecretCode(generateRandomCodePrefix("VIP"));
     setCreatedSecretCoupon(null);
     setError(null);
@@ -90,6 +95,7 @@ export function AdminCouponsClient({ initialCoupons }: { initialCoupons: Seriali
     setType(coupon.type);
     setValue(String(coupon.value));
     setMinOrderValue(coupon.minOrderValue !== null ? String(coupon.minOrderValue) : "");
+    setMaxOrderValue(coupon.maxOrderValue !== null ? String(coupon.maxOrderValue) : "");
     setMaxDiscount(coupon.maxDiscount !== null ? String(coupon.maxDiscount) : "");
     setUsageLimit(coupon.usageLimit !== null ? String(coupon.usageLimit) : "");
     setIsActive(coupon.isActive);
@@ -110,6 +116,7 @@ export function AdminCouponsClient({ initialCoupons }: { initialCoupons: Seriali
       type,
       value,
       minOrderValue: minOrderValue || undefined,
+      maxOrderValue: maxOrderValue || undefined,
       maxDiscount: maxDiscount || undefined,
       usageLimit: usageLimit || undefined,
       isActive
@@ -148,7 +155,7 @@ export function AdminCouponsClient({ initialCoupons }: { initialCoupons: Seriali
 
     const finalCode = secretCode.trim().toUpperCase() || generateRandomCodePrefix("VIP");
     const recipientNote = secretCustomerName.trim()
-      ? `1-Time Private Coupon generated for ${secretCustomerName.trim()}`
+      ? `1-Time Private Coupon for ${secretCustomerName.trim()}${secretMaxOrder ? ` (Max Order Limit: ₹${Number(secretMaxOrder).toLocaleString("en-IN")})` : ""}`
       : "1-Time Private Personal Coupon";
 
     const payload = {
@@ -157,6 +164,7 @@ export function AdminCouponsClient({ initialCoupons }: { initialCoupons: Seriali
       type: secretType,
       value: secretValue,
       minOrderValue: secretMinOrder || undefined,
+      maxOrderValue: secretMaxOrder || undefined,
       usageLimit: "1", // Strictly 1-time use!
       isActive: true
     };
@@ -225,7 +233,7 @@ export function AdminCouponsClient({ initialCoupons }: { initialCoupons: Seriali
             <span>Promotions & Offers Management</span>
           </h1>
           <p className="text-xs text-slate-400 mt-1">
-            Create public promotional discounts or generate 1-time secret coupon codes for specific customers (hidden from public website).
+            Create public promotional discounts or generate 1-time secret coupon codes with max order threshold caps for specific customers.
           </p>
         </div>
         
@@ -291,7 +299,7 @@ export function AdminCouponsClient({ initialCoupons }: { initialCoupons: Seriali
                       {isSecret1Time ? (
                         <span className="bg-purple-950 text-purple-300 border border-purple-800 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 uppercase tracking-wider">
                           <Lock className="w-3 h-3 text-purple-400" />
-                          {isUsedUp ? "Used 1-Time" : "Secret 1-Time Code"}
+                          {isUsedUp ? "Used 1-Time (Expired)" : "Secret 1-Time Code"}
                         </span>
                       ) : (
                         <button
@@ -364,13 +372,13 @@ export function AdminCouponsClient({ initialCoupons }: { initialCoupons: Seriali
                   <div>
                     <span className="text-slate-500 font-semibold block uppercase tracking-wider">Min Purchase</span>
                     <span className="text-slate-300 font-semibold">
-                      {coupon.minOrderValue ? `₹${coupon.minOrderValue}` : "No Minimum"}
+                      {coupon.minOrderValue ? `₹${coupon.minOrderValue}` : "No Min"}
                     </span>
                   </div>
                   <div>
-                    <span className="text-slate-500 font-semibold block uppercase tracking-wider">Visibility</span>
-                    <span className={`font-semibold ${isSecret1Time ? "text-purple-300" : "text-emerald-400"}`}>
-                      {isSecret1Time ? "🔒 Private" : "🌐 Public"}
+                    <span className="text-slate-500 font-semibold block uppercase tracking-wider">Max Order Limit</span>
+                    <span className="text-amber-400 font-bold">
+                      {coupon.maxOrderValue ? `Up to ₹${coupon.maxOrderValue.toLocaleString("en-IN")}` : "No Limit"}
                     </span>
                   </div>
                 </div>
@@ -430,7 +438,7 @@ export function AdminCouponsClient({ initialCoupons }: { initialCoupons: Seriali
                       handleCopy(
                         `Hi! Here is your exclusive 1-time ${
                           createdSecretCoupon.type === "PERCENTAGE" ? `${createdSecretCoupon.value}% OFF` : `₹${createdSecretCoupon.value} OFF`
-                        } coupon code for KanchKart: ${createdSecretCoupon.code}`
+                        } coupon code for KanchKart: ${createdSecretCoupon.code}${createdSecretCoupon.maxOrderValue ? ` (Valid for orders up to ₹${createdSecretCoupon.maxOrderValue.toLocaleString("en-IN")})` : ""}`
                       )
                     }
                     variant="outline"
@@ -460,7 +468,6 @@ export function AdminCouponsClient({ initialCoupons }: { initialCoupons: Seriali
                     placeholder="e.g. Rahul Sharma (Special Discount)"
                     className="mt-1 bg-slate-950 border-slate-800 text-white focus:border-purple-400"
                   />
-                  <p className="text-[11px] text-slate-500 mt-1">Helps you track who this secret coupon was generated for.</p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -491,6 +498,24 @@ export function AdminCouponsClient({ initialCoupons }: { initialCoupons: Seriali
                   </div>
                 </div>
 
+                {/* Max Order Purchase Limit / Threshold Cap */}
+                <div className="space-y-1.5 bg-slate-950 p-3 rounded-xl border border-purple-500/20">
+                  <div className="flex items-center gap-1.5 text-purple-300 font-bold">
+                    <ShieldAlert className="w-4 h-4 text-amber-400" />
+                    <span>Max Order Purchase Threshold (₹)</span>
+                  </div>
+                  <Input
+                    type="number"
+                    value={secretMaxOrder}
+                    onChange={(e) => setSecretMaxOrder(e.target.value)}
+                    placeholder="e.g. 2000 (Customer cannot use code if order exceeds this amount)"
+                    className="mt-1 bg-slate-900 border-slate-800 text-amber-400 font-bold focus:border-purple-400"
+                  />
+                  <p className="text-[11px] text-slate-400">
+                    If set, the customer cannot place an order higher than this threshold amount using this 1-time coupon code.
+                  </p>
+                </div>
+
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
                     <Label className="text-slate-300 uppercase tracking-wider font-bold">Secret Coupon Code *</Label>
@@ -508,18 +533,6 @@ export function AdminCouponsClient({ initialCoupons }: { initialCoupons: Seriali
                     placeholder="VIP-9X4K2P"
                     required
                     className="bg-slate-950 border-slate-800 text-amber-400 uppercase font-mono tracking-widest font-extrabold focus:border-purple-400"
-                  />
-                  <p className="text-[11px] text-slate-500">Code is restricted to 1 single use and hidden from public website banners.</p>
-                </div>
-
-                <div className="space-y-1.5">
-                  <Label className="text-slate-300 uppercase tracking-wider font-bold">Min Order Purchase (₹)</Label>
-                  <Input
-                    type="number"
-                    value={secretMinOrder}
-                    onChange={(e) => setSecretMinOrder(e.target.value)}
-                    placeholder="0 (No minimum)"
-                    className="bg-slate-950 border-slate-800 text-white focus:border-purple-400"
                   />
                 </div>
 
@@ -627,11 +640,11 @@ export function AdminCouponsClient({ initialCoupons }: { initialCoupons: Seriali
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-slate-300 uppercase tracking-wider font-bold">Max Cap (₹)</Label>
+                  <Label className="text-slate-300 uppercase tracking-wider font-bold">Max Order Limit (₹)</Label>
                   <Input
                     type="number"
-                    value={maxDiscount}
-                    onChange={(e) => setMaxDiscount(e.target.value)}
+                    value={maxOrderValue}
+                    onChange={(e) => setMaxOrderValue(e.target.value)}
                     placeholder="Unlimited"
                     className="bg-slate-950 border-slate-800 text-white focus:border-amber-400"
                   />

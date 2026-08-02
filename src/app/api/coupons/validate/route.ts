@@ -23,16 +23,27 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Invalid or expired coupon code." }, { status: 404 });
     }
 
+    // Check minimum purchase limit
     const minOrder = coupon.minOrderValue ? toNumber(coupon.minOrderValue) : 0;
     if (minOrder > 0 && subtotal < minOrder) {
       return NextResponse.json(
-        { error: `This coupon requires a minimum order of ₹${minOrder.toFixed(0)}.` },
+        { error: `This coupon requires a minimum order of ₹${minOrder.toLocaleString("en-IN")}.` },
         { status: 400 }
       );
     }
 
+    // Check maximum purchase threshold limit
+    const maxOrder = coupon.maxOrderValue ? toNumber(coupon.maxOrderValue) : 0;
+    if (maxOrder > 0 && subtotal > maxOrder) {
+      return NextResponse.json(
+        { error: `This coupon is only valid for orders up to ₹${maxOrder.toLocaleString("en-IN")}. Your order total exceeds the maximum limit.` },
+        { status: 400 }
+      );
+    }
+
+    // Check usage limit
     if (coupon.usageLimit !== null && coupon.usedCount >= coupon.usageLimit) {
-      return NextResponse.json({ error: "This coupon has reached its usage limit." }, { status: 400 });
+      return NextResponse.json({ error: "This 1-time coupon code has already been used and is expired." }, { status: 400 });
     }
 
     const rawDiscount =

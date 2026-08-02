@@ -72,7 +72,17 @@ export async function createOrderFromCheckout(input: unknown) {
   }
 
   const minOrderVal = coupon?.minOrderValue ? toNumber(coupon.minOrderValue) : 0;
-  const isCouponEligible = coupon && subtotal >= minOrderVal && (coupon.usageLimit === null || coupon.usedCount < coupon.usageLimit);
+  const maxOrderVal = coupon?.maxOrderValue ? toNumber(coupon.maxOrderValue) : 0;
+
+  if (coupon && maxOrderVal > 0 && subtotal > maxOrderVal) {
+    throw new Error(`This coupon is only valid for orders up to ₹${maxOrderVal.toLocaleString("en-IN")}. Your order total exceeds the maximum limit.`);
+  }
+
+  const isCouponEligible =
+    coupon &&
+    subtotal >= minOrderVal &&
+    (maxOrderVal === 0 || subtotal <= maxOrderVal) &&
+    (coupon.usageLimit === null || coupon.usedCount < coupon.usageLimit);
 
   let discountTotal = 0;
   if (isCouponEligible && coupon) {
@@ -157,7 +167,7 @@ export async function createOrderFromCheckout(input: unknown) {
       }
     });
 
-    if (coupon?.id) {
+    if (parsed.paymentMethod === "COD" && coupon?.id) {
       const updated = await tx.coupon.update({
         where: { id: coupon.id },
         data: { usedCount: { increment: 1 } }

@@ -38,6 +38,7 @@ export async function POST(request: NextRequest) {
       type,
       value,
       minOrderValue,
+      maxOrderValue,
       maxDiscount,
       startsAt,
       endsAt,
@@ -69,6 +70,7 @@ export async function POST(request: NextRequest) {
         type: type === "PERCENTAGE" ? CouponType.PERCENTAGE : CouponType.FIXED,
         value: parseFloat(value),
         minOrderValue: minOrderValue ? parseFloat(minOrderValue) : null,
+        maxOrderValue: maxOrderValue ? parseFloat(maxOrderValue) : null,
         maxDiscount: maxDiscount ? parseFloat(maxDiscount) : null,
         startsAt: startsAt ? new Date(startsAt) : null,
         endsAt: endsAt ? new Date(endsAt) : null,
@@ -92,7 +94,7 @@ export async function PUT(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const { id, code, description, type, value, minOrderValue, maxDiscount, startsAt, endsAt, usageLimit, isActive } = body;
+    const { id, code, description, type, value, minOrderValue, maxOrderValue, maxDiscount, startsAt, endsAt, usageLimit, isActive } = body;
 
     if (!id) {
       return NextResponse.json({ error: "Coupon ID is required." }, { status: 400 });
@@ -106,6 +108,7 @@ export async function PUT(request: NextRequest) {
         ...(type && { type: type === "PERCENTAGE" ? CouponType.PERCENTAGE : CouponType.FIXED }),
         ...(value !== undefined && { value: parseFloat(value) }),
         ...(minOrderValue !== undefined && { minOrderValue: minOrderValue ? parseFloat(minOrderValue) : null }),
+        ...(maxOrderValue !== undefined && { maxOrderValue: maxOrderValue ? parseFloat(maxOrderValue) : null }),
         ...(maxDiscount !== undefined && { maxDiscount: maxDiscount ? parseFloat(maxDiscount) : null }),
         ...(startsAt !== undefined && { startsAt: startsAt ? new Date(startsAt) : null }),
         ...(endsAt !== undefined && { endsAt: endsAt ? new Date(endsAt) : null }),
