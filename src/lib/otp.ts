@@ -2,7 +2,10 @@ import { db } from "@/lib/db";
 import { Resend } from "resend";
 import { env } from "@/lib/env";
 
-const resend = env.resendApiKey ? new Resend(env.resendApiKey) : null;
+function getResendClient() {
+  const apiKey = process.env.RESEND_API_KEY || env.resendApiKey;
+  return apiKey ? new Resend(apiKey) : null;
+}
 
 export async function createAndSendOtp(identifier: string, name?: string) {
   const cleanIdentifier = identifier.trim().toLowerCase();
@@ -27,16 +30,15 @@ export async function createAndSendOtp(identifier: string, name?: string) {
 
   let emailSent = false;
   let emailError: string | null = null;
+  const resend = getResendClient();
 
   // Send real OTP email to customer via Resend API
   if (resend) {
-    const sender = env.emailFrom && !env.emailFrom.includes("kanchkart.com")
-      ? env.emailFrom
-      : "KanchKart <onboarding@resend.dev>";
+    const sender = process.env.EMAIL_FROM || env.emailFrom || "KanchKart <onboarding@resend.dev>";
 
     try {
       const res = await resend.emails.send({
-        from: sender,
+        from: sender.includes("kanchkart.com") ? "KanchKart <onboarding@resend.dev>" : sender,
         to: cleanIdentifier,
         subject: `Your KanchKart Verification OTP Code: ${otp}`,
         html: `
@@ -76,7 +78,7 @@ export async function createAndSendOtp(identifier: string, name?: string) {
       console.error("[OTP EMAIL EXCEPTION]:", error);
     }
   } else {
-    emailError = "Resend API key is not configured.";
+    emailError = "Resend API key is missing. Add RESEND_API_KEY=re_xxxxxxxxx to environment variables.";
   }
 
   return { success: true, expires, emailSent, emailError };
