@@ -8,6 +8,7 @@ import { BEER_MUG_IMAGES_DATA } from "@/lib/beer-mug-images-data";
 import { TWISTED_BOTTLE_IMAGES_DATA } from "@/lib/twisted-bottle-images-data";
 import { MASON_JAR_IMAGES_DATA } from "@/lib/mason-jar-images-data";
 import { MATKI_JAR_IMAGES_DATA } from "@/lib/matki-jar-images-data";
+import { RIBBED_JAR_IMAGES_DATA } from "@/lib/ribbed-jar-images-data";
 
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get("token");
@@ -84,11 +85,12 @@ export async function GET(request: NextRequest) {
     const slug4 = "premium-twisted-wave-glass-water-bottle";
     const slug5 = "glass-mason-jar-mug-with-black-lid-450ml";
     const slug6 = "floral-embossed-glass-matki-jars-350ml-pack-of-2";
+    const slug7 = "premium-ribbed-glass-storage-jars-300ml-pack-of-2";
 
     // 2. Delete ALL other products from database (and their media) to eliminate duplicates
     const deleteResult = await db.product.deleteMany({
       where: {
-        slug: { notIn: [slug1, slug2, slug3, slug4, slug5, slug6] }
+        slug: { notIn: [slug1, slug2, slug3, slug4, slug5, slug6, slug7] }
       }
     });
 
@@ -322,7 +324,7 @@ export async function GET(request: NextRequest) {
       { name: "banner", b64Data: MASON_JAR_IMAGES_DATA.banner, fallbackUrl: "/products/mason-jar-banner.jpg" },
       { name: "studio", b64Data: MASON_JAR_IMAGES_DATA.studio, fallbackUrl: "/products/mason-jar-studio.jpg" },
       { name: "drink", b64Data: MASON_JAR_IMAGES_DATA.drink, fallbackUrl: "/products/mason-jar-iced-coffee.jpg" },
-      { name: "macro", b64Data: MASON_JAR_IMAGES_DATA.macro, fallbackUrl: "/products/mason-jar-macro.jpg" }
+      { name: "macro", b64Data: MASON_JAR_IMAGES_DATA.macro, fallbackUrl: "/products/mason-jar-lemonade.jpg" }
     ]);
 
     const p5 = await db.product.upsert({
@@ -407,6 +409,52 @@ export async function GET(request: NextRequest) {
     await db.productMedia.deleteMany({ where: { productId: p6.id } });
     await db.productMedia.createMany({
       data: product6Media.map((m) => ({ ...m, productId: p6.id }))
+    });
+
+    // ── Product 7: Premium Ribbed Glass Storage Jars (300ml - Pack of 2) (₹189, MRP ₹299) ──
+    const product7Media = await uploadImageSet(slug7, [
+      { name: "banner", b64Data: RIBBED_JAR_IMAGES_DATA.banner, fallbackUrl: "/products/ribbed-jars-pack2-banner.jpg" },
+      { name: "studio", b64Data: RIBBED_JAR_IMAGES_DATA.studio, fallbackUrl: "/products/ribbed-jars-pack2-studio.jpg" },
+      { name: "macro", b64Data: RIBBED_JAR_IMAGES_DATA.macro, fallbackUrl: "/products/ribbed-jars-pack2-macro.jpg" },
+      { name: "pantry", b64Data: RIBBED_JAR_IMAGES_DATA.pantry, fallbackUrl: "/products/ribbed-jars-pack2-pantry.jpg" }
+    ]);
+
+    const p7 = await db.product.upsert({
+      where: { slug: slug7 },
+      update: {
+        name: "Premium Ribbed Glass Storage Jars (300ml - Pack of 2)",
+        sku: "KK-JAR-RIBBED-300-P2",
+        description: "Choose better, live lighter, and make a difference. Our Premium Ribbed Glass Storage Jars (300ml - Pack of 2) feature an elegant vertical fluting rib texture that adds a touch of modern minimalism to any kitchen. Equipped with airtight golden metal screw lids, these 300ml jars are perfect for serving and preserving almonds, cashews, spices, tea leaves, coffee beans, cookies, and pulses. Crafted from high-clarity durable lead-free glass.",
+        shortDescription: "Pack of 2 modern ribbed 300ml glass storage jars with airtight gold lids.",
+        categoryId: storageCategory.id,
+        price: 189.00,
+        compareAtPrice: 299.00,
+        stock: 300,
+        isActive: true,
+        isFeatured: true,
+        isBestSeller: true,
+        isNewArrival: true
+      },
+      create: {
+        name: "Premium Ribbed Glass Storage Jars (300ml - Pack of 2)",
+        slug: slug7,
+        sku: "KK-JAR-RIBBED-300-P2",
+        description: "Choose better, live lighter, and make a difference. Our Premium Ribbed Glass Storage Jars (300ml - Pack of 2) feature an elegant vertical fluting rib texture that adds a touch of modern minimalism to any kitchen. Equipped with airtight golden metal screw lids, these 300ml jars are perfect for serving and preserving almonds, cashews, spices, tea leaves, coffee beans, cookies, and pulses. Crafted from high-clarity durable lead-free glass.",
+        shortDescription: "Pack of 2 modern ribbed 300ml glass storage jars with airtight gold lids.",
+        categoryId: storageCategory.id,
+        price: 189.00,
+        compareAtPrice: 299.00,
+        stock: 300,
+        isActive: true,
+        isFeatured: true,
+        isBestSeller: true,
+        isNewArrival: true
+      }
+    });
+
+    await db.productMedia.deleteMany({ where: { productId: p7.id } });
+    await db.productMedia.createMany({
+      data: product7Media.map((m) => ({ ...m, productId: p7.id }))
     });
 
     const activeListings = await db.product.findMany({

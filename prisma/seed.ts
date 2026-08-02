@@ -233,6 +233,34 @@ async function main() {
       }
     },
     {
+      name: "Premium Ribbed Glass Storage Jars (300ml - Pack of 2)",
+      slug: "premium-ribbed-glass-storage-jars-300ml-pack-of-2",
+      sku: "KK-JAR-RIBBED-300-P2",
+      description:
+        "Choose better, live lighter, and make a difference. Our Premium Ribbed Glass Storage Jars (300ml - Pack of 2) feature an elegant vertical fluting rib texture that adds a touch of modern minimalism to any kitchen. Equipped with airtight golden metal screw lids, these 300ml jars are perfect for serving and preserving almonds, cashews, spices, tea leaves, coffee beans, cookies, and pulses. Crafted from high-clarity durable lead-free glass.",
+      shortDescription: "Pack of 2 modern ribbed 300ml glass storage jars with airtight gold lids.",
+      categoryId: storage.id,
+      price: "189.00",
+      compareAtPrice: "299.00",
+      stock: 300,
+      images: [
+        "/products/ribbed-jars-pack2-banner.jpg",
+        "/products/ribbed-jars-pack2-studio.jpg",
+        "/products/ribbed-jars-pack2-macro.jpg",
+        "/products/ribbed-jars-pack2-pantry.jpg"
+      ],
+      isFeatured: true,
+      isBestSeller: true,
+      isNewArrival: true,
+      specifications: {
+        set: "Pack of 2 Jars",
+        capacity: "300 ml per jar",
+        material: "Clear Borosilicate Glass",
+        lid: "Airtight Golden Metal Screw Lid",
+        design: "Modern Vertical Fluting Ribs"
+      }
+    },
+    {
       name: "Crystal Diamond Cut Glass Bottle (1000ml)",
       slug: "crystal-diamond-cut-glass-bottle-1000ml",
       sku: "KK-BTL-DC-299",
