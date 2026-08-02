@@ -11,7 +11,6 @@ import {
   Loader2, 
   CheckCircle2, 
   AlertCircle,
-  HelpCircle,
   IndianRupee,
   ShieldCheck,
   Percent
@@ -63,7 +62,7 @@ export function AdminSettingsClient() {
       } else {
         setMessage({ type: "error", text: data.error || "Failed to update settings." });
       }
-    } catch (err) {
+    } catch {
       setMessage({ type: "error", text: "Network error while saving settings." });
     } finally {
       setSaving(false);

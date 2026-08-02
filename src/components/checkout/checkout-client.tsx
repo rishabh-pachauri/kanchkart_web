@@ -10,7 +10,7 @@ import { GoogleAddressAutocomplete } from "@/components/checkout/google-address-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { formatPrice, shippingFor } from "@/lib/money";
+import { formatPrice } from "@/lib/money";
 
 async function loadRazorpay() {
   if (window.Razorpay) return true;

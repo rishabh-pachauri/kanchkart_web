@@ -64,9 +64,14 @@ export function CartPageClient() {
         </div>
 
         {items.map((item) => (
-          <div key={item.id} className="flex gap-4 border rounded-xl p-4 bg-white shadow-sm">
+          <div key={`${item.productId}-${item.variantId || "default"}`} className="flex gap-4 border rounded-xl p-4 bg-white shadow-sm">
             <div className="relative w-20 h-20 rounded-lg overflow-hidden bg-slate-100 shrink-0">
-              <Image src={item.image} alt={item.name} fill className="object-cover" />
+              <Image
+                src={item.image || "/products/pure-glass-water-bottle.jpg"}
+                alt={item.name}
+                fill
+                className="object-cover"
+              />
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex justify-between items-start">
@@ -75,7 +80,7 @@ export function CartPageClient() {
                   <p className="text-sm text-slate-500">{formatPrice(item.price)}</p>
                 </div>
                 <button
-                  onClick={() => removeItem(item.id)}
+                  onClick={() => removeItem(item.productId, item.variantId)}
                   className="text-slate-400 hover:text-rose-500 p-1"
                 >
                   <Trash2 className="w-4 h-4" />
@@ -84,14 +89,14 @@ export function CartPageClient() {
               <div className="flex items-center justify-between mt-3">
                 <div className="flex items-center border rounded-lg">
                   <button
-                    onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                    onClick={() => updateQuantity(item.productId, item.quantity - 1, item.variantId)}
                     className="p-1 hover:bg-slate-50 text-slate-600"
                   >
                     <Minus className="w-4 h-4" />
                   </button>
                   <span className="px-3 text-sm font-medium text-charcoal">{item.quantity}</span>
                   <button
-                    onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                    onClick={() => updateQuantity(item.productId, item.quantity + 1, item.variantId)}
                     className="p-1 hover:bg-slate-50 text-slate-600"
                   >
                     <Plus className="w-4 h-4" />

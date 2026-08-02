@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { RefreshCw, CheckCircle2, AlertCircle, Sparkles } from "lucide-react";
+import { RefreshCw, CheckCircle2, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export function CleanProductsButton() {

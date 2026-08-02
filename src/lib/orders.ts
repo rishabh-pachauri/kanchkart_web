@@ -1,7 +1,7 @@
 import { OrderStatus, PaymentMethod, PaymentStatus, Prisma } from "@prisma/client";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { formatPrice, gstIncluded, shippingFor, toNumber } from "@/lib/money";
+import { formatPrice, gstIncluded, toNumber } from "@/lib/money";
 import { calculateShippingCost } from "@/lib/settings";
 import { checkoutSchema } from "@/lib/validators";
 import { sendAdminNotification, sendOrderConfirmation } from "@/lib/email";
