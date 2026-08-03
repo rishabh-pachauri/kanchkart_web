@@ -21,18 +21,21 @@ type Props = {
 
 export function AddToCartButton({ item, disabled }: Props) {
   const { addItem } = useCart();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
   const [added, setAdded] = useState(false);
 
   function handleClick() {
-    if (!session?.user) {
+    // Only redirect if we are SURE the user is not logged in.
+    // While session is still loading, allow the action (status === "loading").
+    if (status === "unauthenticated") {
       const redirectUrl = encodeURIComponent(pathname || `/product/${item.slug}`);
       router.push(`/register?callbackUrl=${redirectUrl}&message=Please+sign+up+or+log+in+first+to+add+products+to+your+cart`);
       return;
     }
 
+    // If still loading or authenticated, proceed with add to cart
     addItem(item);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);

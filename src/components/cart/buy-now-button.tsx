@@ -20,12 +20,12 @@ type Props = {
 
 export function BuyNowButton({ item, disabled }: Props) {
   const { addItem } = useCart();
-  const { data: session } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
 
   function handleBuyNow() {
-    if (!session?.user) {
+    if (status === "unauthenticated") {
       const redirectUrl = encodeURIComponent(pathname || `/product/${item.slug}`);
       router.push(`/register?callbackUrl=${redirectUrl}&message=Please+sign+up+or+log+in+first+to+complete+your+purchase`);
       return;
