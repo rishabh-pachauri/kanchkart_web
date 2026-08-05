@@ -82,15 +82,8 @@ export async function GET(request: NextRequest) {
           </table>
         </div>
         <div class="footer">
-          <div>
-            <div class="awb">AWB: <strong>${order.trackingNumber || order.orderNumber}</strong></div>
-            <div class="barcode">||||| ||| || ||||| ||</div>
-            <div class="barcode-num">${order.trackingNumber || order.orderNumber}</div>
-          </div>
-          <div class="qr-box">
-            <img src="https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent(trackUrl)}" width="80" height="80" alt="QR" />
-            <div class="qr-label">Scan to Track</div>
-          </div>
+          <div class="awb">AWB: <strong>${order.trackingNumber || order.orderNumber}</strong></div>
+          <div class="awb">COURIER: <strong>${order.courierPartner || "Standard Surface"}</strong></div>
         </div>
       </div>
     </div>`;
