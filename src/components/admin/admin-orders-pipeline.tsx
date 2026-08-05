@@ -98,8 +98,8 @@ export function AdminOrdersPipeline({ initialOrders }: PipelineProps) {
     }
   }
 
-  const selectedBulkLabelUrl = `/admin/orders/labels/bulk?ids=${selectedIds.join(",")}`;
-  const allBulkLabelUrl = `/admin/orders/labels/bulk?ids=all`;
+  const selectedBulkLabelUrl = `/print-labels/bulk?ids=${selectedIds.join(",")}`;
+  const allBulkLabelUrl = `/print-labels/bulk?ids=all`;
 
   return (
     <div className="space-y-6">
@@ -310,7 +310,7 @@ export function AdminOrdersPipeline({ initialOrders }: PipelineProps) {
                         <Eye className="h-4 w-4" />
                       </Link>
                       <Link
-                        href={`/admin/orders/${order.id}/label`}
+                        href={`/print-label/${order.id}`}
                         target="_blank"
                         className="p-2.5 rounded-xl border border-slate-800 bg-slate-950 text-slate-300 hover:text-amber-400 hover:border-amber-400/50 transition"
                         title="Print Label & QR"
