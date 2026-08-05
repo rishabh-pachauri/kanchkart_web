@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
   if (orders.length === 0) return new NextResponse("No orders found", { status: 404 });
 
   const labelsHtml = orders.map((order) => {
-    const trackUrl = `https://kanchkart.com/track-order?orderNumber=${order.orderNumber}`;
+
     const addressHtml = order.address
       ? `${order.address.line1}<br>${order.address.line2 ? order.address.line2 + "<br>" : ""}<strong>${order.address.city}, ${order.address.state}</strong><br>PIN: ${order.address.postalCode}`
       : "Address on file";

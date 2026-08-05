@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Star, MessageSquarePlus, CheckCircle2 } from "lucide-react";
-import Image from "next/image";
+import { Star, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { WriteReviewModal } from "@/components/reviews/write-review-modal";
 

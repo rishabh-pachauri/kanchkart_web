@@ -6,7 +6,7 @@ import { db } from "@/lib/db";
 import { formatPrice, formatDateTime } from "@/lib/money";
 import { siteMetadata } from "@/lib/seo";
 import { requireUser } from "@/lib/security";
-import { User, Package, MapPin, LogOut, ArrowRight, Truck, ShieldCheck, Mail, Phone } from "lucide-react";
+import { Package, MapPin, LogOut, ArrowRight, Truck, Mail } from "lucide-react";
 
 export const metadata = siteMetadata({ title: "My Profile & Account" });
 

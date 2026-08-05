@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { loginAction, registerAction } from "@/actions/auth-actions";
-import { ShieldCheck, UserPlus, LogIn, AlertCircle, Info, CheckCircle2 } from "lucide-react";
+import { UserPlus, LogIn, AlertCircle, Info, CheckCircle2 } from "lucide-react";
 
 export function AuthForm({ mode }: { mode: "login" | "register" }) {
   const [state, action, pending] = useActionState(mode === "login" ? loginAction : registerAction, null);

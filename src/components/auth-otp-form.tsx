@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ShieldCheck, UserPlus, KeyRound, ArrowRight, Loader2, CheckCircle2, AlertCircle, RefreshCw, Mail, UserCheck, Sparkles } from "lucide-react";
+import { ShieldCheck, UserPlus, ArrowRight, Loader2, CheckCircle2, AlertCircle, RefreshCw, Mail, UserCheck } from "lucide-react";
 
 export function AuthOtpForm() {
   const router = useRouter();

@@ -1,13 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Menu, Search, UserRound, Sparkles, UserCheck, LogIn, LogOut, MapPin, Package, ShieldCheck } from "lucide-react";
+import { Menu, Search, UserRound, Sparkles, UserCheck, Package } from "lucide-react";
 import * as Dialog from "@radix-ui/react-dialog";
 import { CartLink } from "@/components/cart/cart-link";
 import { Button } from "@/components/ui/button";
 import { getNavigationData } from "@/lib/commerce";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { logoutAction } from "@/actions/auth-actions";
 
 const primaryLinks = [
   { href: "/shop", label: "Shop" },

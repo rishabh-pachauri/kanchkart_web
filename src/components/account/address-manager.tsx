@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Trash2, MapPin, Loader2, X, Phone, User, CheckCircle2 } from "lucide-react";
+import { Plus, Trash2, MapPin, Loader2, X, Phone } from "lucide-react";
 import { addAddressAction, deleteAddressAction } from "@/actions/address-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";

@@ -21,7 +21,7 @@ export async function GET(
 
   if (!order) return new NextResponse("Order not found", { status: 404 });
 
-  const trackUrl = `https://kanchkart.com/track-order?orderNumber=${order.orderNumber}`;
+
 
   const itemRows = order.items.map((item) => `
     <tr>

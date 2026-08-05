@@ -2,10 +2,9 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Minus, Plus, Trash2, Truck, ArrowRight, ShieldCheck } from "lucide-react";
+import { Minus, Plus, Trash2, Truck, ArrowRight } from "lucide-react";
 import { useCart } from "@/components/cart/cart-provider";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";

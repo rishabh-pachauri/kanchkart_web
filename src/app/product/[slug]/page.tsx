@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Star } from "lucide-react";
 import { AddToCartButton } from "@/components/cart/add-to-cart-button";
@@ -7,7 +6,6 @@ import { ProductCard } from "@/components/product-card";
 import { ProductGallery } from "@/components/product-gallery";
 import { ProductReviewsSection } from "@/components/reviews/product-reviews-section";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { getProductBySlug, getRelatedProducts } from "@/lib/commerce";
 import { formatPrice, toNumber } from "@/lib/money";
 import { productJsonLd, siteMetadata } from "@/lib/seo";

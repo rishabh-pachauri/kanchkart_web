@@ -21,7 +21,7 @@ type Props = {
 
 export function AddToCartButton({ item, disabled }: Props) {
   const { addItem } = useCart();
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
   const pathname = usePathname();
   const [added, setAdded] = useState(false);

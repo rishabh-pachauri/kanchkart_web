@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Package, Truck, ArrowLeft, Star } from "lucide-react";
+import { Package, Truck, ArrowLeft } from "lucide-react";
 import { db } from "@/lib/db";
 import { formatPrice, formatDateTime } from "@/lib/money";
 import { siteMetadata } from "@/lib/seo";
@@ -129,7 +129,7 @@ export default async function AccountOrdersPage() {
           <Package className="w-10 h-10 text-slate-400 mx-auto" />
           <h2 className="font-serif text-xl font-bold text-slate-900">No Orders Found</h2>
           <p className="text-xs text-slate-500 max-w-sm mx-auto">
-            You haven't placed any orders yet. Explore our handcrafted glassware collections!
+            You haven&apos;t placed any orders yet. Explore our handcrafted glassware collections!
           </p>
           <Button asChild variant="gold" size="sm" className="font-bold mt-2">
             <Link href="/shop">Explore Shop</Link>

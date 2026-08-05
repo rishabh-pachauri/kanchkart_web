@@ -1,9 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Star, ThumbsUp, Camera, ShieldCheck, CheckCircle2, MessageSquarePlus, X, ChevronRight } from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
+import { Star, Camera, ShieldCheck, CheckCircle2, MessageSquarePlus, X } from "lucide-react";
 import { useSession } from "next-auth/react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { WriteReviewModal } from "@/components/reviews/write-review-modal";
@@ -62,7 +61,7 @@ export function ProductReviewsSection({ productId, productName, productImage }: 
   const [isWriteModalOpen, setIsWriteModalOpen] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
 
-  const fetchReviews = async () => {
+  const fetchReviews = useCallback(async () => {
     try {
       setLoading(true);
       const res = await fetch(`/api/products/${productId}/reviews`);
@@ -84,11 +83,11 @@ export function ProductReviewsSection({ productId, productName, productImage }: 
     } finally {
       setLoading(false);
     }
-  };
+  }, [productId]);
 
   useEffect(() => {
     fetchReviews();
-  }, [productId]);
+  }, [fetchReviews]);
 
   const filteredReviews = reviews.filter((r) => {
     if (filter === "photos") return r.images && r.images.length > 0;
