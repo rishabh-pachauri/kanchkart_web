@@ -45,7 +45,7 @@ export default async function AdminShippingLabelPage({ params }: { params: Promi
             </div>
             <div>
               <h1 className="font-serif text-2xl font-bold tracking-tight text-slate-950">KanchKart</h1>
-              <p className="text-[10px] uppercase tracking-widest font-bold text-slate-600">Pure Glassware • Firozabad HQ</p>
+              <p className="text-[10px] uppercase tracking-widest font-bold text-slate-600">Pure Glassware • Firozabad</p>
             </div>
           </div>
 
@@ -62,7 +62,7 @@ export default async function AdminShippingLabelPage({ params }: { params: Promi
           {/* FROM: Sender */}
           <div className="border-r border-slate-300 pr-6">
             <span className="text-[11px] font-bold uppercase tracking-wider text-slate-500">SHIP FROM (SENDER):</span>
-            <p className="mt-1 font-serif text-base font-bold text-slate-950">KanchKart Headquarters</p>
+            <p className="mt-1 font-serif text-base font-bold text-slate-950">KanchKart</p>
             <p className="text-xs leading-relaxed text-slate-700 mt-1">
               Mahaveer Nagar, Firozabad<br />
               Uttar Pradesh - 283203, India<br />

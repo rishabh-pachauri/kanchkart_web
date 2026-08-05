@@ -76,7 +76,7 @@ export default async function AdminLayout({
   return (
     <div className="flex min-h-screen bg-slate-950 text-slate-100">
       {/* Sidebar */}
-      <aside className="w-64 border-r border-slate-800 bg-slate-900/90 backdrop-blur-xl p-6 flex flex-col justify-between shadow-2xl">
+      <aside className="w-64 border-r border-slate-800 bg-slate-900/90 backdrop-blur-xl p-6 flex flex-col justify-between shadow-2xl print:hidden">
         <div>
           {/* Logo Brand Header */}
           <div className="mb-8 border-b border-slate-800 pb-6">
@@ -156,7 +156,7 @@ export default async function AdminLayout({
       {/* Main Admin Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Header Bar */}
-        <header className="h-16 border-b border-slate-800 bg-slate-900/60 backdrop-blur-md px-8 flex items-center justify-between">
+        <header className="h-16 border-b border-slate-800 bg-slate-900/60 backdrop-blur-md px-8 flex items-center justify-between print:hidden">
           <div className="flex items-center gap-2 text-slate-400 text-xs font-medium">
             <Sparkles className="h-4 w-4 text-amber-400" />
             <span>KanchKart Storefront Management System</span>
@@ -175,7 +175,7 @@ export default async function AdminLayout({
         </header>
 
         {/* Workspace Area */}
-        <main className="flex-1 overflow-auto p-8">
+        <main className="flex-1 overflow-auto p-8 print:p-0 print:overflow-visible">
           <div className="max-w-7xl mx-auto">{children}</div>
         </main>
       </div>
