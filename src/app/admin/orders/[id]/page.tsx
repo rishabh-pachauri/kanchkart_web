@@ -84,7 +84,7 @@ export default async function AdminOrderDetailPage({ params }: { params: Promise
         <div className="flex items-center gap-3">
           {/* Print Shipping Label Link */}
           <Link
-            href={`/print-label/${order.id}`}
+            href={`/api/admin/orders/${order.id}/label`}
             target="_blank"
             className="inline-flex items-center gap-2 rounded-xl border border-amber-400/40 bg-amber-400/10 px-4 py-2.5 text-xs font-bold text-amber-400 hover:bg-amber-400 hover:text-slate-950 transition shadow-sm"
           >
