@@ -353,17 +353,20 @@ model TrackingEvent {
 }
 
 model Review {
-  id        String   @id @default(cuid())
-  userId    String
-  productId String
-  rating    Int
-  title     String?
-  body      String
-  isApproved Boolean @default(false)
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(cuid())
+  userId      String
+  productId   String
+  orderId     String?
+  rating      Int
+  title       String?
+  body        String
+  images      String[] @default([])
+  isVerified  Boolean  @default(true)
+  isApproved  Boolean  @default(true)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product     Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@unique([userId, productId])
   @@index([productId, isApproved])

@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Star } from "lucide-react";
 import { AddToCartButton } from "@/components/cart/add-to-cart-button";
 import { BuyNowButton } from "@/components/cart/buy-now-button";
 import { ProductCard } from "@/components/product-card";
 import { ProductGallery } from "@/components/product-gallery";
+import { ProductReviewsSection } from "@/components/reviews/product-reviews-section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getProductBySlug, getRelatedProducts } from "@/lib/commerce";
@@ -30,6 +32,13 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
   const related = await getRelatedProducts(product.id, product.categoryId);
   const image = product.media[0]?.url || "/brand/drinkware.svg";
+
+  const reviewCount = product.reviews?.length || 0;
+  const avgRating =
+    reviewCount > 0
+      ? (product.reviews!.reduce((sum, r) => sum + r.rating, 0) / reviewCount).toFixed(1)
+      : "5.0";
+
   const jsonLd = productJsonLd({
     name: product.name,
     description: product.description,
@@ -47,10 +56,20 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
         <ProductGallery media={product.media} name={product.name} />
 
         <div className="flex flex-col justify-center">
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {product.isNewArrival ? <Badge>New arrival</Badge> : null}
             {product.isBestSeller ? <Badge>Best seller</Badge> : null}
             {product.stock <= product.lowStockAt && product.stock > 0 ? <Badge>Low stock</Badge> : null}
+
+            {/* Rating summary badge */}
+            <a
+              href="#reviews-section"
+              className="inline-flex items-center gap-1 text-xs font-bold text-amber-900 bg-amber-100/80 border border-amber-300 px-2.5 py-0.5 rounded-full hover:bg-amber-200 transition"
+            >
+              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+              <span>{avgRating}</span>
+              <span className="text-slate-600 font-normal">({reviewCount > 0 ? `${reviewCount} reviews` : "Rate Product"})</span>
+            </a>
           </div>
 
           <h1 className="mt-4 font-serif text-5xl font-bold leading-tight text-charcoal">{product.name}</h1>
@@ -112,6 +131,13 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           </div>
         </div>
       </section>
+
+      {/* Customer Reviews & Rating System */}
+      <ProductReviewsSection
+        productId={product.id}
+        productName={product.name}
+        productImage={image}
+      />
 
       {related.length ? (
         <section className="container border-t border-gold/15 py-16">
