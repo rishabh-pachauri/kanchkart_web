@@ -42,11 +42,23 @@ export default async function AdminBulkShippingLabelsPage({
       {/* ── Print-only global styles ── */}
       <style>{`
         @media print {
-          /* Hide absolutely everything on the page */
-          body > * { display: none !important; }
+          /* Make everything invisible */
+          * {
+            visibility: hidden !important;
+          }
 
-          /* Show only our labels root */
-          #kk-bulk-labels-root { display: block !important; }
+          /* Make labels and all their children visible */
+          #kk-bulk-labels-root,
+          #kk-bulk-labels-root * {
+            visibility: visible !important;
+          }
+
+          /* Pin labels block to top-left */
+          #kk-bulk-labels-root {
+            position: fixed;
+            top: 0;
+            left: 0;
+          }
 
           /* A6 = exactly 1/4 of A4 — one label per page */
           @page {

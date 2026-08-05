@@ -26,13 +26,25 @@ export default async function AdminShippingLabelPage({ params }: { params: Promi
       {/* ── Print-only global styles ── */}
       <style>{`
         @media print {
-          /* Hide absolutely everything on the page */
-          body > * { display: none !important; }
+          /* Make everything invisible but keep layout flow */
+          * {
+            visibility: hidden !important;
+          }
 
-          /* Show only our label wrapper */
-          #kk-label-root { display: block !important; }
+          /* Make the label and all its children visible */
+          #kk-label-root,
+          #kk-label-root * {
+            visibility: visible !important;
+          }
 
-          /* A6 page = exactly 1/4 of A4 */
+          /* Pin the label to top-left of the page */
+          #kk-label-root {
+            position: fixed;
+            top: 0;
+            left: 0;
+          }
+
+          /* A6 = exactly 1/4 of A4 */
           @page {
             size: 105mm 148mm;
             margin: 3mm;
