@@ -1,12 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
-// One-time coupon seeding endpoint.
-// Protected by a secret token to prevent abuse.
-// Call via: GET /api/admin/seed-coupons?token=kanchkart-seed-2024
-export async function GET(request: NextRequest) {
-  const token = request.nextUrl.searchParams.get("token");
-  if (token !== "kanchkart-seed-2024") {
+export async function POST() {
+  const session = await auth();
+  if (session?.user?.role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

@@ -13,7 +13,7 @@ export function CleanProductsButton() {
     setStatus(null);
 
     try {
-      const res = await fetch("/api/admin/clean-products?token=kanchkart-seed-2024");
+      const res = await fetch("/api/admin/clean-products", { method: "POST" });
       const data = await res.json();
 
       if (!res.ok || !data.success) {

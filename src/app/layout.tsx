@@ -5,6 +5,7 @@ import { CartProvider } from "@/components/cart/cart-provider";
 import { AuthSessionProvider } from "@/components/session-provider";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
+import { auth } from "@/lib/auth";
 import { env } from "@/lib/env";
 import { siteMetadata } from "@/lib/seo";
 
@@ -18,7 +19,8 @@ export const viewport: Viewport = {
   themeColor: "#24211D"
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const session = await auth();
   return (
     <html lang="en-IN">
       <body className="font-sans antialiased">
@@ -51,7 +53,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             `}
           </Script>
         ) : null}
-        <AuthSessionProvider>
+        <AuthSessionProvider session={session}>
           <CartProvider>
             <SiteHeader />
             <main>{children}</main>

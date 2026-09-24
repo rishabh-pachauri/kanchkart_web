@@ -1,3 +1,4 @@
+import { randomInt } from "node:crypto";
 import { db } from "@/lib/db";
 import { Resend } from "resend";
 import { env } from "@/lib/env";
@@ -11,7 +12,7 @@ export async function createAndSendOtp(identifier: string, name?: string) {
   const cleanIdentifier = identifier.trim().toLowerCase();
   
   // Generate cryptographically strong 6-digit OTP
-  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const otp = randomInt(100000, 1000000).toString();
   const expires = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes validity
 
   // Clear previous OTPs for this identifier

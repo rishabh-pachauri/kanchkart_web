@@ -8,7 +8,7 @@ const registerOtpSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters"),
   email: z.string().trim().email("Please enter a valid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  otp: z.string().trim().min(4, "OTP is required")
+  otp: z.string().trim().regex(/^\d{6}$/, "Enter the 6-digit OTP")
 });
 
 export async function POST(request: NextRequest) {
@@ -25,8 +25,8 @@ export async function POST(request: NextRequest) {
     const email = parsed.data.email.toLowerCase().trim();
     const { name, password, otp } = parsed.data;
 
-    // Verify OTP unless bypassed due to email provider error
-    if (otp !== "BYPASS") {
+    // Every registration must prove ownership of the email address.
+    {
       const isValidOtp = await verifyOtpCode(email, otp);
       if (!isValidOtp) {
         return NextResponse.json(

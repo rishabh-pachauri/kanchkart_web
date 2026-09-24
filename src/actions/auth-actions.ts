@@ -5,6 +5,7 @@ import { AuthError } from "next-auth";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { signIn, signOut } from "@/lib/auth";
+import { safeCallbackUrl } from "@/lib/auth-navigation";
 import { db } from "@/lib/db";
 
 const registerSchema = z.object({
@@ -33,13 +34,14 @@ export async function loginAction(_: unknown, formData: FormData) {
     }
 
     const defaultTarget = user.role === "ADMIN" ? "/admin" : "/account";
-    const targetUrl = callbackUrl && !callbackUrl.startsWith("/admin") ? callbackUrl : defaultTarget;
+    const targetUrl = safeCallbackUrl(callbackUrl, defaultTarget);
 
     await signIn("credentials", {
       email,
       password,
-      redirectTo: targetUrl
+      redirect: false
     });
+    return { success: true, redirectTo: targetUrl };
   } catch (err) {
     if (err instanceof AuthError) {
       return { error: "Invalid email or password." };

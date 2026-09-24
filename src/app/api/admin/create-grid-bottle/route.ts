@@ -1,12 +1,13 @@
-import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { v2 as cloudinary } from "cloudinary";
 import { env } from "@/lib/env";
 import { GRID_BOTTLE_IMAGES_DATA } from "@/lib/grid-bottle-images-data";
 
-export async function GET(request: NextRequest) {
-  const token = request.nextUrl.searchParams.get("token");
-  if (token !== "kanchkart-seed-2024") {
+export async function POST() {
+  const session = await auth();
+  if (session?.user?.role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -30,7 +31,7 @@ export async function GET(request: NextRequest) {
     // Configure Cloudinary
     const cloudName = process.env.CLOUDINARY_CLOUD_NAME || env.cloudinaryCloudName || "eeshmj29";
     const apiKey = process.env.CLOUDINARY_API_KEY || env.cloudinaryApiKey || "463272756214982";
-    const apiSecret = process.env.CLOUDINARY_API_SECRET || env.cloudinaryApiSecret || "cHFE2NSgzvqdicukkLuczwYuBZw";
+    const apiSecret = env.cloudinaryApiSecret;
 
     const hasCloudinary = Boolean(cloudName && apiKey && apiSecret);
 

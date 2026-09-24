@@ -66,7 +66,7 @@ body {
 }
 
 .gold-gradient-text {
-  background: linear-gradient(135deg, #24211D 0%, #C9A24A 100%);
+  background: linear-gradient(135deg, #24211d 0%, #c9a24a 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -88,7 +88,12 @@ body {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(115deg, transparent 10%, rgba(255, 255, 255, 0.45) 48%, transparent 62%);
+  background: linear-gradient(
+    115deg,
+    transparent 10%,
+    rgba(255, 255, 255, 0.45) 48%,
+    transparent 62%
+  );
   transform: translateX(-120%);
   animation: sheen 6s ease-in-out infinite;
   pointer-events: none;
@@ -106,7 +111,8 @@ body {
 }
 
 @keyframes float {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(0px);
   }
   50% {
@@ -128,12 +134,17 @@ body {
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #FFFCF4;
+  background: #fffcf4;
 }
 ::-webkit-scrollbar-thumb {
-  background: #C9A24A;
+  background: #c9a24a;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #b08c3b;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .animate-float, .glass-highlight::after { animation: none; }
 }
