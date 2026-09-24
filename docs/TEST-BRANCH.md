@@ -7,7 +7,6 @@ Branch: `codex/cart-auth-glass-experience`. Do not merge until staging acceptanc
 - Login returns a validated local destination, then performs a full navigation to discard stale client session/router state. The session provider receives the server session.
 - Add to Bag and Buy Now wait for session hydration and check the current cookie-backed session before redirecting. Network errors stay on the product with a retry message. Signed-out customers go to login; signup/login retains the return destination.
 - Cart hydration no longer writes an empty cart before reading saved items. Invalid storage and blocked storage cannot crash the storefront.
-- Homepage adds an emerald/amber glass light studio with pointer-controlled refraction, perspective, drifting light particles, touch support, a pause button and reduced-motion support. No 3D runtime dependency.
 - Removed embedded Cloudinary/Razorpay secrets, OTP bypass, and public fixed-token admin mutation access. Admin maintenance endpoints now require an ADMIN session and POST; the admin sync button is updated.
 - Build no longer runs destructive schema synchronization or product seeding. Database migrations and seeding must be explicit deployment operations.
 - Fixed the lint command for Next 15 and converted two legacy scripts to ESM.
@@ -16,8 +15,6 @@ Branch: `codex/cart-auth-glass-experience`. Do not merge until staging acceptanc
 
 - `pnpm test`: regression tests cover stale client session versus authenticated server response, null signed-out response, offline response, StrictMode cart hydration, corrupted cart storage and callback validation.
 - `pnpm typecheck`, `pnpm lint`, `pnpm build`.
-- Browser inspection of the isolated glass component at desktop/mobile sizes and its pause/resume control.
-- The isolated visual preview is not a complete shop or checkout environment.
 
 ## Before deploying/merging
 
@@ -27,6 +24,5 @@ Branch: `codex/cart-auth-glass-experience`. Do not merge until staging acceptanc
 4. Signed out: open a product, Add to Bag, log in, return to the product, then Add to Bag. Confirm no second login redirect and cart count increases exactly once. Repeat Buy Now.
 5. Repeat with a slow network, two tabs, browser back, expired login, wrong password, logout/login, refresh and blocked browser storage. Confirm error recovery and no cart loss.
 6. Check registration OTP delivery, callback retention when switching to login, checkout totals, COD and Razorpay sandbox success/failure. No real purchases were placed during this review.
-7. Check the glass scene on touch devices and with OS reduced motion enabled. Confirm shop links and controls remain usable.
 
 Existing review-component lint warnings remain. This is a focused review, not a complete security audit.

@@ -1,4 +1,3 @@
-import { GlassLightStudio } from "@/components/glass-light-studio";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Check, ShieldCheck, Sparkles, Truck } from "lucide-react";
@@ -71,8 +70,6 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
-
-      <GlassLightStudio />
 
       {/* Feature Highlights Grid */}
       <section className="container py-14">
