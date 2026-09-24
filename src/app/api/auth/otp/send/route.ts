@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: `Resend Email Delivery Error: ${result.emailError}`,
-          canBypass: true,
+          canBypass: false,
           isTestingMode: isDomainTestingRestriction
         },
         { status: 400 }

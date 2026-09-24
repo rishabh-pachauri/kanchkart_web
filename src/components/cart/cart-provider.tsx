@@ -1,5 +1,6 @@
 "use client";
 
+import { parseSavedCart } from "@/lib/cart-storage";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 export type CartItem = {
@@ -26,16 +27,22 @@ const CartContext = createContext<CartContextValue | null>(null);
 const storageKey = "kanchkart-cart";
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
+  const [hydrated, setHydrated] = useState(false);
   const [items, setItems] = useState<CartItem[]>([]);
 
   useEffect(() => {
-    const saved = window.localStorage.getItem(storageKey);
-    if (saved) setItems(JSON.parse(saved));
+    try {
+      const saved = window.localStorage.getItem(storageKey);
+      if (saved) setItems(parseSavedCart(saved));
+    } catch { /* Storage can be unavailable in private browsing. */ }
+    setHydrated(true);
   }, []);
 
   useEffect(() => {
-    window.localStorage.setItem(storageKey, JSON.stringify(items));
-  }, [items]);
+    if (!hydrated) return;
+    try { window.localStorage.setItem(storageKey, JSON.stringify(items)); }
+    catch { /* Keep the in-memory cart usable when storage is blocked. */ }
+  }, [items, hydrated]);
 
   const addItem = useCallback((item: Omit<CartItem, "quantity">, quantity = 1) => {
     setItems((current) => {

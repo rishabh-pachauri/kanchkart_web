@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ShoppingBag, Check } from "lucide-react";
-import { useSession } from "next-auth/react";
+import { useCartSession } from "@/components/cart/use-cart-session";
 import { useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/components/cart/cart-provider";
@@ -21,31 +21,31 @@ type Props = {
 
 export function AddToCartButton({ item, disabled }: Props) {
   const { addItem } = useCart();
-  const { status } = useSession();
+  const { ready, checking, error, requireSession } = useCartSession();
   const router = useRouter();
   const pathname = usePathname();
   const [added, setAdded] = useState(false);
 
-  function handleClick() {
-    // Only redirect if we are SURE the user is not logged in.
-    // While session is still loading, allow the action (status === "loading").
-    if (status === "unauthenticated") {
+  async function handleClick() {
+    const authenticated = await requireSession();
+    if (authenticated === null) return;
+    if (!authenticated) {
       const redirectUrl = encodeURIComponent(pathname || `/product/${item.slug}`);
-      router.push(`/register?callbackUrl=${redirectUrl}&message=Please+sign+up+or+log+in+first+to+add+products+to+your+cart`);
+      router.push(`/login?callbackUrl=${redirectUrl}&message=Please+sign+up+or+log+in+first+to+add+products+to+your+cart`);
       return;
     }
 
-    // If still loading or authenticated, proceed with add to cart
     addItem(item);
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   }
 
   return (
+    <>
     <Button
       type="button"
       variant="gold"
-      disabled={disabled || added}
+      disabled={disabled || added || !ready || checking}
       onClick={handleClick}
       className="w-full font-bold transition-all"
     >
@@ -57,9 +57,11 @@ export function AddToCartButton({ item, disabled }: Props) {
       ) : (
         <>
           <ShoppingBag className="h-4 w-4" />
-          <span>Add to Bag</span>
+          <span>{!ready || checking ? "Checking session…" : "Add to Bag"}</span>
         </>
       )}
     </Button>
+    {error && <p role="alert" className="mt-2 text-xs text-destructive">{error}</p>}
+    </>
   );
 }

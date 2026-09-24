@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ShieldCheck, UserPlus, ArrowRight, Loader2, CheckCircle2, AlertCircle, RefreshCw, Mail, UserCheck } from "lucide-react";
+import { ShieldCheck, UserPlus, ArrowRight, Loader2, CheckCircle2, AlertCircle, RefreshCw, Mail } from "lucide-react";
 
 export function AuthOtpForm() {
   const router = useRouter();
@@ -28,7 +28,7 @@ export function AuthOtpForm() {
   const [error, setError] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
   const [resendTimer, setResendTimer] = useState(0);
-  const [canDirectRegister, setCanDirectRegister] = useState(false);
+
 
   // Countdown timer for OTP resend
   useEffect(() => {
@@ -44,7 +44,7 @@ export function AuthOtpForm() {
     e.preventDefault();
     setError(null);
     setInfoMessage(null);
-    setCanDirectRegister(false);
+
 
     if (!formData.name.trim() || formData.name.trim().length < 2) {
       setError("Please enter a valid full name.");
@@ -77,55 +77,15 @@ export function AuthOtpForm() {
       if (res.ok && data.success) {
         setStep(2);
         setInfoMessage(data.message || `Verification OTP sent to ${formData.email}. Please check your email inbox.`);
-        if (data.canBypass) {
-          setCanDirectRegister(true);
-        }
+
         setResendTimer(60);
       } else {
         setError(data.error || "Failed to send verification OTP.");
-        if (data.canBypass) {
-          setCanDirectRegister(true);
-        }
+
       }
     } catch {
       setLoading(false);
       setError("Network error while sending OTP.");
-    }
-  }
-
-  // Handle Direct Signup Fallback if Resend API Key is restricted
-  async function handleDirectRegister() {
-    setError(null);
-    setLoading(true);
-
-    try {
-      const res = await fetch("/api/auth/otp/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: formData.name,
-          email: formData.email,
-          password: formData.password,
-          otp: "BYPASS"
-        })
-      });
-
-      const data = await res.json();
-      setLoading(false);
-
-      if (res.ok && data.success) {
-        setInfoMessage("🎉 Account created successfully! Redirecting to login...");
-        setTimeout(() => {
-          const successMsg = encodeURIComponent("Account created successfully! Please log in to continue.");
-          const target = `/login?message=${successMsg}${callbackUrl ? `&callbackUrl=${encodeURIComponent(callbackUrl)}` : ""}`;
-          router.push(target);
-        }, 1200);
-      } else {
-        setError(data.error || "Direct registration failed.");
-      }
-    } catch {
-      setLoading(false);
-      setError("Failed to complete direct registration.");
     }
   }
 
@@ -240,17 +200,7 @@ export function AuthOtpForm() {
             <span>{error}</span>
           </div>
 
-          {canDirectRegister && (
-            <Button
-              type="button"
-              onClick={handleDirectRegister}
-              variant="gold"
-              className="w-full font-bold py-2 text-slate-950 text-xs rounded-lg gap-1.5"
-            >
-              <UserCheck className="w-4 h-4" />
-              <span>Complete Account Signup Now</span>
-            </Button>
-          )}
+
         </div>
       )}
 
@@ -352,20 +302,7 @@ export function AuthOtpForm() {
             )}
           </Button>
 
-          {canDirectRegister && (
-            <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-center space-y-2">
-              <p className="text-[11px] text-amber-900 font-medium">Resend Testing Mode Active: You can complete registration directly below.</p>
-              <Button
-                type="button"
-                onClick={handleDirectRegister}
-                variant="gold"
-                size="sm"
-                className="w-full font-bold text-slate-950 text-xs rounded-lg"
-              >
-                Complete Account Signup Now
-              </Button>
-            </div>
-          )}
+
 
           {/* Resend OTP & Back options */}
           <div className="flex items-center justify-between text-xs text-slate-600 pt-2 border-t border-slate-100">
@@ -393,7 +330,7 @@ export function AuthOtpForm() {
       {/* Footer Link to Login */}
       <div className="pt-2 border-t border-slate-100 text-center text-xs text-slate-600">
         Already have an account?{" "}
-        <Link className="font-bold text-amber-700 hover:text-amber-800 underline underline-offset-4" href="/login">
+        <Link className="font-bold text-amber-700 hover:text-amber-800 underline underline-offset-4" href={callbackUrl ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}` : "/login"}>
           Log In
         </Link>
       </div>

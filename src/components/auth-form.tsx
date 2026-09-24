@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,13 @@ import { UserPlus, LogIn, AlertCircle, Info, CheckCircle2 } from "lucide-react";
 export function AuthForm({ mode }: { mode: "login" | "register" }) {
   const [state, action, pending] = useActionState(mode === "login" ? loginAction : registerAction, null);
   const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (state && "success" in state && state.success) {
+      // A full navigation discards stale SessionProvider and router caches.
+      window.location.assign(state.redirectTo);
+    }
+  }, [state]);
   
   const callbackUrl = searchParams.get("callbackUrl") || "";
   const messageParam = searchParams.get("message") || searchParams.get("error") || "";
